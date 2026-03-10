@@ -2,14 +2,20 @@ import Link from "next/link";
 import CartButton from "@/components/cart/CartButton";
 
 const routes = [
-  { href: "/", label: "Landing" },
-  { href: "/room", label: "Room" },
-  { href: "/tv", label: "TV" },
-  { href: "/tv/example-product", label: "Product" },
-  { href: "/credits", label: "Credits" },
-  { href: "/sign-in", label: "Sign In" },
-  { href: "/account", label: "Account" },
+  { href: "/", label: "Landing", exact: true },
+  { href: "/room", label: "Room", exact: true },
+  { href: "/tv", label: "TV", exact: true },
+  { href: "/tv/", label: "Product", exact: false },
+  { href: "/credits", label: "Credits", exact: true },
+  { href: "/sign-in", label: "Sign In", exact: true },
+  { href: "/account", label: "Account", exact: true },
 ];
+
+function isActive(route: (typeof routes)[number], current: string) {
+  if (route.exact) return current === route.href;
+  // For product pages: match any /tv/[handle] but not /tv itself
+  return current.startsWith(route.href) && current !== "/tv";
+}
 
 export default function WalkthroughNav({ current }: { current: string }) {
   return (
@@ -21,10 +27,10 @@ export default function WalkthroughNav({ current }: { current: string }) {
         <div className="flex gap-1 items-center">
           {routes.map((route) => (
             <Link
-              key={route.href}
-              href={route.href}
+              key={route.label}
+              href={route.label === "Product" ? "/tv" : route.href}
               className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
-                current === route.href
+                isActive(route, current)
                   ? "bg-white text-black"
                   : "text-zinc-400 hover:text-white hover:bg-zinc-800"
               }`}
