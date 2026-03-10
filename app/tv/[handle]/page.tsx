@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import WalkthroughNav from "@/components/ui/WalkthroughNav";
@@ -5,6 +6,57 @@ import PlaceholderSection from "@/components/ui/PlaceholderSection";
 import ProductScreen from "@/components/tv/ProductScreen";
 import ProductControls from "@/components/tv/ProductControls";
 import { getProductByHandle } from "@/lib/shopify/products";
+import { formatPrice } from "@/lib/shopify/utils";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
+  const { handle } = await params;
+  const product = await getProductByHandle(handle);
+
+  if (!product) {
+    return { title: "Product Not Found" };
+  }
+
+  const price = formatPrice(
+    product.priceRange.minVariantPrice.amount,
+    product.priceRange.minVariantPrice.currencyCode
+  );
+
+  const title = product.seo.title ?? product.title;
+  const description =
+    product.seo.description ??
+    product.description ??
+    `${product.title} — ${price}`;
+
+  return {
+    title: `${title} | Yunmakai`,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: product.images[0]
+        ? [
+            {
+              url: product.images[0].url,
+              width: product.images[0].width ?? undefined,
+              height: product.images[0].height ?? undefined,
+              alt: product.images[0].altText ?? product.title,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: product.images[0]?.url ? [product.images[0].url] : undefined,
+    },
+  };
+}
 
 export default async function ProductPage({
   params,
