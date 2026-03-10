@@ -5,8 +5,29 @@ import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Yunmakai",
-  description: "An immersive digital universe for music and art.",
+  title: {
+    default: "Yunmakai",
+    template: "%s | Yunmakai",
+  },
+  description:
+    "An immersive digital universe for music, art, and collectibles by Yunmakai.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://ym-website-theta.vercel.app"
+  ),
+  openGraph: {
+    type: "website",
+    siteName: "Yunmakai",
+    title: "Yunmakai",
+    description:
+      "An immersive digital universe for music, art, and collectibles.",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
