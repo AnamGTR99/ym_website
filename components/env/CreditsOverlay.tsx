@@ -182,7 +182,7 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
       </div>
 
       {/* CSS animation for water ripple */}
-      <style jsx>{`
+      <style>{`
         @keyframes creditsRipple {
           from {
             background-position: 0 0;

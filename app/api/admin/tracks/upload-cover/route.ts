@@ -40,6 +40,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Validate trackId is a UUID to prevent path traversal
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(trackId)) {
+    return NextResponse.json(
+      { error: "Invalid track ID" },
+      { status: 400 }
+    );
+  }
+
   // Validate type
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
@@ -85,7 +94,17 @@ export async function POST(request: NextRequest) {
   const coverUrl = urlData.publicUrl;
 
   // Update track record with cover_url
-  await admin.from("tracks").update({ cover_url: coverUrl }).eq("id", trackId);
+  const { error: updateError } = await admin
+    .from("tracks")
+    .update({ cover_url: coverUrl })
+    .eq("id", trackId);
+
+  if (updateError) {
+    return NextResponse.json(
+      { error: `Upload succeeded but failed to update track: ${updateError.message}` },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ url: coverUrl });
 }
