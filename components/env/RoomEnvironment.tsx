@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useEnvStore } from "@/stores/env";
 import HotspotZone, { type HotspotConfig } from "./HotspotZone";
+import CreditsOverlay from "./CreditsOverlay";
 
 /* ------------------------------------------------------------------ */
 /*  Hotspot definitions — percent-based (x, y, width, height)         */
@@ -60,6 +61,8 @@ export default function RoomEnvironment() {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
+  const showCredits = useEnvStore((s) => s.showCredits);
+  const openCredits = useEnvStore((s) => s.openCredits);
 
   const handleHotspot = useCallback(
     (id: string) => {
@@ -68,10 +71,10 @@ export default function RoomEnvironment() {
       if (id === "tv") {
         startTransition("tv", () => router.push("/tv"));
       } else if (id === "credits") {
-        startTransition("credits", () => router.push("/credits"));
+        openCredits();
       }
     },
-    [transitioning, startTransition, router]
+    [transitioning, startTransition, router, openCredits]
   );
 
   return (
@@ -157,6 +160,9 @@ export default function RoomEnvironment() {
           Motel Room
         </p>
       </div>
+
+      {/* Credits overlay */}
+      {showCredits && <CreditsOverlay />}
 
       {/* Transition overlay — fades to black */}
       <div
