@@ -8,6 +8,8 @@ import ProductControls from "@/components/tv/ProductControls";
 import { getProductByHandle } from "@/lib/shopify/products";
 import { formatPrice } from "@/lib/shopify/utils";
 
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { shopifyFetch } from "./client";
 import {
   PRODUCTS_QUERY,
@@ -39,8 +40,10 @@ export async function getProducts(options?: {
 
 /**
  * Fetch a single product by its handle (for product pages).
+ * Wrapped in React.cache() to deduplicate calls within the same render pass
+ * (e.g. generateMetadata + page component).
  */
-export async function getProductByHandle(
+export const getProductByHandle = cache(async function getProductByHandle(
   handle: string
 ): Promise<ShopifyProductFull | null> {
   const data = await shopifyFetch<ProductQueryResult>(
@@ -58,7 +61,7 @@ export async function getProductByHandle(
     variants: variants.edges.map((edge) => edge.node),
     glbUrl: metafield?.value ?? null,
   };
-}
+});
 
 /**
  * Search products by query string.

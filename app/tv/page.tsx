@@ -2,6 +2,8 @@ import WalkthroughNav from "@/components/ui/WalkthroughNav";
 import TVGrid from "@/components/tv/TVGrid";
 import { getProducts } from "@/lib/shopify/products";
 
+export const revalidate = 60;
+
 export default async function TVPage() {
   let products: import("@/lib/shopify/types").ShopifyProduct[] = [];
   let error: string | null = null;

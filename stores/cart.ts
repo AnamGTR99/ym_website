@@ -86,7 +86,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       }
     } catch {
       localStorage.removeItem(CART_ID_KEY);
-      set({ loading: false });
+      set({ loading: false, initialized: false });
     }
   },
 
@@ -148,14 +148,32 @@ export const useCartStore = create<CartState>((set, get) => ({
 
   updateItem: (lineId, quantity) =>
     enqueue(async () => {
-      // Route to removeItem if quantity drops to 0 or below
-      if (quantity <= 0) {
-        await get().removeItem(lineId);
-        return;
-      }
-
       const { cart } = get();
       if (!cart) return;
+
+      // Route to remove logic directly (no re-enqueue) if quantity drops to 0 or below
+      if (quantity <= 0) {
+        set({ loading: true, error: null });
+        try {
+          const data = await shopifyFetch<CartLinesRemoveResult>(
+            CART_LINES_REMOVE_MUTATION,
+            { cartId: cart.id, lineIds: [lineId] }
+          );
+          if (data.cartLinesRemove.userErrors.length > 0) {
+            set({
+              loading: false,
+              error: data.cartLinesRemove.userErrors[0].message,
+            });
+            return;
+          }
+          if (data.cartLinesRemove.cart) {
+            set({ ...deriveCartState(data.cartLinesRemove.cart), loading: false });
+          }
+        } catch {
+          set({ loading: false, error: "Failed to remove item" });
+        }
+        return;
+      }
 
       set({ loading: true, error: null });
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import DOMPurify from "isomorphic-dompurify";
 import { useCartStore } from "@/stores/cart";
 import { formatPrice } from "@/lib/shopify/utils";
 import type {
@@ -35,6 +36,14 @@ export default function ProductControls({ product }: ProductControlsProps) {
   const compareAtPrice = selectedVariant?.compareAtPrice ?? null;
   const available = selectedVariant?.availableForSale ?? product.availableForSale;
 
+  const sanitizedHtml = useMemo(
+    () =>
+      product.descriptionHtml
+        ? DOMPurify.sanitize(product.descriptionHtml)
+        : "",
+    [product.descriptionHtml]
+  );
+
   function handleOptionChange(optionName: string, value: string) {
     setSelectedOptions((prev) => ({ ...prev, [optionName]: value }));
   }
@@ -56,7 +65,7 @@ export default function ProductControls({ product }: ProductControlsProps) {
           <span className="text-sm font-mono text-white">
             {formatPrice(price.amount, price.currencyCode)}
           </span>
-          {compareAtPrice && parseFloat(compareAtPrice.amount) > 0 && (
+          {compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount) && (
             <span className="text-xs font-mono text-zinc-500 line-through">
               {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
             </span>
@@ -98,14 +107,14 @@ export default function ProductControls({ product }: ProductControlsProps) {
       <hr className="border-zinc-800" />
 
       {/* Description */}
-      {product.descriptionHtml && (
+      {sanitizedHtml && (
         <div>
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600">
             Description
           </p>
           <div
             className="text-xs text-zinc-400 mt-2 leading-relaxed prose prose-invert prose-xs max-w-none"
-            dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+            dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
           />
         </div>
       )}
