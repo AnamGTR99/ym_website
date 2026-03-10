@@ -1,5 +1,4 @@
 import Link from "next/link";
-import PlaceholderSection from "@/components/ui/PlaceholderSection";
 import WalkthroughNav from "@/components/ui/WalkthroughNav";
 
 const channelNumbers = Array.from({ length: 9 }, (_, i) => i + 1);
