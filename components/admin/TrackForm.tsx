@@ -57,7 +57,7 @@ export default function TrackForm({ track, linkedProductIds }: TrackFormProps) {
       release_date: releaseDate,
       access_type: accessType,
       published,
-      duration_seconds: durationSeconds ? parseInt(durationSeconds, 10) : null,
+      duration_seconds: durationSeconds ? (Number(durationSeconds) || null) : null,
       audio_path: track?.audio_path ?? "pending",
       cover_url: track?.cover_url ?? "",
       product_ids: productIds,

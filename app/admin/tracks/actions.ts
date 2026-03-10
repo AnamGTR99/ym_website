@@ -80,7 +80,11 @@ export async function createTrack(data: TrackFormData) {
       shopify_product_id: pid,
     }));
 
-    await admin.from("track_product_map").insert(mappings);
+    const { error: mapError } = await admin
+      .from("track_product_map")
+      .insert(mappings);
+
+    if (mapError) throw new Error("Track created but failed to link products");
   }
 
   revalidatePath("/admin/tracks");
@@ -110,7 +114,12 @@ export async function updateTrack(trackId: string, data: TrackFormData) {
   if (error) throw new Error("Failed to update track");
 
   // Replace product associations — delete old, insert new
-  await admin.from("track_product_map").delete().eq("track_id", trackId);
+  const { error: deleteError } = await admin
+    .from("track_product_map")
+    .delete()
+    .eq("track_id", trackId);
+
+  if (deleteError) throw new Error("Failed to update product links");
 
   if (data.product_ids.length > 0) {
     const mappings = data.product_ids.map((pid) => ({
@@ -118,7 +127,11 @@ export async function updateTrack(trackId: string, data: TrackFormData) {
       shopify_product_id: pid,
     }));
 
-    await admin.from("track_product_map").insert(mappings);
+    const { error: mapError } = await admin
+      .from("track_product_map")
+      .insert(mappings);
+
+    if (mapError) throw new Error("Track updated but failed to link products");
   }
 
   revalidatePath("/admin/tracks");

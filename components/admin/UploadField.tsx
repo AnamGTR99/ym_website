@@ -57,12 +57,15 @@ export default function UploadField({
           };
 
           xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
+            try {
               const data = JSON.parse(xhr.responseText);
-              resolve(data.url ?? data.path);
-            } else {
-              const data = JSON.parse(xhr.responseText);
-              reject(new Error(data.error ?? "Upload failed"));
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(data.url ?? data.path);
+              } else {
+                reject(new Error(data.error ?? "Upload failed"));
+              }
+            } catch {
+              reject(new Error(`Server error (${xhr.status})`));
             }
           };
 
