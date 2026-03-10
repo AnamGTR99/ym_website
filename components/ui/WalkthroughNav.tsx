@@ -7,6 +7,7 @@ const routes = [
   { href: "/tv/example-product", label: "Product" },
   { href: "/credits", label: "Credits" },
   { href: "/sign-in", label: "Sign In" },
+  { href: "/account", label: "Account" },
 ];
 
 export default function WalkthroughNav({ current }: { current: string }) {

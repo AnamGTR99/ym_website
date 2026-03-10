@@ -1,0 +1,52 @@
+import { requireAuth } from "@/lib/auth/guards";
+import { createClient } from "@/lib/supabase/server";
+import OrderHistory from "@/components/account/OrderHistory";
+import AccountSettings from "@/components/account/AccountSettings";
+import WalkthroughNav from "@/components/ui/WalkthroughNav";
+
+interface OrderRow {
+  id: string;
+  shopify_order_number: string;
+  email: string;
+  total_price: string;
+  currency: string;
+  line_items: {
+    title: string;
+    quantity: number;
+    price: string;
+    variant_title: string | null;
+  }[];
+  status: string;
+  created_at: string;
+}
+
+export default async function AccountPage() {
+  const user = await requireAuth();
+  const supabase = await createClient();
+
+  const { data: orders } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  return (
+    <>
+      <WalkthroughNav current="/account" />
+      <main className="min-h-screen px-4 pt-16 pb-12">
+        <div className="w-full max-w-3xl mx-auto flex flex-col gap-10">
+          <div>
+            <h1 className="text-2xl font-bold uppercase tracking-widest">
+              Account
+            </h1>
+            <p className="text-sm text-zinc-500 mt-1">{user.email}</p>
+          </div>
+
+          <AccountSettings email={user.email ?? ""} />
+
+          <OrderHistory orders={(orders as OrderRow[]) ?? []} />
+        </div>
+      </main>
+    </>
+  );
+}
