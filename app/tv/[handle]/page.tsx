@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import WalkthroughNav from "@/components/ui/WalkthroughNav";
-import PlaceholderSection from "@/components/ui/PlaceholderSection";
 import ProductScreen from "@/components/tv/ProductScreen";
 import ProductControls from "@/components/tv/ProductControls";
+import TrackList from "@/components/music/TrackList";
 import { getProductByHandle } from "@/lib/shopify/products";
+import { getTracksByProductId } from "@/lib/supabase/tracks";
 import { formatPrice } from "@/lib/shopify/utils";
 
 export const revalidate = 60;
@@ -70,6 +71,9 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
+  // Fetch linked tracks (runs in parallel with product data on cache hit)
+  const tracks = await getTracksByProductId(product.id);
+
   return (
     <>
       <WalkthroughNav current={`/tv/${handle}`} />
@@ -99,13 +103,8 @@ export default async function ProductPage({
             <ProductControls product={product} />
           </div>
 
-          {/* Track Player — Below TV unit (placeholder until music streaming) */}
-          <PlaceholderSection
-            label="Track Player — Linked Music"
-            asset="Audio from Supabase Storage (signed URL)"
-            behavior="Tracks linked via track_product_map · Persistent GlobalAudioPlayer"
-            className="w-full"
-          />
+          {/* Linked tracks — only rendered when tracks exist */}
+          <TrackList tracks={tracks} />
         </div>
       </main>
     </>
