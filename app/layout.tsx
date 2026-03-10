@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AuthProvider from "@/components/providers/AuthProvider";
 import CartPanel from "@/components/cart/CartPanel";
+import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <CartPanel />
+          <GlobalAudioPlayer />
         </AuthProvider>
       </body>
     </html>
