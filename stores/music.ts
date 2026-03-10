@@ -49,7 +49,8 @@ interface MusicState {
 let audioElement: HTMLAudioElement | null = null;
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
-function getAudio(): HTMLAudioElement {
+/** Get the singleton audio element. Exported for event binding in GlobalAudioPlayer. */
+export function getAudioElement(): HTMLAudioElement {
   if (!audioElement && typeof window !== "undefined") {
     audioElement = new Audio();
     audioElement.preload = "auto";
@@ -86,7 +87,7 @@ export const useMusicStore = create<MusicState>((set, get) => ({
     }
 
     // Stop current playback
-    const audio = getAudio();
+    const audio = getAudioElement();
     audio.pause();
     clearRefreshTimer();
 
@@ -128,12 +129,12 @@ export const useMusicStore = create<MusicState>((set, get) => ({
   },
 
   pause: () => {
-    getAudio().pause();
+    getAudioElement().pause();
     set({ isPlaying: false });
   },
 
   resume: () => {
-    const audio = getAudio();
+    const audio = getAudioElement();
     if (audio.src) {
       audio.play().then(() => set({ isPlaying: true })).catch(() => {
         set({ error: "Playback failed — browser may require interaction" });
@@ -151,7 +152,7 @@ export const useMusicStore = create<MusicState>((set, get) => ({
   },
 
   seek: (seconds: number) => {
-    const audio = getAudio();
+    const audio = getAudioElement();
     if (audio.src && isFinite(seconds)) {
       audio.currentTime = seconds;
       set({ progress: seconds });
@@ -160,14 +161,14 @@ export const useMusicStore = create<MusicState>((set, get) => ({
 
   setVolume: (volume: number) => {
     const clamped = Math.max(0, Math.min(1, volume));
-    const audio = getAudio();
+    const audio = getAudioElement();
     audio.volume = get().muted ? 0 : clamped;
     set({ volume: clamped });
   },
 
   toggleMute: () => {
     const { muted, volume } = get();
-    const audio = getAudio();
+    const audio = getAudioElement();
     const newMuted = !muted;
     audio.volume = newMuted ? 0 : volume;
     set({ muted: newMuted });
@@ -178,7 +179,7 @@ export const useMusicStore = create<MusicState>((set, get) => ({
   setBuffering: (buffering: boolean) => set({ buffering }),
 
   stop: () => {
-    const audio = getAudio();
+    const audio = getAudioElement();
     audio.pause();
     audio.src = "";
     clearRefreshTimer();
@@ -202,7 +203,7 @@ export const useMusicStore = create<MusicState>((set, get) => ({
 
     try {
       const data = await fetchStreamUrl(currentTrack.id);
-      const audio = getAudio();
+      const audio = getAudioElement();
       const wasPlaying = get().isPlaying;
       const currentTime = audio.currentTime;
 
@@ -256,7 +257,7 @@ async function refreshUrl(trackId: string) {
 
   try {
     const data = await fetchStreamUrl(trackId);
-    const audio = getAudio();
+    const audio = getAudioElement();
     const currentTime = audio.currentTime;
     const wasPlaying = store.isPlaying;
 
