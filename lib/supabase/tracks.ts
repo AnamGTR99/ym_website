@@ -34,6 +34,51 @@ export async function getPublishedTrack(
   return data as Track;
 }
 
+/** Lightweight track info safe to send to the client (no audio_path). */
+export type TrackInfo = Pick<
+  Track,
+  "id" | "title" | "artist" | "cover_url" | "duration_seconds"
+>;
+
+/**
+ * Fetch published tracks linked to a Shopify product via track_product_map.
+ * Uses anon-safe RLS — both tables allow public SELECT on published rows.
+ */
+export async function getTracksByProductId(
+  shopifyProductId: string
+): Promise<TrackInfo[]> {
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("track_product_map")
+    .select("track_id, tracks!inner(id, title, artist, cover_url, duration_seconds, published)")
+    .eq("shopify_product_id", shopifyProductId);
+
+  if (error || !data) return [];
+
+  // Supabase returns the joined record as an object (inner join guarantees one match)
+  type JoinRow = {
+    tracks: {
+      id: string;
+      title: string;
+      artist: string;
+      cover_url: string | null;
+      duration_seconds: number | null;
+      published: boolean;
+    };
+  };
+
+  return (data as unknown as JoinRow[])
+    .filter((row) => row.tracks.published)
+    .map((row) => ({
+      id: row.tracks.id,
+      title: row.tracks.title,
+      artist: row.tracks.artist,
+      cover_url: row.tracks.cover_url,
+      duration_seconds: row.tracks.duration_seconds,
+    }));
+}
+
 /**
  * Generate a signed URL for a track's audio file.
  * The audio bucket is private — signed URLs are the only access path.
