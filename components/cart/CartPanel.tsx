@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useCartStore } from "@/stores/cart";
 import CartItem from "./CartItem";
+import { formatPrice } from "@/lib/shopify/utils";
 
 export default function CartPanel() {
   const isOpen = useCartStore((s) => s.isOpen);
@@ -10,6 +11,8 @@ export default function CartPanel() {
   const lines = useCartStore((s) => s.lines);
   const cart = useCartStore((s) => s.cart);
   const totalQuantity = useCartStore((s) => s.totalQuantity);
+  const error = useCartStore((s) => s.error);
+  const clearError = useCartStore((s) => s.clearError);
   const initialize = useCartStore((s) => s.initialize);
 
   useEffect(() => {
@@ -39,6 +42,9 @@ export default function CartPanel() {
 
       {/* Panel */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping cart"
         className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-zinc-950 border-l border-zinc-800 transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
@@ -52,10 +58,26 @@ export default function CartPanel() {
             <button
               onClick={closeCart}
               className="text-zinc-500 hover:text-white text-lg transition-colors"
+              aria-label="Close cart"
             >
               ✕
             </button>
           </div>
+
+          {/* Error */}
+          {error && (
+            <div className="px-5 py-3 bg-red-400/10 border-b border-red-400/20">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-mono text-red-400">{error}</p>
+                <button
+                  onClick={clearError}
+                  className="text-red-400/60 hover:text-red-400 text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Items */}
           <div className="flex-1 overflow-y-auto px-5 py-3">
@@ -76,8 +98,10 @@ export default function CartPanel() {
                   Subtotal
                 </span>
                 <span className="text-sm font-mono text-white">
-                  {cart.cost.subtotalAmount.currencyCode}{" "}
-                  {cart.cost.subtotalAmount.amount}
+                  {formatPrice(
+                    cart.cost.subtotalAmount.amount,
+                    cart.cost.subtotalAmount.currencyCode
+                  )}
                 </span>
               </div>
 

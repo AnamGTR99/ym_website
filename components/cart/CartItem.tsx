@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCartStore } from "@/stores/cart";
+import { formatPrice } from "@/lib/shopify/utils";
 import type { CartLine } from "@/lib/shopify/types";
 
 export default function CartItem({ line }: { line: CartLine }) {
@@ -69,8 +70,10 @@ export default function CartItem({ line }: { line: CartLine }) {
 
           {/* Price */}
           <span className="text-sm font-mono text-white">
-            {line.cost.totalAmount.currencyCode}{" "}
-            {line.cost.totalAmount.amount}
+            {formatPrice(
+              line.cost.totalAmount.amount,
+              line.cost.totalAmount.currencyCode
+            )}
           </span>
         </div>
       </div>
