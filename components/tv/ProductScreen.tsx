@@ -1,8 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import type { ShopifyImage } from "@/lib/shopify/types";
+
+const ModelViewer = dynamic(() => import("@/components/three/ModelViewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-zinc-600 border-t-white rounded-full animate-spin" />
+    </div>
+  ),
+});
 
 interface ProductScreenProps {
   images: ShopifyImage[];
@@ -40,16 +50,11 @@ export default function ProductScreen({
             </div>
           )
         ) : glbUrl ? (
-          <div className="w-full h-full flex items-center justify-center border border-dashed border-zinc-700 rounded m-4">
-            <div className="text-center">
-              <p className="text-xs font-mono text-zinc-500">
-                3D Model Viewer
-              </p>
-              <p className="text-[10px] font-mono text-zinc-600 mt-1">
-                {"<model-viewer>"} integration (HUGO-22)
-              </p>
-            </div>
-          </div>
+          <ModelViewer
+            src={glbUrl}
+            poster={currentImage?.url}
+            alt={`${title} 3D model`}
+          />
         ) : (
           <div className="text-zinc-700 text-sm font-mono">
             No 3D model available
