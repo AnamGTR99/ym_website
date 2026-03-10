@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CartButton from "@/components/cart/CartButton";
 
 const routes = [
   { href: "/", label: "Landing" },
@@ -17,7 +18,7 @@ export default function WalkthroughNav({ current }: { current: string }) {
         <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
           Yunmakai Walkthrough
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-1 items-center">
           {routes.map((route) => (
             <Link
               key={route.href}
@@ -31,6 +32,7 @@ export default function WalkthroughNav({ current }: { current: string }) {
               {route.label}
             </Link>
           ))}
+          <CartButton />
         </div>
       </div>
     </nav>

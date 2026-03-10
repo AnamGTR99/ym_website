@@ -127,3 +127,63 @@ export interface SearchQueryResult {
     totalCount: number;
   };
 }
+
+// Cart types
+
+export interface CartLineMerchandise {
+  id: string;
+  title: string;
+  price: MoneyV2;
+  image: { url: string; altText: string | null } | null;
+  product: { title: string; handle: string };
+}
+
+export interface CartLine {
+  id: string;
+  quantity: number;
+  cost: { totalAmount: MoneyV2 };
+  merchandise: CartLineMerchandise;
+}
+
+export interface ShopifyCart {
+  id: string;
+  checkoutUrl: string;
+  totalQuantity: number;
+  cost: {
+    subtotalAmount: MoneyV2;
+    totalAmount: MoneyV2;
+  };
+  lines: { edges: { node: CartLine }[] };
+}
+
+export interface CartCreateResult {
+  cartCreate: {
+    cart: ShopifyCart | null;
+    userErrors: { field: string[]; message: string }[];
+  };
+}
+
+export interface CartLinesAddResult {
+  cartLinesAdd: {
+    cart: ShopifyCart | null;
+    userErrors: { field: string[]; message: string }[];
+  };
+}
+
+export interface CartLinesUpdateResult {
+  cartLinesUpdate: {
+    cart: ShopifyCart | null;
+    userErrors: { field: string[]; message: string }[];
+  };
+}
+
+export interface CartLinesRemoveResult {
+  cartLinesRemove: {
+    cart: ShopifyCart | null;
+    userErrors: { field: string[]; message: string }[];
+  };
+}
+
+export interface CartQueryResult {
+  cart: ShopifyCart | null;
+}
