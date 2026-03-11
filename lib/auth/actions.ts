@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeRedirect } from "@/lib/auth/sanitize-redirect";
 
 export async function signIn(formData: FormData) {
   const supabase = await createClient();
@@ -23,10 +24,10 @@ export async function signIn(formData: FormData) {
     return { error: error.message };
   }
 
-  const redirectTo = formData.get("redirect") as string;
+  const redirectTo = sanitizeRedirect(formData.get("redirect") as string);
 
   revalidatePath("/", "layout");
-  redirect(redirectTo || "/room");
+  redirect(redirectTo);
 }
 
 export async function signUp(formData: FormData) {
@@ -53,7 +54,7 @@ export async function signUp(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/sign-in?message=Check your email to confirm your account");
+  redirect("/sign-in?message=check-email");
 }
 
 export async function signOut() {
