@@ -19,7 +19,7 @@ function isActive(route: (typeof routes)[number], current: string) {
 
 export default function WalkthroughNav({ current }: { current: string }) {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/90 backdrop-blur border-b border-zinc-800">
+    <nav aria-label="Site navigation" className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/90 backdrop-blur border-b border-zinc-800">
       <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
         <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
           Yunmakai Walkthrough

@@ -1,33 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { requireAdminApi } from "@/lib/auth/guards";
+import { createAdminClient } from "@/lib/supabase/server";
+
+export const maxDuration = 60;
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-];
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: NextRequest) {
-  // Verify admin
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireAdminApi();
+  if (auth.error) return auth.error;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
@@ -40,8 +25,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate trackId is a UUID to prevent path traversal
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!UUID_RE.test(trackId)) {
     return NextResponse.json(
       { error: "Invalid track ID" },
@@ -49,7 +32,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate type
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
       { error: `Unsupported format: ${file.type}. Use JPG, PNG, or WEBP.` },
@@ -57,7 +39,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate size
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
       { error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 5MB.` },
@@ -65,14 +46,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const ext = file.type === "image/png"
-    ? "png"
-    : file.type === "image/webp"
-      ? "webp"
-      : "jpg";
+  const ext =
+    file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
 
   const path = `${trackId}.${ext}`;
-
   const admin = createAdminClient();
 
   const { error: uploadError } = await admin.storage
@@ -86,22 +63,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Get public URL for the cover
-  const { data: urlData } = admin.storage
-    .from("covers")
-    .getPublicUrl(path);
-
+  const { data: urlData } = admin.storage.from("covers").getPublicUrl(path);
   const coverUrl = urlData.publicUrl;
 
-  // Update track record with cover_url
+  // Update track record — cleanup uploaded file on failure
   const { error: updateError } = await admin
     .from("tracks")
     .update({ cover_url: coverUrl })
     .eq("id", trackId);
 
   if (updateError) {
+    await admin.storage.from("covers").remove([path]);
     return NextResponse.json(
-      { error: `Upload succeeded but failed to update track: ${updateError.message}` },
+      { error: `Failed to update track record: ${updateError.message}` },
       { status: 500 }
     );
   }

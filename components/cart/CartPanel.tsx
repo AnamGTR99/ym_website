@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useCartStore } from "@/stores/cart";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import CartItem from "./CartItem";
 import { formatPrice } from "@/lib/shopify/utils";
 
@@ -14,6 +15,7 @@ export default function CartPanel() {
   const error = useCartStore((s) => s.error);
   const clearError = useCartStore((s) => s.clearError);
   const initialize = useCartStore((s) => s.initialize);
+  const panelRef = useFocusTrap<HTMLDivElement>(isOpen);
 
   useEffect(() => {
     initialize();
@@ -42,6 +44,7 @@ export default function CartPanel() {
 
       {/* Panel */}
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"

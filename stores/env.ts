@@ -14,6 +14,8 @@ interface EnvState {
 
 const TRANSITION_DURATION = 1200; // ms
 
+let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const useEnvStore = create<EnvState>((set) => ({
   currentScene: "landing",
   transitioning: false,
@@ -22,8 +24,11 @@ export const useEnvStore = create<EnvState>((set) => ({
   setScene: (scene) => set({ currentScene: scene }),
 
   startTransition: (to, onComplete) => {
+    // Clear any in-flight transition timer
+    if (transitionTimer) clearTimeout(transitionTimer);
     set({ transitioning: true });
-    setTimeout(() => {
+    transitionTimer = setTimeout(() => {
+      transitionTimer = null;
       set({ currentScene: to, transitioning: false });
       onComplete();
     }, TRANSITION_DURATION);

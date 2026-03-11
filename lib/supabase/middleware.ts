@@ -43,7 +43,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect admin routes — redirect to sign-in if not authenticated
+  // Protect admin routes — redirect to sign-in if not authenticated.
+  // Note: middleware only checks authentication (is user logged in?).
+  // Admin role authorization is intentionally delegated to requireAdmin()
+  // in the admin layout and requireAdminApi() in admin API routes.
   if (
     !user &&
     request.nextUrl.pathname.startsWith("/admin")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UploadFieldProps {
   label: string;
@@ -22,6 +22,7 @@ export default function UploadField({
   onUploaded,
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const xhrRef = useRef<XMLHttpRequest>(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +49,7 @@ export default function UploadField({
 
       try {
         const xhr = new XMLHttpRequest();
+        xhrRef.current = xhr;
 
         const result = await new Promise<string>((resolve, reject) => {
           xhr.upload.onprogress = (e) => {
@@ -75,6 +77,7 @@ export default function UploadField({
           xhr.send(formData);
         });
 
+        xhrRef.current = null;
         onUploaded(result);
       } catch (err) {
         setError(
@@ -86,6 +89,13 @@ export default function UploadField({
     },
     [maxSizeMB, trackId, uploadUrl, onUploaded]
   );
+
+  // Abort in-flight XHR on unmount
+  useEffect(() => {
+    return () => {
+      if (xhrRef.current) xhrRef.current.abort();
+    };
+  }, []);
 
   const handleFile = (file: File | undefined) => {
     if (file) upload(file);

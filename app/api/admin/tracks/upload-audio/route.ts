@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { requireAdminApi } from "@/lib/auth/guards";
+import { createAdminClient } from "@/lib/supabase/server";
+
+export const maxDuration = 60;
 
 const MAX_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_TYPES = [
@@ -12,26 +15,12 @@ const ALLOWED_TYPES = [
   "audio/wave",
 ];
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(request: NextRequest) {
-  // Verify admin
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "admin") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireAdminApi();
+  if (auth.error) return auth.error;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
@@ -44,8 +33,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate trackId is a UUID to prevent path traversal
-  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!UUID_RE.test(trackId)) {
     return NextResponse.json(
       { error: "Invalid track ID" },
@@ -53,7 +40,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate type
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
       { error: `Unsupported format: ${file.type}. Use MP3, AAC, or WAV.` },
@@ -61,7 +47,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Validate size
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
       { error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 50MB.` },
@@ -69,7 +54,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Determine extension from MIME
   const ext = file.type.includes("wav")
     ? "wav"
     : file.type.includes("aac") || file.type === "audio/mp4"
@@ -77,7 +61,6 @@ export async function POST(request: NextRequest) {
       : "mp3";
 
   const path = `${trackId}.${ext}`;
-
   const admin = createAdminClient();
 
   const { error: uploadError } = await admin.storage
@@ -91,15 +74,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Update track record with audio_path
+  // Update track record — cleanup uploaded file on failure
   const { error: updateError } = await admin
     .from("tracks")
     .update({ audio_path: path })
     .eq("id", trackId);
 
   if (updateError) {
+    await admin.storage.from("audio").remove([path]);
     return NextResponse.json(
-      { error: `Upload succeeded but failed to update track: ${updateError.message}` },
+      { error: `Failed to update track record: ${updateError.message}` },
       { status: 500 }
     );
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ShopifyProduct {
   id: string;
@@ -20,16 +20,33 @@ export default function ProductSelector({
 }: ProductSelectorProps) {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
+  const doFetch = useCallback(() => {
     fetch("/api/admin/products")
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load products (${r.status})`);
+        return r.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) setProducts(data);
       })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : "Failed to load products");
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    doFetch();
+  }, [doFetch]);
+
+  const retry = () => {
+    setLoading(true);
+    setError(null);
+    doFetch();
+  };
 
   const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
@@ -46,6 +63,21 @@ export default function ProductSelector({
   if (loading) {
     return (
       <p className="text-sm text-zinc-500">Loading Shopify products...</p>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="border border-red-400/20 rounded-lg px-4 py-3 bg-red-400/5">
+        <p className="text-sm text-red-400">{error}</p>
+        <button
+          type="button"
+          onClick={retry}
+          className="mt-2 text-xs font-mono text-red-400 hover:text-white border border-red-400/30 hover:border-white px-3 py-1 rounded transition-colors"
+        >
+          Retry
+        </button>
+      </div>
     );
   }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useEnvStore } from "@/stores/env";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 /* ------------------------------------------------------------------ */
 /*  Placeholder credits — replace with real content from Yunmakai      */
@@ -43,6 +44,7 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
   const closeCredits = useEnvStore((s) => s.closeCredits);
   const [visibleLines, setVisibleLines] = useState(0);
   const [closing, setClosing] = useState(false);
+  const overlayRef = useFocusTrap<HTMLDivElement>(true);
 
   // Animate lines appearing one by one
   useEffect(() => {
@@ -55,9 +57,11 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
     return () => clearTimeout(timer);
   }, [visibleLines]);
 
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
   const handleClose = useCallback(() => {
     setClosing(true);
-    setTimeout(() => {
+    closeTimerRef.current = setTimeout(() => {
       if (onClose) {
         onClose();
       } else {
@@ -65,6 +69,13 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
       }
     }, 600);
   }, [closeCredits, onClose]);
+
+  // Cleanup close animation timer on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
+  }, []);
 
   // Close on Escape
   useEffect(() => {
@@ -77,10 +88,12 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
 
   return (
     <div
+      ref={overlayRef}
       className={`fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-600 ${
         closing ? "opacity-0" : "opacity-100"
       }`}
       role="dialog"
+      aria-modal="true"
       aria-label="Credits"
     >
       {/* Background — water visual placeholder */}
