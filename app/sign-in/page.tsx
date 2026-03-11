@@ -2,6 +2,13 @@ import Link from "next/link";
 import WalkthroughNav from "@/components/ui/WalkthroughNav";
 import SignInForm from "./SignInForm";
 
+const MESSAGES: Record<string, string> = {
+  "check-email": "Check your email to confirm your account.",
+  "signed-out": "You have been signed out.",
+  "error": "An error occurred. Please try again.",
+  "email-verified": "Email verified! You can now sign in.",
+};
+
 export default async function SignInPage({
   searchParams,
 }: {
@@ -30,9 +37,9 @@ export default async function SignInPage({
               Optional — not required to browse or purchase
             </p>
 
-            {message && (
+            {message && MESSAGES[message] && (
               <p className="text-xs font-mono text-amber-400 text-center bg-amber-400/10 rounded-lg px-4 py-2">
-                {message}
+                {MESSAGES[message]}
               </p>
             )}
 

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { linkUnclaimedOrders } from "@/lib/supabase/orders";
+import { sanitizeRedirect } from "@/lib/auth/sanitize-redirect";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/room";
+  const next = sanitizeRedirect(searchParams.get("next"));
 
   if (code) {
     const supabase = await createClient();
@@ -27,5 +28,5 @@ export async function GET(request: Request) {
   }
 
   // Auth code exchange failed — redirect to sign-in with error
-  return NextResponse.redirect(`${origin}/sign-in?message=Could not verify your email`);
+  return NextResponse.redirect(`${origin}/sign-in?message=error`);
 }
