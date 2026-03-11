@@ -1,4 +1,5 @@
 import { createAdminClient } from "./server";
+import { createClient } from "./server";
 
 export interface Track {
   id: string;
@@ -16,12 +17,12 @@ export interface Track {
 
 /**
  * Fetch a published track by ID.
- * Uses admin client to bypass RLS (for service-level access).
+ * Uses anon client — RLS allows SELECT on published tracks.
  */
 export async function getPublishedTrack(
   trackId: string
 ): Promise<Track | null> {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("tracks")
@@ -32,6 +33,25 @@ export async function getPublishedTrack(
 
   if (error || !data) return null;
   return data as Track;
+}
+
+/**
+ * Check if a user has an entitlement for a specific track.
+ */
+export async function hasEntitlement(
+  userId: string,
+  trackId: string
+): Promise<boolean> {
+  const supabase = createAdminClient();
+
+  const { data } = await supabase
+    .from("entitlements")
+    .select("user_id")
+    .eq("user_id", userId)
+    .eq("track_id", trackId)
+    .single();
+
+  return !!data;
 }
 
 /** Lightweight track info safe to send to the client (no audio_path). */
@@ -47,7 +67,7 @@ export type TrackInfo = Pick<
 export async function getTracksByProductId(
   shopifyProductId: string
 ): Promise<TrackInfo[]> {
-  const supabase = createAdminClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("track_product_map")

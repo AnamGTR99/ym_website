@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { getPublishedTrack, createSignedAudioUrl } from "@/lib/supabase/tracks";
+import {
+  getPublishedTrack,
+  createSignedAudioUrl,
+  hasEntitlement,
+} from "@/lib/supabase/tracks";
+import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit";
 
 const RATE_LIMIT_MAX = 30;
@@ -47,6 +52,29 @@ export async function GET(
   const track = await getPublishedTrack(trackId);
   if (!track) {
     return NextResponse.json({ error: "Track not found" }, { status: 404 });
+  }
+
+  // Access control based on access_type
+  if (track.access_type !== "public") {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Authentication required for this track" },
+        { status: 401 }
+      );
+    }
+
+    const entitled = await hasEntitlement(user.id, trackId);
+    if (!entitled) {
+      return NextResponse.json(
+        { error: "You do not have access to this track" },
+        { status: 403 }
+      );
+    }
   }
 
   // Generate signed URL
