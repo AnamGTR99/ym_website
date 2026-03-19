@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/server";
+import { detectMimeType, isValidImageMime } from "@/lib/upload-validation";
 
 export const maxDuration = 60;
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -32,13 +32,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json(
-      { error: `Unsupported format: ${file.type}. Use JPG, PNG, or WEBP.` },
-      { status: 400 }
-    );
-  }
-
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
       { error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 5MB.` },
@@ -46,8 +39,17 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Verify actual file content via magic bytes (client-supplied type is spoofable)
+  const detectedMime = await detectMimeType(file);
+  if (!isValidImageMime(detectedMime)) {
+    return NextResponse.json(
+      { error: "Invalid image file. Upload a real JPG, PNG, or WEBP file." },
+      { status: 400 }
+    );
+  }
+
   const ext =
-    file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    detectedMime === "image/png" ? "png" : detectedMime === "image/webp" ? "webp" : "jpg";
 
   const path = `${trackId}.${ext}`;
   const admin = createAdminClient();
