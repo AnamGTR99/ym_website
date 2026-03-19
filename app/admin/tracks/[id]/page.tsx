@@ -3,12 +3,14 @@ import { createAdminClient } from "@/lib/supabase/server";
 import type { Track } from "@/lib/supabase/tracks";
 import TrackForm from "@/components/admin/TrackForm";
 import TrackUploads from "@/components/admin/TrackUploads";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function EditTrackPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const supabase = createAdminClient();
 
