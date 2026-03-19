@@ -21,7 +21,7 @@ export async function signIn(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Invalid email or password" };
   }
 
   const redirectTo = sanitizeRedirect(formData.get("redirect") as string);
@@ -50,7 +50,7 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: "Something went wrong. Please try again." };
   }
 
   revalidatePath("/", "layout");

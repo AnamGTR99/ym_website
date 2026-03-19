@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function AdminDashboard() {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   // Fetch track stats

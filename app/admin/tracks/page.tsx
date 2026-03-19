@@ -2,8 +2,10 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { Track } from "@/lib/supabase/tracks";
 import TrackTable from "@/components/admin/TrackTable";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 export default async function AdminTracksPage() {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const { data, error } = await supabase
