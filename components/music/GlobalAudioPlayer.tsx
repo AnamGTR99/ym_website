@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useMusicStore, getAudioElement } from "@/stores/music";
+import ProgressBar from "./ProgressBar";
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return "0:00";
@@ -22,7 +23,6 @@ export default function GlobalAudioPlayer() {
   const error = useMusicStore((s) => s.error);
 
   const togglePlay = useMusicStore((s) => s.togglePlay);
-  const seek = useMusicStore((s) => s.seek);
   const setVolume = useMusicStore((s) => s.setVolume);
   const toggleMute = useMusicStore((s) => s.toggleMute);
   const setProgress = useMusicStore((s) => s.setProgress);
@@ -31,8 +31,6 @@ export default function GlobalAudioPlayer() {
   const stop = useMusicStore((s) => s.stop);
   const retryUrl = useMusicStore((s) => s.retryUrl);
   const clearError = useMusicStore((s) => s.clearError);
-
-  const progressBarRef = useRef<HTMLDivElement>(null);
 
   // Bind audio element events
   useEffect(() => {
@@ -76,21 +74,8 @@ export default function GlobalAudioPlayer() {
     };
   }, [setProgress, setDuration, setBuffering]);
 
-  const handleProgressClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const bar = progressBarRef.current;
-      if (!bar || !duration) return;
-      const rect = bar.getBoundingClientRect();
-      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      seek(ratio * duration);
-    },
-    [duration, seek]
-  );
-
   // Hidden when no track
   if (!currentTrack) return null;
-
-  const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-950 border-t border-zinc-800">
@@ -115,22 +100,8 @@ export default function GlobalAudioPlayer() {
         </div>
       )}
 
-      {/* Progress bar (clickable) */}
-      <div
-        ref={progressBarRef}
-        onClick={handleProgressClick}
-        className="h-1 bg-zinc-800 cursor-pointer group"
-        role="slider"
-        aria-label="Track progress"
-        aria-valuenow={Math.round(progress)}
-        aria-valuemin={0}
-        aria-valuemax={Math.round(duration)}
-      >
-        <div
-          className="h-full bg-white transition-[width] duration-100 group-hover:bg-zinc-300"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
+      {/* Progress bar — isolated component to avoid re-rendering the entire player on timeupdate */}
+      <ProgressBar />
 
       {/* Player controls */}
       <div className="flex items-center gap-3 px-4 py-2.5">

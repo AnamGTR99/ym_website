@@ -89,7 +89,11 @@ export async function createTrack(input: TrackFormData) {
       p_product_ids: data.product_ids,
     });
 
-    if (rpcError) throw new Error("Track created but failed to link products");
+    if (rpcError) {
+      // Clean up orphaned track if product mapping failed
+      await admin.from("tracks").delete().eq("id", track.id);
+      throw new Error("Failed to create track: product linking failed");
+    }
   }
 
   revalidatePath("/admin/tracks");

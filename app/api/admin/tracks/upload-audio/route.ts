@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/auth/guards";
 import { createAdminClient } from "@/lib/supabase/server";
+import { detectMimeType, isValidAudioMime } from "@/lib/upload-validation";
 
 export const maxDuration = 60;
 
 const MAX_SIZE = 50 * 1024 * 1024; // 50MB
-const ALLOWED_TYPES = [
-  "audio/mpeg",
-  "audio/mp3",
-  "audio/aac",
-  "audio/mp4",
-  "audio/wav",
-  "audio/x-wav",
-  "audio/wave",
-];
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -40,13 +32,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return NextResponse.json(
-      { error: `Unsupported format: ${file.type}. Use MP3, AAC, or WAV.` },
-      { status: 400 }
-    );
-  }
-
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
       { error: `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max 50MB.` },
@@ -54,9 +39,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const ext = file.type.includes("wav")
+  // Verify actual file content via magic bytes (client-supplied type is spoofable)
+  const detectedMime = await detectMimeType(file);
+  if (!isValidAudioMime(detectedMime)) {
+    return NextResponse.json(
+      { error: "Invalid audio file. Upload a real MP3, AAC, or WAV file." },
+      { status: 400 }
+    );
+  }
+
+  const ext = detectedMime === "audio/wav"
     ? "wav"
-    : file.type.includes("aac") || file.type === "audio/mp4"
+    : detectedMime === "audio/aac" || detectedMime === "audio/mp4"
       ? "aac"
       : "mp3";
 

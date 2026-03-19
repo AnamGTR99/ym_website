@@ -85,8 +85,10 @@ export const useCartStore = create<CartState>((set, get) => ({
         set({ loading: false });
       }
     } catch {
+      // Keep initialized=true to prevent retry flood on API errors.
+      // User can manually retry by refreshing the page.
       localStorage.removeItem(CART_ID_KEY);
-      set({ loading: false, initialized: false });
+      set({ loading: false, error: "Failed to load cart. Refresh to retry." });
     }
   },
 
