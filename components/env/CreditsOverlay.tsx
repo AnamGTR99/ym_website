@@ -5,58 +5,90 @@ import { useEnvStore } from "@/stores/env";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 /* ------------------------------------------------------------------ */
-/*  Placeholder credits — replace with real content from Yunmakai      */
+/*  Credits content — movie-style rolling credits                      */
 /* ------------------------------------------------------------------ */
 
-interface CreditLine {
-  text: string;
-  type: "title" | "role" | "name" | "spacer";
+interface CreditEntry {
+  type: "title" | "subtitle" | "section" | "role" | "cast" | "spacer" | "divider";
+  text?: string;
+  name?: string;
 }
 
-const CREDITS: CreditLine[] = [
-  { text: "Yunmakai", type: "title" },
-  { text: "", type: "spacer" },
-  { text: "Music By", type: "role" },
-  { text: "Yunmakai", type: "name" },
-  { text: "", type: "spacer" },
-  { text: "Design", type: "role" },
-  { text: "Hugo", type: "name" },
-  { text: "", type: "spacer" },
-  { text: "Development", type: "role" },
-  { text: "Anam", type: "name" },
-  { text: "", type: "spacer" },
-  { text: "Special Thanks", type: "role" },
-  { text: "Coming Soon", type: "name" },
-];
+const CREDITS: CreditEntry[] = [
+  // Title card
+  { type: "spacer" },
+  { type: "spacer" },
+  { type: "title", text: "YUNMAKAI" },
+  { type: "subtitle", text: "A Solus Records Production" },
+  { type: "spacer" },
+  { type: "spacer" },
+  { type: "divider" },
+  { type: "spacer" },
 
-const LINE_DELAY = 400; // ms between each line appearing
+  // Key credits
+  { type: "role", text: "Music By" },
+  { type: "cast", text: "Yunmakai" },
+  { type: "spacer" },
+  { type: "role", text: "Executive Producer" },
+  { type: "cast", text: "Solus Records" },
+  { type: "spacer" },
+  { type: "divider" },
+  { type: "spacer" },
+
+  // Technical credits
+  { type: "section", text: "TECHNICAL CREW" },
+  { type: "spacer" },
+  { type: "role", text: "Lead Developer", name: "Hugo Zbor" },
+  { type: "role", text: "3D Environment Artist", name: "Bruno" },
+  { type: "role", text: "Platform Architecture", name: "Hugo Zbor" },
+  { type: "role", text: "UI / UX Design", name: "Hugo Zbor" },
+  { type: "spacer" },
+  { type: "divider" },
+  { type: "spacer" },
+
+  // Platform
+  { type: "section", text: "PLATFORM" },
+  { type: "spacer" },
+  { type: "role", text: "Framework", name: "Next.js" },
+  { type: "role", text: "Commerce", name: "Shopify Storefront API" },
+  { type: "role", text: "Authentication", name: "Supabase" },
+  { type: "role", text: "3D Rendering", name: "React Three Fiber" },
+  { type: "role", text: "Hosting", name: "Vercel" },
+  { type: "spacer" },
+  { type: "divider" },
+  { type: "spacer" },
+
+  // Special thanks
+  { type: "section", text: "SPECIAL THANKS" },
+  { type: "spacer" },
+  { type: "cast", text: "Lunas Lake Studio" },
+  { type: "cast", text: "Yunmakai LLC" },
+  { type: "spacer" },
+  { type: "spacer" },
+
+  // Closing
+  { type: "divider" },
+  { type: "spacer" },
+  { type: "title", text: "YUNMAKAI" },
+  { type: "subtitle", text: "yunmakai.myshopify.com" },
+  { type: "spacer" },
+  { type: "spacer" },
+  { type: "spacer" },
+  { type: "spacer" },
+];
 
 /* ------------------------------------------------------------------ */
 /*  Credits Overlay                                                    */
 /* ------------------------------------------------------------------ */
 
 interface CreditsOverlayProps {
-  /** Optional override for close behavior (e.g. navigate back on standalone route) */
   onClose?: () => void;
 }
 
 export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
   const closeCredits = useEnvStore((s) => s.closeCredits);
-  const [visibleLines, setVisibleLines] = useState(0);
   const [closing, setClosing] = useState(false);
   const overlayRef = useFocusTrap<HTMLDivElement>(true);
-
-  // Animate lines appearing one by one
-  useEffect(() => {
-    if (visibleLines >= CREDITS.length) return;
-
-    const timer = setTimeout(() => {
-      setVisibleLines((prev) => prev + 1);
-    }, LINE_DELAY);
-
-    return () => clearTimeout(timer);
-  }, [visibleLines]);
-
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const handleClose = useCallback(() => {
@@ -70,139 +102,142 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
     }, 600);
   }, [closeCredits, onClose]);
 
-  // Cleanup close animation timer on unmount
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     };
   }, []);
 
-  // Close on Escape
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [handleClose]);
+
 
   return (
     <div
       ref={overlayRef}
-      className={`fixed inset-0 z-30 flex items-center justify-center transition-opacity duration-600 ${
+      className={`fixed inset-0 z-30 overflow-hidden transition-opacity duration-600 ${
         closing ? "opacity-0" : "opacity-100"
       }`}
       role="dialog"
       aria-modal="true"
       aria-label="Credits"
     >
-      {/* Background — water visual placeholder */}
-      <div className="absolute inset-0">
-        {/* When Hugo delivers water/lake visual, replace with:
-            <video
-              autoPlay muted loop playsInline
-              className="w-full h-full object-cover"
-            >
-              <source src="/credits-bg.mp4" type="video/mp4" />
-            </video>
-        */}
-        <div className="w-full h-full bg-gradient-to-b from-[#030508] via-[#060a10] to-[#0a1018]" />
-
-        {/* Water-like ripple effect — CSS only */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            background:
-              "repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(100, 150, 200, 0.08) 40px, rgba(100, 150, 200, 0.08) 41px)",
-            animation: "creditsRipple 8s linear infinite",
-          }}
-        />
-      </div>
-
-      {/* Grain overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-        }}
-      />
-
-      {/* Credits text */}
-      <div className="relative z-10 flex flex-col items-center gap-1 px-6 max-w-lg">
-        {CREDITS.map((line, i) => {
-          if (line.type === "spacer") {
-            return (
-              <div
-                key={i}
-                className="h-8 transition-opacity duration-700"
-                style={{ opacity: i < visibleLines ? 1 : 0 }}
-              />
-            );
-          }
-
-          const baseClasses =
-            "transition-all duration-700 text-center select-none";
-          const visible = i < visibleLines;
-
-          const typeStyles = {
-            title:
-              "text-3xl sm:text-5xl md:text-6xl font-bold uppercase tracking-[0.3em] text-white/90",
-            role: "text-[10px] sm:text-xs font-mono uppercase tracking-[0.25em] text-zinc-500",
-            name: "text-lg sm:text-xl md:text-2xl font-light tracking-wider text-zinc-300",
-          };
-
-          return (
-            <p
-              key={i}
-              className={`${baseClasses} ${typeStyles[line.type]}`}
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible
-                  ? "translateY(0)"
-                  : "translateY(12px)",
-              }}
-            >
-              {line.text}
-            </p>
-          );
-        })}
-      </div>
-
-      {/* Close button */}
-      <button
-        onClick={handleClose}
-        className="absolute top-6 right-6 z-20 text-zinc-600 hover:text-white transition-colors duration-300 p-2"
-        aria-label="Close credits"
-      >
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
+      {/* Background — bayou video */}
+      <div className="absolute inset-0 bg-void">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      </button>
-
-      {/* Dismiss hint */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
-        <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.2em]">
-          Esc to close
-        </p>
+          <source src="/video/bayou-bg-web.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-void/70 via-void/40 to-void/70" />
       </div>
 
-      {/* CSS animation for water ripple */}
+      {/* Film grain + vignette */}
+      <div className="grain absolute inset-0" />
+      <div className="vignette absolute inset-0" />
+
+      {/* Scrolling credits container */}
+      <div className="absolute inset-0 flex justify-center overflow-hidden">
+        <div
+          className="credits-scroll flex flex-col items-center w-full max-w-2xl px-8"
+          style={{
+            animation: "creditsScroll 45s linear infinite",
+          }}
+        >
+          {/* Top padding — start credits from ~40% down viewport */}
+          <div className="h-[40vh] flex-shrink-0" />
+
+          {CREDITS.map((entry, i) => {
+            switch (entry.type) {
+              case "title":
+                return (
+                  <h1
+                    key={i}
+                    className="text-4xl sm:text-5xl md:text-6xl font-bold uppercase tracking-[0.3em] text-bone/90 text-center py-2 select-none"
+                  >
+                    {entry.text}
+                  </h1>
+                );
+              case "subtitle":
+                return (
+                  <p
+                    key={i}
+                    className="text-xs sm:text-sm font-mono tracking-[0.2em] text-fog text-center py-1 select-none"
+                  >
+                    {entry.text}
+                  </p>
+                );
+              case "section":
+                return (
+                  <h2
+                    key={i}
+                    className="text-label text-amber text-center py-2 select-none"
+                  >
+                    {entry.text}
+                  </h2>
+                );
+              case "role":
+                return entry.name ? (
+                  <div
+                    key={i}
+                    className="w-full flex items-baseline justify-center gap-4 py-1.5 select-none"
+                  >
+                    <span className="text-xs sm:text-sm font-mono text-fog text-right flex-1">
+                      {entry.text}
+                    </span>
+                    <span className="text-xs text-ash mx-1">{"· · ·"}</span>
+                    <span className="text-sm sm:text-base font-semibold text-bone text-left flex-1">
+                      {entry.name}
+                    </span>
+                  </div>
+                ) : (
+                  <p
+                    key={i}
+                    className="text-xs sm:text-sm font-mono text-fog text-center py-1 select-none"
+                  >
+                    {entry.text}
+                  </p>
+                );
+              case "cast":
+                return (
+                  <p
+                    key={i}
+                    className="text-lg sm:text-xl font-light tracking-wider text-bone text-center py-1 select-none"
+                  >
+                    {entry.text}
+                  </p>
+                );
+              case "divider":
+                return (
+                  <div
+                    key={i}
+                    className="w-16 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent my-4"
+                  />
+                );
+              case "spacer":
+                return <div key={i} className="h-8 flex-shrink-0" />;
+              default:
+                return null;
+            }
+          })}
+
+          {/* Bottom padding so credits scroll fully out before looping */}
+          <div className="h-screen flex-shrink-0" />
+        </div>
+      </div>
+
+
+      {/* CSS animations */}
       <style>{`
-        @keyframes creditsRipple {
-          from {
-            background-position: 0 0;
-          }
-          to {
-            background-position: 0 80px;
-          }
+        @keyframes creditsScroll {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-100%); }
+        }
+        .credits-scroll:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </div>

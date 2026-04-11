@@ -1,1 +1,512 @@
 @import "tailwindcss";
+
+/* ============================================================
+   YUNMAKAI DESIGN SYSTEM
+   Aesthetic: Southern Gothic Noir — motel rooms at 2am,
+   CRT glow, warm amber light, bayou mist.
+   ============================================================ */
+
+/* --- Fonts -------------------------------------------------- */
+/* Fonts loaded via next/font/google in layout.tsx and applied as CSS variables */
+
+/* --- Theme Tokens ------------------------------------------- */
+@theme {
+  /* Color Palette — Southern Gothic Noir */
+  --color-void: #050505;
+  --color-abyss: #0a0a0a;
+  --color-soot: #111111;
+  --color-charcoal: #1a1a1a;
+  --color-ash: #2a2a2a;
+  --color-smoke: #3a3a3a;
+  --color-fog: #666666;
+  --color-haze: #999999;
+  --color-dust: #bbbbbb;
+  --color-bone: #e0e0e0;
+  --color-parchment: #f0ebe3;
+
+  /* Accent — Amber / Gold (lamp light, warm glow) */
+  --color-amber: #d4a853;
+  --color-amber-dim: #b08a3a;
+  --color-amber-bright: #e8c46a;
+  --color-amber-glow: #d4a85330;
+
+  /* Accent — Teal / Blue (neon bleed, outside light) */
+  --color-teal: #4a9e9e;
+  --color-teal-dim: #2d6b6b;
+  --color-teal-bright: #6bc4c4;
+  --color-teal-glow: #4a9e9e25;
+
+  /* Accent — Moss / Green (motel carpet, decay) */
+  --color-moss: #4a6741;
+  --color-moss-dim: #2d3f27;
+  --color-moss-bright: #6b8f5e;
+
+  /* Accent — Rust (aged metal, warmth) */
+  --color-rust: #8b4513;
+  --color-rust-dim: #5c2d0e;
+  --color-rust-bright: #c4652a;
+
+  /* Semantic */
+  --color-error: #c44040;
+  --color-success: #4a8b4a;
+  --color-warning: #c49a40;
+
+  /* Typography Scale */
+  /* Font families — set via CSS vars from next/font/google in layout.tsx */
+  --font-display: var(--font-ym-mono, monospace);
+  --font-body: var(--font-ym-sans, sans-serif);
+  --font-mono: var(--font-ym-mono, monospace);
+
+  --text-display-hero: 4.5rem;
+  --text-display-lg: 3rem;
+  --text-display-md: 2rem;
+  --text-display-sm: 1.5rem;
+  --text-body-lg: 1.125rem;
+  --text-body-md: 0.9375rem;
+  --text-body-sm: 0.8125rem;
+  --text-body-xs: 0.6875rem;
+  --text-label: 0.6875rem;
+
+  /* Spacing */
+  --spacing-scene: 5rem;
+  --spacing-section: 3rem;
+  --spacing-block: 1.5rem;
+  --spacing-element: 0.75rem;
+
+  /* Easing */
+  --ease-cinematic: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-snap: cubic-bezier(0, 0.55, 0.45, 1);
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 600ms;
+  --duration-cinematic: 1200ms;
+
+  /* Borders */
+  --border-subtle: 1px solid #1a1a1a;
+  --border-visible: 1px solid #2a2a2a;
+  --border-accent: 1px solid #d4a85340;
+
+  /* Shadows */
+  --shadow-glow-amber: 0 0 20px #d4a85320, 0 0 60px #d4a85310;
+  --shadow-glow-teal: 0 0 20px #4a9e9e20, 0 0 60px #4a9e9e10;
+  --shadow-glow-screen: 0 0 30px #4a9e9e15, 0 0 80px #4a9e9e08;
+  --shadow-deep: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-inset-dark: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+/* --- Base --------------------------------------------------- */
+html {
+  background-color: var(--color-void);
+  color: var(--color-dust);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body-md);
+  line-height: 1.6;
+  background-color: var(--color-void);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-amber);
+  color: var(--color-void);
+}
+
+/* Scrollbar — dark, thin, unobtrusive */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-abyss);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ash);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-smoke);
+}
+
+/* --- Atmospheric Layers ------------------------------------- */
+
+/* Film grain overlay — add to any container */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+
+/* Vignette — darkened edges, cinematic framing */
+.vignette {
+  position: relative;
+}
+.vignette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* Stronger vignette for immersive scenes */
+.vignette-heavy::before {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* Ambient fog — top and bottom gradient */
+.fog {
+  position: relative;
+}
+.fog::before,
+.fog::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 30%;
+  pointer-events: none;
+  z-index: 30;
+}
+.fog::before {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 5, 0.6),
+    transparent
+  );
+}
+.fog::after {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(5, 5, 5, 0.8),
+    transparent
+  );
+}
+
+/* Glow effects — apply to interactive elements */
+.glow-amber {
+  box-shadow: var(--shadow-glow-amber);
+}
+.glow-teal {
+  box-shadow: var(--shadow-glow-teal);
+}
+.glow-screen {
+  box-shadow: var(--shadow-glow-screen);
+}
+
+/* CRT scanline effect — overlay on TV-themed elements */
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* Screen flicker — subtle CRT animation */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
+}
+.flicker {
+  animation: flicker 4s infinite;
+}
+
+/* --- Component Tokens --------------------------------------- */
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-cinematic);
+  white-space: nowrap;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: var(--color-amber);
+  color: var(--color-void);
+  border: 1px solid var(--color-amber);
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: var(--color-amber-bright);
+  border-color: var(--color-amber-bright);
+  box-shadow: var(--shadow-glow-amber);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-bone);
+  border: 1px solid var(--color-ash);
+}
+.btn-secondary:hover {
+  border-color: var(--color-amber-dim);
+  color: var(--color-amber);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-fog);
+  border: 1px solid transparent;
+  padding: 0.5rem 0.75rem;
+}
+.btn-ghost:hover {
+  color: var(--color-bone);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  color: var(--color-bone);
+  background: var(--color-soot);
+  border: 1px solid var(--color-ash);
+  border-radius: 2px;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-snap);
+}
+.input::placeholder {
+  color: var(--color-smoke);
+}
+.input:focus {
+  border-color: var(--color-amber-dim);
+  box-shadow: 0 0 0 1px var(--color-amber-glow);
+}
+
+/* Cards */
+.card {
+  background: var(--color-soot);
+  border: 1px solid var(--color-charcoal);
+  border-radius: 2px;
+  padding: var(--spacing-block);
+  box-shadow: var(--shadow-inset-dark);
+}
+.card-hover {
+  transition: all var(--duration-normal) var(--ease-cinematic);
+}
+.card-hover:hover {
+  border-color: var(--color-ash);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-deep);
+}
+
+/* Overlays / Modals */
+.overlay-backdrop {
+  background: rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Tags / Badges */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-body-xs);
+  letter-spacing: 0.05em;
+  color: var(--color-amber);
+  background: var(--color-amber-glow);
+  border: 1px solid rgba(212, 168, 83, 0.15);
+  border-radius: 2px;
+}
+
+/* Dividers */
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-ash),
+    transparent
+  );
+}
+
+/* --- Typography Utilities ----------------------------------- */
+
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.text-display-hero {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 8vw, var(--text-display-hero));
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.text-display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 5vw, var(--text-display-lg));
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.text-display-md {
+  font-family: var(--font-display);
+  font-size: var(--text-display-md);
+  line-height: 1.2;
+}
+.text-display-sm {
+  font-family: var(--font-display);
+  font-size: var(--text-display-sm);
+  line-height: 1.3;
+}
+
+.text-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+}
+
+/* --- Animations --------------------------------------------- */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--color-amber-glow); }
+  50% { box-shadow: 0 0 40px var(--color-amber-glow), 0 0 80px rgba(212, 168, 83, 0.05); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-in { animation: fade-in var(--duration-slow) var(--ease-cinematic) both; }
+.animate-fade-up { animation: fade-up var(--duration-slow) var(--ease-cinematic) both; }
+.animate-fade-down { animation: fade-down var(--duration-slow) var(--ease-cinematic) both; }
+.animate-scale-in { animation: scale-in var(--duration-slow) var(--ease-cinematic) both; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-drift { animation: drift 6s ease-in-out infinite; }
+
+/* Animation delay utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-1000 { animation-delay: 1000ms; }
+
+/* --- Focus / Accessibility ---------------------------------- */
+
+:focus-visible {
+  outline: 1px solid var(--color-amber-dim);
+  outline-offset: 2px;
+}
+
+/* --- Utility Overrides -------------------------------------- */
+
+/* Smooth image loading */
+img {
+  transition: opacity var(--duration-normal) var(--ease-cinematic);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

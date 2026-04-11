@@ -16,10 +16,10 @@ interface OrderRow {
 }
 
 const statusColors: Record<string, string> = {
-  paid: "text-green-400",
-  pending: "text-amber-400",
-  refunded: "text-zinc-400",
-  voided: "text-red-400",
+  paid: "text-teal",
+  pending: "text-amber",
+  refunded: "text-fog",
+  voided: "text-error",
 };
 
 export default function OrderCard({ order }: { order: OrderRow }) {
@@ -29,22 +29,22 @@ export default function OrderCard({ order }: { order: OrderRow }) {
     day: "numeric",
   });
 
-  const statusColor = statusColors[order.status] ?? "text-zinc-500";
+  const statusColor = statusColors[order.status] ?? "text-fog";
 
   return (
-    <div className="border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
+    <div className="border border-charcoal rounded-lg p-5 flex flex-col gap-3 bg-abyss">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-mono text-white">
+          <span className="text-sm font-mono text-bone">
             #{order.shopify_order_number}
           </span>
-          <span className="text-xs text-zinc-600">{date}</span>
+          <span className="text-xs text-smoke">{date}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className={`text-xs font-mono uppercase ${statusColor}`}>
             {order.status}
           </span>
-          <span className="text-sm font-mono text-white">
+          <span className="text-sm font-mono text-amber">
             {order.currency} {order.total_price}
           </span>
         </div>
@@ -54,15 +54,15 @@ export default function OrderCard({ order }: { order: OrderRow }) {
         {order.line_items.map((item, i) => (
           <div
             key={i}
-            className="flex items-center justify-between text-xs text-zinc-400"
+            className="flex items-center justify-between text-xs text-fog"
           >
             <span>
               {item.title}
               {item.variant_title && (
-                <span className="text-zinc-600"> — {item.variant_title}</span>
+                <span className="text-smoke"> — {item.variant_title}</span>
               )}
             </span>
-            <span className="text-zinc-500">
+            <span className="text-smoke">
               ×{item.quantity} · {order.currency} {item.price}
             </span>
           </div>

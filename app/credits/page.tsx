@@ -12,7 +12,7 @@ export default function CreditsPage() {
   return (
     <>
       <WalkthroughNav current="/credits" />
-      <div className="relative w-full h-screen bg-black">
+      <div className="relative w-full h-screen bg-void">
         <CreditsOverlay onClose={handleClose} />
       </div>
     </>

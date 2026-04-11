@@ -1,8 +1,23 @@
 import type { Metadata } from "next";
+import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import CartPanel from "@/components/cart/CartPanel";
 import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
 import "./globals.css";
+
+const sans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-ym-sans",
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-ym-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -36,8 +51,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="bg-black text-white antialiased">
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body className="bg-void text-dust antialiased font-body">
         <AuthProvider>
           {children}
           <CartPanel />

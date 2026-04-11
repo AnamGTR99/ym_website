@@ -23,18 +23,18 @@ export default function TVGrid({ products }: TVGridProps) {
   }, [products, search]);
 
   return (
-    <div className="flex flex-col md:flex-row w-full border border-zinc-800 rounded-xl overflow-hidden">
+    <div className="flex flex-col md:flex-row w-full border border-charcoal rounded overflow-hidden animate-fade-up delay-200">
       {/* TV Screen — Channel Grid */}
-      <div className="flex-1 bg-zinc-950 p-5 md:p-6 flex flex-col gap-4">
+      <div className="scanlines flex-1 bg-soot p-5 md:p-6 flex flex-col gap-4 relative">
         {/* Screen header */}
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600">
+        <div className="flex items-center justify-between relative z-10">
+          <p className="text-label text-fog">
             {filtered.length} Channel{filtered.length !== 1 ? "s" : ""}
           </p>
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="text-[10px] font-mono text-zinc-500 hover:text-white transition-colors"
+              className="text-label text-fog hover:text-amber transition-colors"
             >
               Clear filter
             </button>
@@ -43,17 +43,17 @@ export default function TVGrid({ products }: TVGridProps) {
 
         {/* Grid */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 relative z-10">
             {filtered.map((product, i) => (
               <TVCard key={product.id} product={product} channelNumber={i + 1} />
             ))}
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center min-h-[300px]">
+          <div className="flex-1 flex items-center justify-center min-h-[300px] relative z-10">
             <div className="text-center">
-              <p className="text-zinc-600 text-sm font-mono">No channels found</p>
+              <p className="text-fog text-sm font-mono">No channels found</p>
               {search && (
-                <p className="text-zinc-700 text-xs font-mono mt-1">
+                <p className="text-smoke text-xs font-mono mt-1">
                   Try a different search term
                 </p>
               )}
@@ -63,24 +63,22 @@ export default function TVGrid({ products }: TVGridProps) {
       </div>
 
       {/* TV Controls Panel */}
-      <div className="w-full md:w-64 flex-shrink-0 bg-zinc-950 border-t md:border-t-0 md:border-l border-zinc-800 p-6 flex flex-col gap-5">
+      <div className="w-full md:w-64 flex-shrink-0 bg-abyss border-t md:border-t-0 md:border-l border-charcoal p-6 flex flex-col gap-5">
         <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600">
-            TV Catalogue
-          </p>
-          <h2 className="text-lg font-bold text-white mt-1">Yunmakai TV</h2>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-label text-fog">TV Catalogue</p>
+          <h2 className="text-display-sm text-bone mt-1">Yunmakai TV</h2>
+          <p className="text-xs text-fog mt-1 font-mono">
             {products.length} Channel{products.length !== 1 ? "s" : ""}
           </p>
         </div>
 
-        <hr className="border-zinc-800" />
+        <hr className="divider" />
 
         {/* Search */}
         <div>
           <label
             htmlFor="tv-search"
-            className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600"
+            className="text-label text-fog"
           >
             Search
           </label>
@@ -90,48 +88,50 @@ export default function TVGrid({ products }: TVGridProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Filter channels..."
-            className="mt-2 w-full bg-transparent border border-zinc-700 rounded px-3 py-2 text-xs font-mono text-white placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none transition-colors"
+            className="input mt-2"
           />
         </div>
 
-        <hr className="border-zinc-800" />
+        <hr className="divider" />
 
-        {/* Decorative Channel Knob */}
-        <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600">
-            Channel
-          </p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="w-8 h-8 border border-zinc-700 rounded-full text-zinc-600 text-xs font-mono flex items-center justify-center">
+        {/* Channel readout — shows filtered count (ornamental) */}
+        <div aria-hidden="true">
+          <p className="text-label text-fog">Channel</p>
+          <div className="flex items-center gap-3 mt-2 select-none">
+            <span className="w-8 h-8 border border-ash rounded-full text-smoke text-xs font-mono flex items-center justify-center">
               −
             </span>
-            <span className="text-lg font-bold text-zinc-400 font-mono w-8 text-center">
+            <span className="text-lg font-bold text-amber font-mono w-8 text-center">
               {String(filtered.length).padStart(2, "0")}
             </span>
-            <span className="w-8 h-8 border border-zinc-700 rounded-full text-zinc-600 text-xs font-mono flex items-center justify-center">
+            <span className="w-8 h-8 border border-ash rounded-full text-smoke text-xs font-mono flex items-center justify-center">
               +
             </span>
           </div>
         </div>
 
-        <hr className="border-zinc-800" />
+        <hr className="divider" />
 
-        {/* Decorative Volume */}
-        <div>
-          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-600">
-            Volume
-          </p>
-          <div className="w-full h-1.5 bg-zinc-800 rounded-full mt-3">
-            <div className="w-2/3 h-full bg-zinc-600 rounded-full" />
+        {/* Signal strength — ornamental */}
+        <div aria-hidden="true">
+          <p className="text-label text-fog">Signal</p>
+          <div className="w-full h-1.5 bg-charcoal rounded-full mt-3">
+            <div className="w-2/3 h-full bg-amber/40 rounded-full" />
           </div>
         </div>
 
-        <hr className="border-zinc-800" />
+        <hr className="divider" />
 
-        {/* Decorative Power */}
-        <div className="w-full py-2.5 border border-zinc-700 text-zinc-500 text-xs font-mono uppercase tracking-wider rounded text-center">
-          Power
-        </div>
+        {/* Power — wired to clear filter when active */}
+        <button
+          type="button"
+          onClick={() => setSearch("")}
+          disabled={!search}
+          className="btn btn-secondary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label={search ? "Clear search filter" : "Power"}
+        >
+          {search ? "Reset" : "Power"}
+        </button>
       </div>
     </div>
   );

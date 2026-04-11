@@ -33,13 +33,13 @@ export default async function AccountPage() {
   return (
     <>
       <WalkthroughNav current="/account" />
-      <main className="min-h-screen px-4 pt-16 pb-12">
-        <div className="w-full max-w-3xl mx-auto flex flex-col gap-10">
+      <main className="grain min-h-screen px-4 pt-16 pb-12 bg-void">
+        <div className="w-full max-w-3xl mx-auto flex flex-col gap-10 animate-fade-up">
           <div>
-            <h1 className="text-2xl font-bold uppercase tracking-widest">
+            <h1 className="text-2xl font-bold uppercase tracking-widest text-bone">
               Account
             </h1>
-            <p className="text-sm text-zinc-500 mt-1">{user.email}</p>
+            <p className="text-sm text-fog mt-1">{user.email}</p>
           </div>
 
           <AccountSettings email={user.email ?? ""} />
