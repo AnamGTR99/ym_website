@@ -90,16 +90,16 @@ export default function RoomEnvironment() {
               priority
             />
         */}
-        <div className="w-full h-full bg-gradient-to-br from-zinc-950 via-[#0d0f12] to-[#0a0c0e]" />
+        <div className="w-full h-full bg-gradient-to-br from-void via-abyss to-void" />
 
         {/* Subtle room structure hints — geometric shapes suggesting walls/furniture */}
         <div className="absolute inset-0 opacity-[0.03]">
           {/* Floor line */}
-          <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-zinc-800/30 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-charcoal/30 to-transparent" />
           {/* Wall corner */}
-          <div className="absolute top-0 left-[40%] w-px h-full bg-gradient-to-b from-zinc-700/20 via-zinc-700/10 to-transparent" />
+          <div className="absolute top-0 left-[40%] w-px h-full bg-gradient-to-b from-ash/20 via-ash/10 to-transparent" />
           {/* Ceiling */}
-          <div className="absolute top-0 left-0 right-0 h-[8%] bg-gradient-to-b from-zinc-800/20 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-[8%] bg-gradient-to-b from-charcoal/20 to-transparent" />
         </div>
 
         {/* Ambient warm light spot — as if from a lamp */}
@@ -112,23 +112,9 @@ export default function RoomEnvironment() {
         />
       </div>
 
-      {/* Atmospheric grain overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-        }}
-      />
-
-      {/* Vignette — darker edges */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)",
-        }}
-      />
+      {/* Atmospheric grain + vignette overlays */}
+      <div className="grain absolute inset-0" />
+      <div className="vignette absolute inset-0" />
 
       {/* Desktop hotspots */}
       <div className="hidden md:block absolute inset-0">
@@ -156,7 +142,7 @@ export default function RoomEnvironment() {
 
       {/* Room label — subtle indicator */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
-        <p className="text-[10px] font-mono text-zinc-600 uppercase tracking-[0.3em]">
+        <p className="text-label text-smoke">
           Motel Room
         </p>
       </div>

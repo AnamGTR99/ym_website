@@ -26,7 +26,7 @@ export default function ProgressBar() {
     <div
       ref={progressBarRef}
       onClick={handleProgressClick}
-      className="h-1 bg-zinc-800 cursor-pointer group"
+      className="h-1 bg-charcoal cursor-pointer group"
       role="slider"
       aria-label="Track progress"
       aria-valuenow={Math.round(progress)}
@@ -34,7 +34,7 @@ export default function ProgressBar() {
       aria-valuemax={Math.round(duration)}
     >
       <div
-        className="h-full bg-white transition-[width] duration-100 group-hover:bg-zinc-300"
+        className="h-full bg-amber transition-[width] duration-100 group-hover:bg-amber-bright"
         style={{ width: `${progressPercent}%` }}
       />
     </div>

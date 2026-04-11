@@ -20,15 +20,18 @@ export default async function TVPage() {
   return (
     <>
       <WalkthroughNav current="/tv" />
-      <main className="min-h-screen flex flex-col items-center px-4 pt-16 pb-12">
+      <main className="grain min-h-screen flex flex-col items-center px-4 pt-16 pb-12 bg-void">
         <div className="w-full max-w-5xl flex flex-col gap-6">
-          <h1 className="text-2xl font-bold uppercase tracking-widest text-center">
-            TV Catalogue — Channel Grid
-          </h1>
+          <div className="text-center animate-fade-down">
+            <p className="text-label text-fog">Yunmakai TV</p>
+            <h1 className="text-display-md text-bone mt-1">
+              Channel Grid
+            </h1>
+          </div>
 
           {error && (
-            <div className="border border-red-400/30 bg-red-400/5 rounded-lg px-4 py-3">
-              <p className="text-xs font-mono text-red-400">{error}</p>
+            <div className="border border-error/30 bg-error/5 rounded px-4 py-3">
+              <p className="text-xs font-mono text-error">{error}</p>
             </div>
           )}
 

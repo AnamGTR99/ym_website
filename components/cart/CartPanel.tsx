@@ -48,19 +48,19 @@ export default function CartPanel() {
         role="dialog"
         aria-modal="true"
         aria-label="Shopping cart"
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-zinc-950 border-l border-zinc-800 transform transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-abyss border-l border-charcoal transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
-            <h2 className="text-sm font-mono uppercase tracking-[0.2em] text-white">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-charcoal">
+            <h2 className="text-sm font-mono uppercase tracking-[0.2em] text-bone">
               Cart{totalQuantity > 0 && ` (${totalQuantity})`}
             </h2>
             <button
               onClick={closeCart}
-              className="text-zinc-500 hover:text-white text-lg transition-colors"
+              className="text-fog hover:text-bone text-lg transition-colors"
               aria-label="Close cart"
             >
               ✕
@@ -69,12 +69,12 @@ export default function CartPanel() {
 
           {/* Error */}
           {error && (
-            <div className="px-5 py-3 bg-red-400/10 border-b border-red-400/20">
+            <div className="px-5 py-3 bg-error/10 border-b border-error/20">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-mono text-red-400">{error}</p>
+                <p className="text-xs font-mono text-error">{error}</p>
                 <button
                   onClick={clearError}
-                  className="text-red-400/60 hover:text-red-400 text-xs"
+                  className="text-error/60 hover:text-error text-xs"
                 >
                   ✕
                 </button>
@@ -86,7 +86,7 @@ export default function CartPanel() {
           <div className="flex-1 overflow-y-auto px-5 py-3">
             {lines.length === 0 ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-zinc-600 text-sm">Your cart is empty</p>
+                <p className="text-smoke text-sm">Your cart is empty</p>
               </div>
             ) : (
               lines.map((line) => <CartItem key={line.id} line={line} />)
@@ -95,12 +95,12 @@ export default function CartPanel() {
 
           {/* Footer */}
           {lines.length > 0 && cart && (
-            <div className="px-5 py-4 border-t border-zinc-800 flex flex-col gap-3">
+            <div className="px-5 py-4 border-t border-charcoal flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase text-zinc-500">
+                <span className="text-xs font-mono uppercase text-fog">
                   Subtotal
                 </span>
-                <span className="text-sm font-mono text-white">
+                <span className="text-sm font-mono text-bone">
                   {formatPrice(
                     cart.cost.subtotalAmount.amount,
                     cart.cost.subtotalAmount.currencyCode
@@ -112,12 +112,12 @@ export default function CartPanel() {
                 href={cart.checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full py-3 bg-white text-black text-sm font-mono uppercase tracking-wider rounded text-center hover:bg-zinc-200 transition-colors"
+                className="btn btn-primary block w-full py-3 text-sm rounded text-center"
               >
                 Checkout
               </a>
 
-              <p className="text-[10px] text-zinc-600 text-center">
+              <p className="text-[10px] text-smoke text-center">
                 Taxes and shipping calculated at checkout
               </p>
             </div>

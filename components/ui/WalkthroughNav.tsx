@@ -13,26 +13,28 @@ const routes = [
 
 function isActive(route: (typeof routes)[number], current: string) {
   if (route.exact) return current === route.href;
-  // For product pages: match any /tv/[handle] but not /tv itself
   return current.startsWith(route.href) && current !== "/tv";
 }
 
 export default function WalkthroughNav({ current }: { current: string }) {
   return (
-    <nav aria-label="Site navigation" className="fixed top-0 left-0 right-0 z-50 bg-zinc-900/90 backdrop-blur border-b border-zinc-800">
+    <nav
+      aria-label="Site navigation"
+      className="fixed top-0 left-0 right-0 z-50 bg-abyss/90 backdrop-blur-md border-b border-charcoal"
+    >
       <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
-        <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">
-          Yunmakai Walkthrough
+        <span className="font-mono text-xs text-amber tracking-[0.15em] uppercase">
+          Yunmakai
         </span>
-        <div className="flex gap-1 items-center">
+        <div className="flex gap-0.5 items-center">
           {routes.map((route) => (
             <Link
               key={route.label}
               href={route.label === "Product" ? "/tv" : route.href}
-              className={`px-3 py-1.5 text-xs font-mono rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs font-mono rounded transition-all duration-200 ${
                 isActive(route, current)
-                  ? "bg-white text-black"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  ? "bg-amber/10 text-amber border border-amber/20"
+                  : "text-fog hover:text-bone hover:bg-charcoal border border-transparent"
               }`}
             >
               {route.label}

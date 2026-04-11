@@ -78,21 +78,21 @@ export default function GlobalAudioPlayer() {
   if (!currentTrack) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-950 border-t border-zinc-800">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-abyss border-t border-charcoal">
       {/* Error bar */}
       {error && (
-        <div className="px-4 py-1.5 bg-red-400/10 border-b border-red-400/20 flex items-center justify-between">
-          <p className="text-[10px] font-mono text-red-400 truncate">{error}</p>
+        <div className="px-4 py-1.5 bg-error/10 border-b border-error/20 flex items-center justify-between">
+          <p className="text-[10px] font-mono text-error truncate">{error}</p>
           <div className="flex gap-2 ml-2 flex-shrink-0">
             <button
               onClick={retryUrl}
-              className="text-[10px] font-mono text-red-400 hover:text-white transition-colors"
+              className="text-[10px] font-mono text-error hover:text-bone transition-colors"
             >
               Retry
             </button>
             <button
               onClick={clearError}
-              className="text-red-400/60 hover:text-red-400 text-xs"
+              className="text-error/60 hover:text-error text-xs"
             >
               ✕
             </button>
@@ -106,7 +106,7 @@ export default function GlobalAudioPlayer() {
       {/* Player controls */}
       <div className="flex items-center gap-3 px-4 py-2.5">
         {/* Cover */}
-        <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden bg-zinc-900">
+        <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden bg-soot">
           {currentTrack.coverUrl ? (
             <Image
               src={currentTrack.coverUrl}
@@ -116,7 +116,7 @@ export default function GlobalAudioPlayer() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs font-mono">
+            <div className="w-full h-full flex items-center justify-center text-ash text-xs font-mono">
               ♪
             </div>
           )}
@@ -124,16 +124,16 @@ export default function GlobalAudioPlayer() {
 
         {/* Track info */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-mono text-white truncate">
+          <p className="text-xs font-mono text-bone truncate">
             {currentTrack.title}
           </p>
-          <p className="text-[10px] font-mono text-zinc-500 truncate">
+          <p className="text-[10px] font-mono text-fog truncate">
             {currentTrack.artist}
           </p>
         </div>
 
         {/* Time */}
-        <span className="text-[10px] font-mono text-zinc-500 hidden sm:block">
+        <span className="text-[10px] font-mono text-amber hidden sm:block">
           {formatTime(progress)} / {formatTime(duration)}
         </span>
 
@@ -141,7 +141,7 @@ export default function GlobalAudioPlayer() {
         <button
           onClick={togglePlay}
           disabled={buffering}
-          className="w-8 h-8 flex items-center justify-center border border-zinc-700 rounded-full text-white hover:border-white disabled:opacity-50 transition-colors"
+          className="w-8 h-8 flex items-center justify-center border border-ash rounded-full text-bone hover:border-amber hover:text-amber disabled:opacity-50 transition-colors"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {buffering ? (
@@ -157,7 +157,7 @@ export default function GlobalAudioPlayer() {
         <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={toggleMute}
-            className="text-zinc-500 hover:text-white text-xs transition-colors"
+            className="text-fog hover:text-bone text-xs transition-colors"
             aria-label={muted ? "Unmute" : "Mute"}
           >
             {muted || volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
@@ -169,7 +169,7 @@ export default function GlobalAudioPlayer() {
             step={0.01}
             value={muted ? 0 : volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="w-16 h-1 appearance-none bg-zinc-700 rounded-full cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+            className="w-16 h-1 appearance-none bg-ash rounded-full cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2.5 [&::-webkit-slider-thumb]:h-2.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-amber"
             aria-label="Volume"
           />
         </div>
@@ -177,7 +177,7 @@ export default function GlobalAudioPlayer() {
         {/* Close */}
         <button
           onClick={stop}
-          className="text-zinc-600 hover:text-white text-xs transition-colors ml-1"
+          className="text-smoke hover:text-bone text-xs transition-colors ml-1"
           aria-label="Close player"
         >
           ✕

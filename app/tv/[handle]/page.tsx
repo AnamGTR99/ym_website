@@ -77,24 +77,24 @@ export default async function ProductPage({
   return (
     <>
       <WalkthroughNav current={`/tv/${handle}`} />
-      <main className="min-h-screen flex flex-col items-center px-4 pt-16 pb-12">
+      <main className="grain min-h-screen flex flex-col items-center px-4 pt-16 pb-12 bg-void">
         <div className="w-full max-w-5xl flex flex-col gap-6">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 animate-fade-down">
             <Link
               href="/tv"
-              className="text-xs font-mono text-zinc-500 hover:text-white transition-colors"
+              className="text-xs font-mono text-fog hover:text-amber transition-colors"
             >
               ← Back to TV
             </Link>
-            <span className="text-xs font-mono text-zinc-700">|</span>
-            <span className="text-xs font-mono text-zinc-500">
+            <span className="text-xs font-mono text-ash">|</span>
+            <span className="text-xs font-mono text-fog">
               {product.title}
             </span>
           </div>
 
           {/* Retro TV Unit: Screen left, Controls right */}
-          <div className="flex flex-col md:flex-row w-full border border-zinc-800 rounded-xl overflow-hidden">
+          <div className="flex flex-col md:flex-row w-full border border-charcoal rounded overflow-hidden animate-fade-up">
             <ProductScreen
               images={product.images}
               title={product.title}

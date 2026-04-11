@@ -31,7 +31,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
       <div>
         <label
           htmlFor="email"
-          className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500"
+          className="text-label text-fog"
         >
           Email
         </label>
@@ -40,7 +40,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
           name="email"
           type="email"
           required
-          className="mt-2 w-full border border-zinc-600/50 bg-black/40 rounded px-4 py-3 text-sm font-mono text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 transition-colors"
+          className="input mt-2"
           placeholder="user@example.com"
         />
       </div>
@@ -48,7 +48,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
       <div>
         <label
           htmlFor="password"
-          className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500"
+          className="text-label text-fog"
         >
           Password
         </label>
@@ -58,13 +58,13 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
           type="password"
           required
           minLength={6}
-          className="mt-2 w-full border border-zinc-600/50 bg-black/40 rounded px-4 py-3 text-sm font-mono text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-400 transition-colors"
+          className="input mt-2"
           placeholder="••••••••"
         />
       </div>
 
       {error && (
-        <p className="text-xs font-mono text-red-400 bg-red-400/10 rounded-lg px-4 py-2">
+        <p className="text-xs font-mono text-error bg-error/10 rounded-lg px-4 py-2">
           {error}
         </p>
       )}
@@ -72,7 +72,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-white text-black text-sm font-mono uppercase tracking-wider rounded hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn btn-primary w-full"
       >
         {loading
           ? "..."
@@ -81,7 +81,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
             : "Create Account"}
       </button>
 
-      <hr className="border-zinc-700/50" />
+      <hr className="divider" />
 
       <button
         type="button"
@@ -89,7 +89,7 @@ export default function SignInForm({ redirect }: { redirect?: string }) {
           setMode(mode === "sign-in" ? "sign-up" : "sign-in");
           setError(null);
         }}
-        className="w-full py-3 border border-zinc-600/50 text-zinc-400 text-sm font-mono uppercase tracking-wider rounded hover:border-zinc-400 transition-colors"
+        className="btn btn-secondary w-full"
       >
         {mode === "sign-in"
           ? "Create Account Instead"
