@@ -94,17 +94,17 @@ export default function TVGrid({ products }: TVGridProps) {
 
         <hr className="divider" />
 
-        {/* Decorative Channel Knob */}
-        <div>
+        {/* Channel readout — shows filtered count (ornamental) */}
+        <div aria-hidden="true">
           <p className="text-label text-fog">Channel</p>
-          <div className="flex items-center gap-3 mt-2">
-            <span className="w-8 h-8 border border-ash rounded-full text-fog text-xs font-mono flex items-center justify-center hover:border-amber hover:text-amber transition-colors cursor-pointer">
+          <div className="flex items-center gap-3 mt-2 select-none">
+            <span className="w-8 h-8 border border-ash rounded-full text-smoke text-xs font-mono flex items-center justify-center">
               −
             </span>
             <span className="text-lg font-bold text-amber font-mono w-8 text-center">
               {String(filtered.length).padStart(2, "0")}
             </span>
-            <span className="w-8 h-8 border border-ash rounded-full text-fog text-xs font-mono flex items-center justify-center hover:border-amber hover:text-amber transition-colors cursor-pointer">
+            <span className="w-8 h-8 border border-ash rounded-full text-smoke text-xs font-mono flex items-center justify-center">
               +
             </span>
           </div>
@@ -112,9 +112,9 @@ export default function TVGrid({ products }: TVGridProps) {
 
         <hr className="divider" />
 
-        {/* Decorative Volume */}
-        <div>
-          <p className="text-label text-fog">Volume</p>
+        {/* Signal strength — ornamental */}
+        <div aria-hidden="true">
+          <p className="text-label text-fog">Signal</p>
           <div className="w-full h-1.5 bg-charcoal rounded-full mt-3">
             <div className="w-2/3 h-full bg-amber/40 rounded-full" />
           </div>
@@ -122,9 +122,15 @@ export default function TVGrid({ products }: TVGridProps) {
 
         <hr className="divider" />
 
-        {/* Decorative Power */}
-        <button className="btn btn-secondary w-full">
-          Power
+        {/* Power — wired to clear filter when active */}
+        <button
+          type="button"
+          onClick={() => setSearch("")}
+          disabled={!search}
+          className="btn btn-secondary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label={search ? "Clear search filter" : "Power"}
+        >
+          {search ? "Reset" : "Power"}
         </button>
       </div>
     </div>
