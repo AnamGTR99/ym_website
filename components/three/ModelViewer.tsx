@@ -25,8 +25,19 @@ export default function ModelViewer({ src, poster, alt }: ModelViewerProps) {
     const el = viewerRef.current;
     if (!el) return;
 
-    const onLoad = () => setLoaded(true);
-    const onError = () => setError(true);
+    console.log("[ModelViewer] Loading model:", src);
+    const t0 = performance.now();
+
+    const onLoad = () => {
+      console.log(
+        `[ModelViewer] Model loaded in ${(performance.now() - t0).toFixed(0)}ms — ${src}`
+      );
+      setLoaded(true);
+    };
+    const onError = () => {
+      console.warn("[ModelViewer] Failed to load model:", src);
+      setError(true);
+    };
 
     el.addEventListener("load", onLoad);
     el.addEventListener("error", onError);
@@ -35,7 +46,7 @@ export default function ModelViewer({ src, poster, alt }: ModelViewerProps) {
       el.removeEventListener("load", onLoad);
       el.removeEventListener("error", onError);
     };
-  }, []);
+  }, [src]);
 
   return (
     <div className="w-full h-full relative">

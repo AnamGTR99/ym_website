@@ -20,10 +20,21 @@ export default function LoadingOverlay() {
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
   const [startedAt] = useState(() => Date.now());
 
+  // Log progress milestones
+  useEffect(() => {
+    if (total > 0) {
+      console.log(
+        `[LoadingOverlay] Progress: ${progress.toFixed(0)}% (${loaded}/${total}) active=${active}`
+      );
+    }
+  }, [active, progress, loaded, total]);
+
   // When the loader goes quiet at 100%, hold briefly then fade out.
   useEffect(() => {
     if (!active && progress >= 100 && total > 0) {
-      setElapsedMs(Date.now() - startedAt);
+      const elapsed = Date.now() - startedAt;
+      console.log(`[LoadingOverlay] Complete — ${(elapsed / 1000).toFixed(1)}s total`);
+      setElapsedMs(elapsed);
       const t1 = setTimeout(() => setPhase("ready"), 400);
       const t2 = setTimeout(() => setPhase("hidden"), 2000);
       return () => {

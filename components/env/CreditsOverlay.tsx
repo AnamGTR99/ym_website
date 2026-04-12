@@ -230,6 +230,28 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
       </div>
 
 
+      {/* Back button */}
+      <button
+        onClick={handleClose}
+        style={{
+          position: "fixed",
+          top: "1.5rem",
+          left: "1.5rem",
+          zIndex: 1000,
+          background: "rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          borderRadius: "6px",
+          color: "rgba(255,255,255,0.7)",
+          fontFamily: "monospace",
+          fontSize: "12px",
+          padding: "8px 16px",
+          cursor: "pointer",
+          backdropFilter: "blur(4px)",
+        }}
+      >
+        ← back
+      </button>
+
       {/* CSS animations */}
       <style>{`
         @keyframes creditsScroll {
