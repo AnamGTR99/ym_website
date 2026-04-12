@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
@@ -12,9 +12,6 @@ export default function LandingEnvironment() {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const fadeRef = useRef<HTMLDivElement>(null);
-
   const handleEnter = useCallback(() => {
     if (transitioning) return;
     startTransition("room", () => {
@@ -22,36 +19,11 @@ export default function LandingEnvironment() {
     });
   }, [transitioning, startTransition, router]);
 
-  // Smooth loop crossfade — fades to black near the end, fades back on restart
-  useEffect(() => {
-    const video = videoRef.current;
-    const fade = fadeRef.current;
-    if (!video || !fade) return;
-
-    const FADE_DURATION = 2;
-
-    function onTimeUpdate() {
-      if (!video || !fade) return;
-      const remaining = video.duration - video.currentTime;
-      if (remaining < FADE_DURATION) {
-        fade.style.opacity = String(1 - remaining / FADE_DURATION);
-      } else if (video.currentTime < FADE_DURATION) {
-        fade.style.opacity = String(1 - video.currentTime / FADE_DURATION);
-      } else {
-        fade.style.opacity = "0";
-      }
-    }
-
-    video.addEventListener("timeupdate", onTimeUpdate);
-    return () => video.removeEventListener("timeupdate", onTimeUpdate);
-  }, []);
-
   return (
     <div className="relative w-full h-screen overflow-hidden select-none">
       {/* Base — bayou video with night color grade */}
       <div className="absolute inset-0">
         <video
-          ref={videoRef}
           autoPlay
           muted
           loop
@@ -63,13 +35,6 @@ export default function LandingEnvironment() {
         >
           <source src="/video/landing-bg-web.mp4" type="video/mp4" />
         </video>
-
-        {/* Loop crossfade overlay — JS-controlled opacity */}
-        <div
-          ref={fadeRef}
-          className="absolute inset-0 bg-void pointer-events-none"
-          style={{ opacity: 0, transition: "opacity 0.15s linear" }}
-        />
 
         {/* Night sky gradient */}
         <div
