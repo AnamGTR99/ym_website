@@ -16,6 +16,10 @@ const MotelRoomScene = dynamic(() => import("@/components/three/MotelRoomScene")
   ),
 });
 
+const LoadingOverlay = dynamic(() => import("@/components/three/LoadingOverlay"), {
+  ssr: false,
+});
+
 /* ------------------------------------------------------------------ */
 /*  Mobile fallback hotspots — 2D, percent-positioned                 */
 /*  Used on touch devices where R3F orbit ergonomics are painful.     */
@@ -67,6 +71,11 @@ export default function RoomEnvironment() {
       {/* Desktop / tablet — full R3F scene */}
       <div className="hidden md:block absolute inset-0">
         <MotelRoomScene />
+      </div>
+
+      {/* GLB loading readout — top right, always above canvas */}
+      <div className="hidden md:block">
+        <LoadingOverlay />
       </div>
 
       {/* Mobile fallback — 2D hotspots over static gradient */}

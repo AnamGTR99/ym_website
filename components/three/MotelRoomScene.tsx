@@ -3,58 +3,140 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
+import {
+  EffectComposer,
+  Bloom,
+  Noise,
+  Vignette,
+} from "@react-three/postprocessing";
+import { BlendFunction, KernelSize } from "postprocessing";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { useEnvStore } from "@/stores/env";
 
 /* ================================================================== */
-/*  CONFIG — tune everything from here when Bruno's final GLB lands   */
+/*  CONFIG — tune everything from here when the GLB drops             */
 /* ================================================================== */
 
 /** Path to the GLB file, served from /public. */
 const GLB_PATH = "/models/room.glb";
 
-/** Camera initial position + field of view. */
-const CAMERA_CONFIG = {
-  position: [0, 1.6, 2] as [number, number, number],
-  fov: 55,
-};
+/**
+ * Draco decoder path — bundled locally under /public/draco/.
+ * Avoids CSP issues from fetching gstatic.com at runtime.
+ * drei's useGLTF will use this for any Draco-compressed meshes.
+ */
+const DRACO_PATH = "/draco/";
 
-/** OrbitControls constraints — camera stays inside the room. */
+/**
+ * Camera presets — flip these if Bruno's model is facing a different axis.
+ *
+ * Blender's default "front" is +Y (looking down -Y), and glTF exports with
+ * Z-up → Y-up conversion. Bruno set the scene to face +X in Blender, which
+ * after conversion should still point the front toward +X in Three.js.
+ * If the model shows up sideways or we can't find it, flip ACTIVE_CAMERA
+ * to LOOK_AT_Y or LOOK_AT_Z.
+ *
+ * The camera sits at `position` and looks at `target`. Up is +Y.
+ */
+const CAMERA_PRESETS = {
+  /** Front of model faces +X → camera on +X axis looking back toward origin */
+  LOOK_AT_X: {
+    position: [15, 4, 0] as [number, number, number],
+    target: [0, 1.5, 0] as [number, number, number],
+  },
+  /** Front of model faces +Z → camera on +Z axis */
+  LOOK_AT_Z: {
+    position: [0, 4, 15] as [number, number, number],
+    target: [0, 1.5, 0] as [number, number, number],
+  },
+  /** Top-down view — useful if we can't find the model */
+  LOOK_AT_Y: {
+    position: [0, 20, 0.01] as [number, number, number],
+    target: [0, 0, 0] as [number, number, number],
+  },
+  /** Classic front-Z negative (Three.js default) */
+  LOOK_AT_NEG_Z: {
+    position: [0, 4, -15] as [number, number, number],
+    target: [0, 1.5, 0] as [number, number, number],
+  },
+} as const;
+
+/** Active camera — flip this line if the model is facing a different axis. */
+const ACTIVE_CAMERA = CAMERA_PRESETS.LOOK_AT_X;
+
+/** Camera field of view. Widen for very large scenes, narrow for tight framing. */
+const CAMERA_FOV = 50;
+
+/**
+ * OrbitControls — unlocked for debug / exploration of a new GLB.
+ * Re-lock (set enablePan/enableZoom false + polar/azimuth constraints)
+ * once we know the final camera framing and scale.
+ */
 const ORBIT_CONFIG = {
-  enablePan: false,
-  enableZoom: false,
-  minPolarAngle: Math.PI / 3,
-  maxPolarAngle: Math.PI / 2.1,
-  minAzimuthAngle: -Math.PI / 4,
-  maxAzimuthAngle: Math.PI / 4,
-  target: [0, 1.4, -3] as [number, number, number],
+  enablePan: true,
+  enableZoom: true,
+  minDistance: 0.5,
+  maxDistance: 100,
+  target: ACTIVE_CAMERA.target,
   enableDamping: true,
   dampingFactor: 0.08,
-};
+  makeDefault: true,
+} as const;
 
-/** Runtime lighting — warm amber lamp + cool teal fill + fog. */
+/** Runtime lighting. Disable individual lights if Bruno baked them in. */
 const LIGHTING_CONFIG = {
-  ambient: { intensity: 0.15, color: "#d4a853" },
+  ambient: { intensity: 0.35, color: "#ffffff" },
   lampPoint: {
-    position: [2.5, 2.2, -3] as [number, number, number],
-    intensity: 8,
+    position: [2.5, 2.5, -3] as [number, number, number],
+    intensity: 12,
     color: "#d4a853",
-    distance: 8,
+    distance: 12,
     decay: 2,
   },
+  keyDirectional: {
+    position: [8, 10, 4] as [number, number, number],
+    intensity: 0.6,
+    color: "#ffffff",
+  },
   fillDirectional: {
-    position: [0, 3, 3] as [number, number, number],
+    position: [-6, 5, 4] as [number, number, number],
     intensity: 0.3,
     color: "#6bc4c4",
   },
-  fog: { color: "#050505", near: 5, far: 15 },
-};
+  fog: { color: "#050505", near: 15, far: 80 },
+} as const;
 
 /**
- * Mesh-name → interaction mapping for the GLB room.
- * Bruno's brief locks these names: Room, TV, TV_Screen, Poster, Lamp.
- * To add more interactive meshes, just add them here — no other code changes.
+ * Post-processing — bloom + grain + vignette baked into the WebGL render.
+ * These layer on top of the CSS grain/vignette overlays in RoomEnvironment
+ * (intentional — WebGL post gives us HDR bloom; CSS gives us film-grade
+ * vignette falloff).
+ */
+const POST_CONFIG = {
+  bloom: {
+    intensity: 0.9,
+    luminanceThreshold: 0.7,
+    luminanceSmoothing: 0.35,
+    mipmapBlur: true,
+    kernelSize: KernelSize.LARGE,
+  },
+  noise: {
+    opacity: 0.18,
+    premultiply: false,
+    blendFunction: BlendFunction.MULTIPLY,
+  },
+  vignette: {
+    offset: 0.32,
+    darkness: 0.7,
+    blendFunction: BlendFunction.NORMAL,
+  },
+} as const;
+
+/**
+ * Mesh-name → interaction mapping for Bruno's GLB.
+ * Brief locks these: Room, TV, TV_Screen, Poster, Lamp.
+ * Add more interactive meshes here without touching any other code.
  */
 type InteractionAction = "navigate-tv" | "open-credits" | "none";
 
@@ -62,36 +144,51 @@ const INTERACTIVE_MESHES: Record<string, InteractionAction> = {
   TV: "navigate-tv",
   TV_Screen: "navigate-tv",
   Poster: "open-credits",
-  // Lamp: "toggle-lamp", // reserved for future
+  // Lamp: "toggle-lamp", // reserved
 };
 
-/** GLB transform — apply if Bruno's scene needs global scale/offset. */
+/** GLB global transform — apply if Bruno's scene needs scale/offset. */
 const GLB_TRANSFORM = {
   position: [0, 0, 0] as [number, number, number],
   rotation: [0, 0, 0] as [number, number, number],
   scale: 1,
-};
+} as const;
 
 /* ================================================================== */
-/*  GLB Room — loaded via useGLTF, click handlers via scene traverse  */
+/*  GLB Room — loaded via useGLTF with Draco support                  */
 /* ================================================================== */
 
 function GLBRoom() {
-  const { scene } = useGLTF(GLB_PATH);
+  const { scene } = useGLTF(GLB_PATH, DRACO_PATH);
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
   const openCredits = useEnvStore((s) => s.openCredits);
 
-  // Tag interactive meshes once the scene loads.
+  // Tag interactive meshes + log scene graph for debugging
   useEffect(() => {
+    const meshNames: string[] = [];
     scene.traverse((obj) => {
-      if (!(obj instanceof THREE.Mesh)) return;
-      const action = INTERACTIVE_MESHES[obj.name];
-      if (action) {
-        obj.userData.interactionAction = action;
+      if (obj instanceof THREE.Mesh) {
+        meshNames.push(obj.name);
+        const action = INTERACTIVE_MESHES[obj.name];
+        if (action) obj.userData.interactionAction = action;
       }
     });
+    if (typeof window !== "undefined") {
+      console.log("[MotelRoom GLB] meshes:", meshNames);
+      const bbox = new THREE.Box3().setFromObject(scene);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      bbox.getSize(size);
+      bbox.getCenter(center);
+      console.log(
+        "[MotelRoom GLB] bbox size:",
+        size.toArray().map((n) => n.toFixed(2)),
+        "center:",
+        center.toArray().map((n) => n.toFixed(2))
+      );
+    }
   }, [scene]);
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
@@ -133,8 +230,7 @@ function GLBRoom() {
 }
 
 /* ================================================================== */
-/*  Procedural Room — fallback when no GLB is present (e.g. prod     */
-/*  before Bruno's file is committed, or local before drop)           */
+/*  Procedural Room fallback — shown when /models/room.glb is missing */
 /* ================================================================== */
 
 function ProceduralRoom() {
@@ -235,7 +331,7 @@ function Hotspot({ position, args, color, glowColor, label, onClick, disabled }:
 }
 
 /* ================================================================== */
-/*  Room Content — branches GLB vs procedural based on file presence */
+/*  Room Content — probes for GLB, branches GLB vs procedural         */
 /* ================================================================== */
 
 type GlbStatus = "loading" | "available" | "missing";
@@ -248,7 +344,6 @@ function RoomContent() {
 
   const [glbStatus, setGlbStatus] = useState<GlbStatus>("loading");
 
-  // Probe for the GLB file on mount. Graceful fallback if missing.
   useEffect(() => {
     let cancelled = false;
     fetch(GLB_PATH, { method: "HEAD" })
@@ -274,7 +369,6 @@ function RoomContent() {
     openCredits();
   };
 
-  // While probing, render nothing inside the canvas (overlay still shows loading)
   if (glbStatus === "loading") return null;
 
   if (glbStatus === "available") {
@@ -285,7 +379,6 @@ function RoomContent() {
     );
   }
 
-  // Missing → procedural fallback with click-cube hotspots
   return (
     <>
       <ProceduralRoom />
@@ -312,11 +405,12 @@ function RoomContent() {
 }
 
 /* ================================================================== */
-/*  Scene — shared lights + fog + orbit controls, wraps RoomContent  */
+/*  Scene — lights, fog, content, orbit, post-processing stack       */
 /* ================================================================== */
 
 function Scene() {
   const L = LIGHTING_CONFIG;
+  const P = POST_CONFIG;
 
   return (
     <>
@@ -330,6 +424,12 @@ function Scene() {
         castShadow
       />
       <directionalLight
+        position={L.keyDirectional.position}
+        intensity={L.keyDirectional.intensity}
+        color={L.keyDirectional.color}
+        castShadow
+      />
+      <directionalLight
         position={L.fillDirectional.position}
         intensity={L.fillDirectional.intensity}
         color={L.fillDirectional.color}
@@ -339,6 +439,26 @@ function Scene() {
       <RoomContent />
 
       <OrbitControls {...ORBIT_CONFIG} />
+
+      <EffectComposer multisampling={0}>
+        <Bloom
+          intensity={P.bloom.intensity}
+          luminanceThreshold={P.bloom.luminanceThreshold}
+          luminanceSmoothing={P.bloom.luminanceSmoothing}
+          mipmapBlur={P.bloom.mipmapBlur}
+          kernelSize={P.bloom.kernelSize}
+        />
+        <Noise
+          opacity={P.noise.opacity}
+          premultiply={P.noise.premultiply}
+          blendFunction={P.noise.blendFunction}
+        />
+        <Vignette
+          offset={P.vignette.offset}
+          darkness={P.vignette.darkness}
+          blendFunction={P.vignette.blendFunction}
+        />
+      </EffectComposer>
     </>
   );
 }
@@ -351,10 +471,10 @@ export default function MotelRoomScene() {
   return (
     <Canvas
       shadows
-      camera={{ position: CAMERA_CONFIG.position, fov: CAMERA_CONFIG.fov }}
+      camera={{ position: ACTIVE_CAMERA.position, fov: CAMERA_FOV }}
       dpr={[1, 1.5]}
       performance={{ min: 0.5 }}
-      gl={{ antialias: true, alpha: false }}
+      gl={{ antialias: false, alpha: false }}
       style={{ background: "#050505" }}
     >
       <Suspense fallback={null}>
@@ -364,6 +484,6 @@ export default function MotelRoomScene() {
   );
 }
 
-// Opportunistic preload — if the GLB ever 200s, parse it early.
-// Safe when the file is missing: drei's useGLTF.preload swallows 404s.
-useGLTF.preload(GLB_PATH);
+// Opportunistic preload — if /models/room.glb exists, parse it early.
+// drei's useGLTF.preload swallows 404s so this is safe in all envs.
+useGLTF.preload(GLB_PATH, DRACO_PATH);
