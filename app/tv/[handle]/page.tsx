@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import WalkthroughNav from "@/components/ui/WalkthroughNav";
 import ProductScreen from "@/components/tv/ProductScreen";
 import ProductControls from "@/components/tv/ProductControls";
 import TrackList from "@/components/music/TrackList";
@@ -75,9 +74,7 @@ export default async function ProductPage({
   const tracks = await getTracksByProductId(product.id);
 
   return (
-    <>
-      <WalkthroughNav current={`/tv/${handle}`} />
-      <main className="grain min-h-screen flex flex-col items-center px-4 pt-16 pb-12 bg-void">
+    <main className="grain min-h-screen flex flex-col items-center px-4 pt-6 pb-12 bg-void">
         <div className="w-full max-w-5xl flex flex-col gap-6">
           {/* Breadcrumb */}
           <div className="flex items-center gap-3 animate-fade-down">
@@ -106,7 +103,6 @@ export default async function ProductPage({
           {/* Linked tracks — only rendered when tracks exist */}
           <TrackList tracks={tracks} />
         </div>
-      </main>
-    </>
+    </main>
   );
 }

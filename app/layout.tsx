@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
+import FloatingUI from "@/components/ui/FloatingUI";
 import CartPanel from "@/components/cart/CartPanel";
 import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
 import "./globals.css";
@@ -55,6 +56,7 @@ export default function RootLayout({
       <body className="bg-void text-dust antialiased font-body">
         <AuthProvider>
           {children}
+          <FloatingUI />
           <CartPanel />
           <GlobalAudioPlayer />
         </AuthProvider>
