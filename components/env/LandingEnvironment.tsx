@@ -12,6 +12,7 @@ export default function LandingEnvironment() {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
+
   const handleEnter = useCallback(() => {
     if (transitioning) return;
     startTransition("room", () => {
@@ -21,8 +22,18 @@ export default function LandingEnvironment() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden select-none">
-      {/* Base — bayou video with night color grade */}
-      <div className="absolute inset-0">
+      {/* ============================================================
+          SCENE LAYER — zooms + blurs when transitioning
+          ============================================================ */}
+      <div
+        className="absolute inset-0 origin-center transition-all duration-[1400ms]"
+        style={{
+          transform: transitioning ? "scale(2.8)" : "scale(1)",
+          filter: transitioning ? "blur(16px)" : "blur(0px)",
+          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {/* Bayou video — night graded */}
         <video
           autoPlay
           muted
@@ -44,30 +55,39 @@ export default function LandingEnvironment() {
           }}
         />
 
-        {/* Edge darkening for text readability */}
+        {/* Edge darkening */}
         <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-void/80 to-transparent" />
         <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-void/60 to-transparent" />
+
+        {/* Starfield zooms with the scene */}
+        <StarField />
+
+        {/* Atmospheric layers */}
+        <div className="grain absolute inset-0" />
+        <div className="vignette-heavy absolute inset-0" />
+
+        {/* Warm glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[60vw] h-[40vh] pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
+            filter: "blur(80px)",
+          }}
+        />
       </div>
 
-      {/* Starfield */}
-      <StarField />
-
-      {/* Atmospheric layers */}
-      <div className="grain absolute inset-0" />
-      <div className="vignette-heavy absolute inset-0" />
-
-      {/* Warm glow behind title */}
+      {/* ============================================================
+          TEXT LAYER — fades out fast so it doesn't stretch during zoom
+          ============================================================ */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[60vw] h-[40vh] pointer-events-none"
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-all duration-[600ms]"
         style={{
-          background:
-            "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
-          filter: "blur(80px)",
+          opacity: transitioning ? 0 : 1,
+          transform: transitioning ? "scale(0.95) translateY(-10px)" : "scale(1) translateY(0)",
+          transitionTimingFunction: "cubic-bezier(0.4, 0, 1, 1)",
         }}
-      />
-
-      {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
+      >
         <p className="text-[10px] font-mono text-fog/60 tracking-[0.35em] uppercase animate-fade-down delay-200">
           Solus Records presents
         </p>
@@ -100,18 +120,26 @@ export default function LandingEnvironment() {
         </p>
       </div>
 
-      {/* Bottom attribution */}
-      <div className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none">
+      {/* Bottom attribution — fades with text */}
+      <div
+        className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none transition-opacity duration-[400ms]"
+        style={{ opacity: transitioning ? 0 : 1 }}
+      >
         <p className="text-[10px] font-mono text-fog/40 tracking-[0.15em]">
           © 2026 Yunmakai LLC · Solus Records · Lunas Lake Studio
         </p>
       </div>
 
-      {/* Transition fade-to-black */}
+      {/* ============================================================
+          BLACK OVERLAY — fades in during the second half of the zoom
+          ============================================================ */}
       <div
-        className={`absolute inset-0 bg-void z-20 pointer-events-none transition-opacity duration-[1500ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          transitioning ? "opacity-100" : "opacity-0"
-        }`}
+        className="absolute inset-0 bg-void z-20 pointer-events-none"
+        style={{
+          opacity: transitioning ? 1 : 0,
+          transition: "opacity 800ms cubic-bezier(0.4, 0, 0.2, 1)",
+          transitionDelay: transitioning ? "600ms" : "0ms",
+        }}
       />
     </div>
   );
