@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
@@ -162,7 +162,22 @@ interface ProductFigurineProps {
 
 function ProductFigurine({ glbUrl }: ProductFigurineProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const [loadStart] = useState(() => performance.now());
   const gltf = useGLTF(glbUrl);
+
+  useEffect(() => {
+    const ms = (performance.now() - loadStart).toFixed(0);
+    let tris = 0;
+    gltf.scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        const geo = obj.geometry;
+        tris += geo.index ? geo.index.count / 3 : (geo.attributes.position?.count ?? 0) / 3;
+      }
+    });
+    console.log(
+      `[TVRoom] Product GLB loaded in ${ms}ms — ${Math.round(tris).toLocaleString()} triangles — ${glbUrl}`
+    );
+  }, [gltf, glbUrl, loadStart]);
 
   useFrame(() => {
     if (groupRef.current) {
@@ -193,6 +208,8 @@ function Scene({ productImageUrl, glbUrl }: SceneProps) {
       setScreenTexture(null);
       return;
     }
+    console.log("[TVRoom] Loading screen texture:", productImageUrl);
+    const t0 = performance.now();
     const loader = new THREE.TextureLoader();
     loader.crossOrigin = "anonymous";
     let cancelled = false;
@@ -202,11 +219,17 @@ function Scene({ productImageUrl, glbUrl }: SceneProps) {
         if (cancelled) return;
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.anisotropy = 4;
+        console.log(
+          `[TVRoom] Screen texture loaded in ${(performance.now() - t0).toFixed(0)}ms — ${tex.image.width}x${tex.image.height}`
+        );
         setScreenTexture(tex);
       },
       undefined,
-      () => {
-        if (!cancelled) setScreenTexture(null);
+      (err) => {
+        if (!cancelled) {
+          console.warn("[TVRoom] Screen texture failed:", productImageUrl, err);
+          setScreenTexture(null);
+        }
       }
     );
     return () => {

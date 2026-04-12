@@ -13,7 +13,7 @@ let initialized = false;
 let cleanup: (() => void) | null = null;
 
 async function fetchRole(
-  supabase: ReturnType<typeof createClient>,
+  supabase: NonNullable<ReturnType<typeof createClient>>,
   userId: string
 ): Promise<string> {
   try {
@@ -28,6 +28,8 @@ async function fetchRole(
   }
 }
 
+const noop = () => {};
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   role: null,
@@ -38,6 +40,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     initialized = true;
 
     const supabase = createClient();
+
+    if (!supabase) {
+      set({ user: null, role: null, loading: false });
+      cleanup = noop;
+      return noop;
+    }
 
     // Fetch initial session with error handling
     supabase.auth
