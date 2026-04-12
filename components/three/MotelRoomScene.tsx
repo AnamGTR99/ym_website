@@ -1112,7 +1112,10 @@ function TVMenuScreen({ onSelect }: { onSelect: (ch: TVChannel) => void }) {
 
 function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => void }) {
   const info = CHANNELS.find((c) => c.id === channel);
-  const router = useRouter();
+  // NOTE: do NOT call useRouter() here — this component renders inside drei's
+  // <Html> portal, which doesn't propagate Next.js App Router context and
+  // will throw "invariant expected app router to be mounted". Use
+  // window.location.href for navigation instead.
   const openCredits = useEnvStore((s) => s.openCredits);
   const startTransition = useEnvStore((s) => s.startTransition);
 
@@ -1158,10 +1161,12 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
       1.5,
       () => {
         setZoomedToTV(false);
-        startTransition("tv", () => router.push(`/tv/${handle}`));
+        startTransition("tv", () => {
+          window.location.href = `/tv/${handle}`;
+        });
       }
     );
-  }, [router, startTransition]);
+  }, [startTransition]);
 
   const playTrack = useCallback((trackId: string) => {
     import("@/stores/music").then((mod) => {
