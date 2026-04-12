@@ -491,9 +491,25 @@ function GLBRoom({
       }
     });
 
-    // Tag interactive objects by name
+    // Tag interactive objects by name OR material name
+    // Bruno's GLB has generic mesh names but meaningful material names
     for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
-      const obj = scene.getObjectByName(name);
+      // First try by object/node name
+      let obj = scene.getObjectByName(name);
+
+      // Fallback: find by material name
+      if (!obj) {
+        scene.traverse((child) => {
+          if (obj) return; // already found
+          if (child instanceof THREE.Mesh && !Array.isArray(child.material)) {
+            const matName = (child.material as THREE.MeshStandardMaterial).name;
+            if (matName && matName.toLowerCase() === name.toLowerCase()) {
+              obj = child;
+            }
+          }
+        });
+      }
+
       if (!obj) continue;
       obj.traverse((child) => {
         child.userData.interactionAction = action;
@@ -525,10 +541,14 @@ function GLBRoom({
 
     addLog(`loaded ${meshNames.length} meshes, ${Math.round(totalTriangles).toLocaleString()} tris`);
 
-    // Find the screen mesh
+    // Find the screen mesh — check both mesh name AND material name
+    // Bruno's GLB has generic mesh names but material named "Screen"
     let screenMesh: THREE.Mesh | null = null;
     scene.traverse((obj) => {
-      if (obj instanceof THREE.Mesh && obj.name.toLowerCase() === "screen") {
+      if (obj instanceof THREE.Mesh && (
+        obj.name.toLowerCase() === "screen" ||
+        (obj.material && !Array.isArray(obj.material) && (obj.material as THREE.MeshStandardMaterial).name?.toLowerCase() === "screen")
+      )) {
         screenMesh = obj;
         const m = obj.material as THREE.MeshStandardMaterial;
         if (m) {
@@ -653,7 +673,10 @@ function GLBRoom({
     if (transitioning || _cameraAnimating) return;
 
     // Screen mesh — animate camera to TV close-up
-    if (e.object.name.toLowerCase() === "screen") {
+    // Check both mesh name and material name (Bruno's GLB has material named "Screen")
+    const meshName = e.object.name?.toLowerCase() ?? "";
+    const matName = (!Array.isArray((e.object as THREE.Mesh).material) && ((e.object as THREE.Mesh).material as THREE.MeshStandardMaterial)?.name?.toLowerCase()) || "";
+    if (meshName === "screen" || matName === "screen") {
       animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5, () => setZoomedToTV(true));
       return;
     }
