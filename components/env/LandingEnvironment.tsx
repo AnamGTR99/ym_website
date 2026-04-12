@@ -29,17 +29,19 @@ export default function LandingEnvironment() {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-70"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            filter: "brightness(0.3) saturate(0.35) contrast(1.3) sepia(0.15) hue-rotate(190deg)",
+          }}
         >
           <source src="/video/landing-bg-web.mp4" type="video/mp4" />
         </video>
 
-        {/* Subtle Ozark tint — lets the lake show through */}
+        {/* Night sky gradient — deep blue-black blending with the lake */}
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(180deg, #030a0f 0%, transparent 30%, transparent 60%, #030508 100%)",
-            opacity: 0.6,
+            background: "linear-gradient(180deg, #020810 0%, rgba(5,15,25,0.4) 35%, transparent 55%, rgba(3,8,12,0.6) 80%, #020508 100%)",
           }}
         />
 
