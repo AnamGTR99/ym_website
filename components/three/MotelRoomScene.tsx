@@ -1514,6 +1514,26 @@ function TVScreenHTML() {
 /*  Room Content — loads GLB, falls back to procedural                 */
 /* ================================================================== */
 
+/* Error boundary for GLB loading — catches useGLTF Suspense failures */
+import React from "react";
+
+class GLBErrorBoundary extends React.Component<
+  { children: React.ReactNode; onError: () => void },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err: Error) {
+    console.error("[GLBRoom] Load failed — falling back to procedural:", err.message);
+    this.props.onError();
+  }
+  render() {
+    return this.state.hasError ? null : this.props.children;
+  }
+}
+
 function RoomContent({ onModelReady }: { onModelReady: () => void }) {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
@@ -1552,10 +1572,14 @@ function RoomContent({ onModelReady }: { onModelReady: () => void }) {
   }
 
   return (
-    <GLBRoom
-      onModelReady={onModelReady}
-      onLoadFailed={() => setLoadFailed(true)}
-    />
+    <GLBErrorBoundary onError={() => setLoadFailed(true)}>
+      <Suspense fallback={null}>
+        <GLBRoom
+          onModelReady={onModelReady}
+          onLoadFailed={() => setLoadFailed(true)}
+        />
+      </Suspense>
+    </GLBErrorBoundary>
   );
 }
 
