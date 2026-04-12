@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
@@ -8,10 +8,30 @@ import StarField from "./StarField";
 
 useGLTF.preload("/models/room.glb", "/draco/", true);
 
+/* ------------------------------------------------------------------ */
+/*  Parallax config — how much each layer moves with the mouse        */
+/* ------------------------------------------------------------------ */
+
+const PARALLAX = {
+  scene: { x: 18, y: 10 },
+  stars: { x: 8, y: 5 },
+  text: { x: -4, y: -3 },
+  lerp: 0.035,
+};
+
 export default function LandingEnvironment() {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
+
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const starsRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
+  const mouseTarget = useRef({ x: 0, y: 0 });
+  const mouseCurrent = useRef({ x: 0, y: 0 });
+  const transitioningRef = useRef(false);
+
+  transitioningRef.current = transitioning;
 
   const handleEnter = useCallback(() => {
     if (transitioning) return;
@@ -20,71 +40,112 @@ export default function LandingEnvironment() {
     });
   }, [transitioning, startTransition, router]);
 
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (transitioningRef.current) return;
+    const cx = (e.clientX / window.innerWidth - 0.5) * 2;
+    const cy = (e.clientY / window.innerHeight - 0.5) * 2;
+    mouseTarget.current = { x: cx, y: cy };
+  }, []);
+
+  // Parallax RAF loop — smooth mouse following, kills on transition
+  useEffect(() => {
+    let raf: number;
+    const P = PARALLAX;
+
+    function tick() {
+      const t = transitioningRef.current
+        ? { x: 0, y: 0 }
+        : mouseTarget.current;
+      const c = mouseCurrent.current;
+
+      c.x += (t.x - c.x) * P.lerp;
+      c.y += (t.y - c.y) * P.lerp;
+
+      if (sceneRef.current) {
+        sceneRef.current.style.transform = `translate(${c.x * P.scene.x}px, ${c.y * P.scene.y}px)`;
+      }
+      if (starsRef.current) {
+        starsRef.current.style.transform = `translate(${c.x * P.stars.x}px, ${c.y * P.stars.y}px)`;
+      }
+      if (textRef.current) {
+        textRef.current.style.transform = `translate(${c.x * P.text.x}px, ${c.y * P.text.y}px)`;
+      }
+
+      raf = requestAnimationFrame(tick);
+    }
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <div className="relative w-full h-screen overflow-hidden select-none">
+    <div
+      className="relative w-full h-screen overflow-hidden select-none"
+      onMouseMove={handleMouseMove}
+    >
       {/* ============================================================
-          SCENE LAYER — zooms + blurs when transitioning
+          SCENE — parallax outer (RAF) + zoom inner (CSS transition)
           ============================================================ */}
-      <div
-        className="absolute inset-0 origin-center transition-all duration-[3000ms]"
-        style={{
-          transform: transitioning ? "scale(1.6)" : "scale(1)",
-          filter: transitioning ? "blur(4px)" : "blur(0px)",
-          transitionTimingFunction: "cubic-bezier(0.05, 0.5, 0.2, 1)",
-        }}
-      >
-        {/* Bayou video — night graded */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
+      <div ref={sceneRef} className="absolute inset-[-20px]">
+        <div
+          className="absolute inset-0 origin-center transition-all duration-[3000ms]"
           style={{
-            filter: "brightness(0.45) saturate(0.4) contrast(1.2) sepia(0.1) hue-rotate(190deg)",
+            transform: transitioning ? "scale(1.6)" : "scale(1)",
+            filter: transitioning ? "blur(4px)" : "blur(0px)",
+            transitionTimingFunction: "cubic-bezier(0.05, 0.5, 0.2, 1)",
           }}
         >
-          <source src="/video/landing-bg-web.mp4" type="video/mp4" />
-        </video>
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{
+              filter: "brightness(0.45) saturate(0.4) contrast(1.2) sepia(0.1) hue-rotate(190deg)",
+            }}
+          >
+            <source src="/video/landing-bg-web.mp4" type="video/mp4" />
+          </video>
 
-        {/* Night sky gradient */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "linear-gradient(180deg, #020810 0%, rgba(5,15,25,0.4) 35%, transparent 55%, rgba(3,8,12,0.6) 80%, #020508 100%)",
-          }}
-        />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(180deg, #020810 0%, rgba(5,15,25,0.4) 35%, transparent 55%, rgba(3,8,12,0.6) 80%, #020508 100%)",
+            }}
+          />
 
-        {/* Edge darkening */}
-        <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-void/80 to-transparent" />
-        <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-void/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-void/80 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-void/60 to-transparent" />
 
-        {/* Starfield zooms with the scene */}
-        <StarField />
-
-        {/* Atmospheric layers */}
-        <div className="grain absolute inset-0" />
-        <div className="vignette-heavy absolute inset-0" />
-
-        {/* Warm glow */}
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[60vw] h-[40vh] pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
-            filter: "blur(80px)",
-          }}
-        />
+          <div className="grain absolute inset-0" />
+          <div className="vignette-heavy absolute inset-0" />
+        </div>
       </div>
 
+      {/* Stars — separate parallax layer (moves at different rate) */}
+      <div ref={starsRef} className="absolute inset-[-10px]">
+        <StarField />
+      </div>
+
+      {/* Warm glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[60vw] h-[40vh] pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
+          filter: "blur(80px)",
+        }}
+      />
+
       {/* ============================================================
-          TEXT LAYER — fades out fast so it doesn't stretch during zoom
+          TEXT — counter-parallax (moves opposite for depth)
           ============================================================ */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-all duration-[1200ms]"
+        ref={textRef}
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-opacity duration-[1200ms]"
         style={{
           opacity: transitioning ? 0 : 1,
-          transform: transitioning ? "translateY(-20px)" : "translateY(0)",
           transitionTimingFunction: "cubic-bezier(0.4, 0, 1, 1)",
         }}
       >
@@ -120,7 +181,7 @@ export default function LandingEnvironment() {
         </p>
       </div>
 
-      {/* Bottom attribution — fades with text */}
+      {/* Bottom attribution */}
       <div
         className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none transition-opacity duration-[400ms]"
         style={{ opacity: transitioning ? 0 : 1 }}
@@ -130,9 +191,7 @@ export default function LandingEnvironment() {
         </p>
       </div>
 
-      {/* ============================================================
-          BLACK OVERLAY — fades in during the second half of the zoom
-          ============================================================ */}
+      {/* Transition fade-to-black */}
       <div
         className="absolute inset-0 bg-void z-20 pointer-events-none"
         style={{
