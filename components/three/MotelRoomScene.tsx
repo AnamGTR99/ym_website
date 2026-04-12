@@ -1116,23 +1116,28 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
   const openCredits = useEnvStore((s) => s.openCredits);
   const startTransition = useEnvStore((s) => s.startTransition);
 
-  // Shop: fetch real products from Supabase product_cache
-  const [products, setProducts] = useState<import("@/app/room/actions").TVProduct[]>([]);
-  const [tracks, setTracks] = useState<import("@/app/room/actions").TVTrack[]>([]);
+  // Shop + Music: fetch via public API routes (works inside R3F Html portal)
+  const [products, setProducts] = useState<Array<{ shopify_id: string; title: string; handle: string; price: string; image_url: string | null }>>([]);
+  const [tracks, setTracks] = useState<Array<{ id: string; title: string; artist: string; duration_seconds: number | null; cover_url: string | null }>>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (channel === "shop") {
       setLoading(true);
-      import("@/app/room/actions").then((mod) =>
-        mod.getShopProducts().then((p) => { setProducts(p); setLoading(false); })
-      );
+      setError(null);
+      fetch("/api/tv/products")
+        .then((r) => r.json())
+        .then((data) => { setProducts(Array.isArray(data) ? data : []); setLoading(false); })
+        .catch((e) => { setError(e.message); setLoading(false); });
     }
     if (channel === "music") {
       setLoading(true);
-      import("@/app/room/actions").then((mod) =>
-        mod.getMusicTracks().then((t) => { setTracks(t); setLoading(false); })
-      );
+      setError(null);
+      fetch("/api/tv/tracks")
+        .then((r) => r.json())
+        .then((data) => { setTracks(Array.isArray(data) ? data : []); setLoading(false); })
+        .catch((e) => { setError(e.message); setLoading(false); });
     }
     if (channel === "credits") {
       openCredits();
@@ -1214,6 +1219,7 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
             <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
               YUNMAKAI GOODS
             </div>
+            {error && <div style={{ fontSize: "11px", color: "#ff4444", letterSpacing: "0.1em" }}>ERROR: {error}</div>}
             {loading ? (
               <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
             ) : products.length === 0 ? (
@@ -1221,7 +1227,7 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
             ) : (
               products.map((p) => (
                 <div
-                  key={p.id}
+                  key={p.shopify_id}
                   style={rowStyle}
                   onClick={(e) => { e.stopPropagation(); navigateToProduct(p.handle); }}
                   onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
@@ -1260,8 +1266,8 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
                     <div>{String(i + 1).padStart(2, "0")} — {t.title.toUpperCase()}</div>
                     <div style={{ fontSize: "10px", color: "rgba(200,192,168,0.4)", marginTop: "1px" }}>{t.artist}</div>
                   </div>
-                  {t.durationSeconds && (
-                    <span style={{ fontSize: "10px", color: "rgba(200,192,168,0.3)" }}>{formatDuration(t.durationSeconds)}</span>
+                  {t.duration_seconds && (
+                    <span style={{ fontSize: "10px", color: "rgba(200,192,168,0.3)" }}>{formatDuration(t.duration_seconds)}</span>
                   )}
                 </div>
               ))
