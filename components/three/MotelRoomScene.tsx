@@ -2,7 +2,13 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { OrbitControls, useGLTF } from "@react-three/drei";
+import {
+  AdaptiveDpr,
+  AdaptiveEvents,
+  OrbitControls,
+  Preload,
+  useGLTF,
+} from "@react-three/drei";
 import {
   EffectComposer,
   Bloom,
@@ -159,7 +165,9 @@ const GLB_TRANSFORM = {
 /* ================================================================== */
 
 function GLBRoom() {
-  const { scene } = useGLTF(GLB_PATH, DRACO_PATH);
+  // Args: (path, dracoDecoderPath, useMeshopt, extendLoader)
+  // Meshopt is free when unused and a cheap speedup when Bruno enables it.
+  const { scene } = useGLTF(GLB_PATH, DRACO_PATH, true);
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
@@ -440,6 +448,15 @@ function Scene() {
 
       <OrbitControls {...ORBIT_CONFIG} />
 
+      {/* Shader precompile — compiles all material variants during load so
+          first render is instant. Without this, each material blocks 1-3s
+          when first visible ("shader compilation stutter"). */}
+      <Preload all />
+
+      {/* Self-tuning perf — drops DPR and throttles events under load */}
+      <AdaptiveDpr pixelated />
+      <AdaptiveEvents />
+
       <EffectComposer multisampling={0}>
         <Bloom
           intensity={P.bloom.intensity}
@@ -486,4 +503,4 @@ export default function MotelRoomScene() {
 
 // Opportunistic preload — if /models/room.glb exists, parse it early.
 // drei's useGLTF.preload swallows 404s so this is safe in all envs.
-useGLTF.preload(GLB_PATH, DRACO_PATH);
+useGLTF.preload(GLB_PATH, DRACO_PATH, true);
