@@ -479,17 +479,24 @@ function GLBRoom({
 
     // Tag interactive meshes + diagnostics
     const meshNames: string[] = [];
+    const meshMaterialMap: string[] = [];
     let totalTriangles = 0;
     _interactiveOriginals.clear();
     scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh) {
         meshNames.push(obj.name);
+        const matName = !Array.isArray(obj.material) ? (obj.material as THREE.MeshStandardMaterial).name || "unnamed" : "multi";
+        meshMaterialMap.push(`${obj.name} → mat:${matName}`);
         const geo = obj.geometry;
         totalTriangles += geo.index
           ? geo.index.count / 3
           : (geo.attributes.position?.count ?? 0) / 3;
       }
     });
+
+    // Log all mesh→material mappings to the loading terminal
+    addLog(`${meshNames.length} meshes, ${Math.round(totalTriangles).toLocaleString()} tris`);
+    meshMaterialMap.forEach((m) => addLog(m));
 
     // Tag interactive objects by name OR material name
     // Bruno's GLB has generic mesh names but meaningful material names
@@ -560,6 +567,7 @@ function GLBRoom({
     });
     screenRef.current = screenMesh;
     _screenMesh = screenMesh;
+    addLog(screenMesh ? `SCREEN FOUND: ${screenMesh.name} (mat: ${(screenMesh.material as THREE.MeshStandardMaterial)?.name})` : "SCREEN NOT FOUND ✗");
 
     // Material pass
     applyMaterialPass(scene);
