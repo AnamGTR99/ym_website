@@ -18,6 +18,7 @@
     "@supabase/supabase-js": "^2.99.0",
     "@tailwindcss/postcss": "^4.2.1",
     "isomorphic-dompurify": "^2.30.0",
+    "meshoptimizer": "^1.1.0",
     "next": "^16.1.6",
     "postcss": "^8.5.8",
     "postprocessing": "^6.39.0",

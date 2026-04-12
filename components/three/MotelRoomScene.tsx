@@ -24,7 +24,8 @@ import { BlendFunction } from "postprocessing";
 import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
-import { DRACOLoader, GLTFLoader, RGBELoader } from "three-stdlib";
+import { GLTFLoader, RGBELoader } from "three-stdlib";
+import { MeshoptDecoder } from "meshoptimizer";
 import { create } from "zustand";
 import { useEnvStore } from "@/stores/env";
 
@@ -154,13 +155,11 @@ const GLB_TRANSFORM = {
 } as const;
 
 /* ================================================================== */
-/*  DRACO SETUP — force WASM decoding + parallel preload              */
+/*  MESHOPT SETUP — no Web Worker needed, main-thread WASM decode     */
 /* ================================================================== */
 
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath(DRACO_PATH);
-dracoLoader.setDecoderConfig({ type: "wasm" });
-dracoLoader.preload();
+let _meshoptReady = false;
+const _meshoptPromise = MeshoptDecoder.ready.then(() => { _meshoptReady = true; });
 
 /* ================================================================== */
 /*  LOADING LOG — terminal overlay shared state                       */
@@ -474,19 +473,10 @@ function GLBRoom({
   /* ---- Manual GLB load with full lifecycle logging ---- */
   useEffect(() => {
     resetLog();
-    addLog("initialising draco decoder...");
-
-    // Observe WASM decoder readiness (internal promise)
-    const decoderPending = (dracoLoader as unknown as { decoderPending?: Promise<void> })
-      .decoderPending;
-    if (decoderPending) {
-      decoderPending.then(() => addLog("wasm decoder ready")).catch(() => {});
-    } else {
-      addLog("wasm decoder ready");
-    }
+    addLog("initialising meshopt decoder...");
 
     const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
+    loader.setMeshoptDecoder(MeshoptDecoder);
 
     addLog("fetching model...");
 
