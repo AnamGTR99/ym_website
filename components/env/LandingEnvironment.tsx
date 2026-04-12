@@ -9,14 +9,30 @@ import StarField from "./StarField";
 useGLTF.preload("/models/room.glb", "/draco/", true);
 
 /* ------------------------------------------------------------------ */
-/*  Parallax config — how much each layer moves with the mouse        */
+/*  Camera config                                                      */
 /* ------------------------------------------------------------------ */
 
-const PARALLAX = {
-  scene: { x: 18, y: 10 },
-  stars: { x: 8, y: 5 },
-  text: { x: -4, y: -3 },
-  lerp: 0.035,
+const CAM = {
+  // Zoom
+  minZoom: 1,
+  maxZoom: 1.8,
+  zoomSpeed: 0.0008,
+  zoomLerp: 0.08,
+
+  // Pan (drag)
+  panLerp: 0.1,
+
+  // Passive parallax (when not dragging)
+  parallax: { scene: { x: 18, y: 10 }, stars: { x: 8, y: 5 }, text: { x: -4, y: -3 } },
+  parallaxLerp: 0.035,
+
+  // Momentum after drag release
+  friction: 0.92,
+
+  // Transition dive
+  diveZoom: 2.2,
+  diveBlur: 6,
+  diveLerp: 0.025,
 };
 
 export default function LandingEnvironment() {
@@ -24,51 +40,186 @@ export default function LandingEnvironment() {
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const mouseTarget = useRef({ x: 0, y: 0 });
-  const mouseCurrent = useRef({ x: 0, y: 0 });
-  const transitioningRef = useRef(false);
 
-  transitioningRef.current = transitioning;
+  // Camera state — all in refs for zero re-renders
+  const zoom = useRef({ current: 1, target: 1 });
+  const pan = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
+  const velocity = useRef({ x: 0, y: 0 });
+  const drag = useRef({ active: false, startX: 0, startY: 0, startPanX: 0, startPanY: 0 });
+  const mouse = useRef({ x: 0, y: 0, cx: 0, cy: 0 }); // normalized -1..1 + current lerped
+  const transRef = useRef(false);
+  transRef.current = transitioning;
 
   const handleEnter = useCallback(() => {
     if (transitioning) return;
-    startTransition("room", () => {
-      router.push("/room");
-    });
+    startTransition("room", () => router.push("/room"));
   }, [transitioning, startTransition, router]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (transitioningRef.current) return;
-    const cx = (e.clientX / window.innerWidth - 0.5) * 2;
-    const cy = (e.clientY / window.innerHeight - 0.5) * 2;
-    mouseTarget.current = { x: cx, y: cy };
+  // --- Wheel → zoom ---
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      if (transRef.current) return;
+      const z = zoom.current;
+      z.target = Math.max(CAM.minZoom, Math.min(CAM.maxZoom, z.target - e.deltaY * CAM.zoomSpeed));
+    }
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Parallax RAF loop — smooth mouse following, kills on transition
+  // --- Drag → pan ---
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function onDown(e: PointerEvent) {
+      if (transRef.current) return;
+      if ((e.target as HTMLElement).closest("button")) return; // don't hijack button clicks
+      drag.current = { active: true, startX: e.clientX, startY: e.clientY, startPanX: pan.current.tx, startPanY: pan.current.ty };
+      velocity.current = { x: 0, y: 0 };
+      el!.style.cursor = "grabbing";
+      el!.setPointerCapture(e.pointerId);
+    }
+
+    function onMove(e: PointerEvent) {
+      // Parallax tracking (always)
+      if (!transRef.current) {
+        mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouse.current.y = (e.clientY / window.innerHeight - 0.5) * 2;
+      }
+
+      if (!drag.current.active) return;
+      const d = drag.current;
+      const dx = e.clientX - d.startX;
+      const dy = e.clientY - d.startY;
+      const prevTx = pan.current.tx;
+      const prevTy = pan.current.ty;
+      pan.current.tx = d.startPanX + dx;
+      pan.current.ty = d.startPanY + dy;
+      velocity.current.x = pan.current.tx - prevTx;
+      velocity.current.y = pan.current.ty - prevTy;
+    }
+
+    function onUp(e: PointerEvent) {
+      if (!drag.current.active) return;
+      drag.current.active = false;
+      el!.style.cursor = "grab";
+      el!.releasePointerCapture(e.pointerId);
+    }
+
+    el.style.cursor = "grab";
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+    };
+  }, []);
+
+  // --- Double-click → reset ---
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    function onDblClick() {
+      zoom.current.target = 1;
+      pan.current.tx = 0;
+      pan.current.ty = 0;
+    }
+
+    el.addEventListener("dblclick", onDblClick);
+    return () => el.removeEventListener("dblclick", onDblClick);
+  }, []);
+
+  // --- Main RAF loop ---
   useEffect(() => {
     let raf: number;
-    const P = PARALLAX;
 
     function tick() {
-      const t = transitioningRef.current
-        ? { x: 0, y: 0 }
-        : mouseTarget.current;
-      const c = mouseCurrent.current;
+      const z = zoom.current;
+      const p = pan.current;
+      const v = velocity.current;
+      const m = mouse.current;
+      const isDragging = drag.current.active;
+      const isTransitioning = transRef.current;
 
-      c.x += (t.x - c.x) * P.lerp;
-      c.y += (t.y - c.y) * P.lerp;
+      // --- Zoom lerp ---
+      if (isTransitioning) {
+        z.target = CAM.diveZoom;
+      }
+      z.current += (z.target - z.current) * CAM.zoomLerp;
+
+      // --- Pan: momentum when not dragging ---
+      if (!isDragging) {
+        p.tx += v.x;
+        p.ty += v.y;
+        v.x *= CAM.friction;
+        v.y *= CAM.friction;
+        if (Math.abs(v.x) < 0.1) v.x = 0;
+        if (Math.abs(v.y) < 0.1) v.y = 0;
+      }
+
+      // Clamp pan to prevent showing edges
+      const maxPanX = Math.max(0, (z.current - 1) * window.innerWidth * 0.4);
+      const maxPanY = Math.max(0, (z.current - 1) * window.innerHeight * 0.4);
+      p.tx = Math.max(-maxPanX, Math.min(maxPanX, p.tx));
+      p.ty = Math.max(-maxPanY, Math.min(maxPanY, p.ty));
+
+      // Reset pan on transition
+      if (isTransitioning) {
+        p.tx *= 0.95;
+        p.ty *= 0.95;
+      }
+
+      // Lerp actual position
+      p.x += (p.tx - p.x) * CAM.panLerp;
+      p.y += (p.ty - p.y) * CAM.panLerp;
+
+      // --- Parallax (only when not dragging + not transitioning) ---
+      const parallaxActive = !isDragging && !isTransitioning;
+      const pt = parallaxActive ? mouse.current : { x: 0, y: 0 };
+      m.cx += (pt.x - m.cx) * CAM.parallaxLerp;
+      m.cy += (pt.y - m.cy) * CAM.parallaxLerp;
+
+      // --- Blur (transition only) ---
+      const blur = isTransitioning
+        ? CAM.diveBlur * Math.min(1, (z.current - 1) / (CAM.diveZoom - 1))
+        : 0;
+
+      // --- Apply transforms ---
+      const pxScene = CAM.parallax.scene;
+      const pxStars = CAM.parallax.stars;
+      const pxText = CAM.parallax.text;
 
       if (sceneRef.current) {
-        sceneRef.current.style.transform = `translate(${c.x * P.scene.x}px, ${c.y * P.scene.y}px)`;
+        sceneRef.current.style.transform =
+          `translate(${p.x + m.cx * pxScene.x}px, ${p.y + m.cy * pxScene.y}px)`;
+      }
+      if (zoomRef.current) {
+        zoomRef.current.style.transform = `scale(${z.current})`;
+        zoomRef.current.style.filter = blur > 0.1 ? `blur(${blur.toFixed(1)}px)` : "none";
       }
       if (starsRef.current) {
-        starsRef.current.style.transform = `translate(${c.x * P.stars.x}px, ${c.y * P.stars.y}px)`;
+        starsRef.current.style.transform =
+          `translate(${p.x * 0.5 + m.cx * pxStars.x}px, ${p.y * 0.5 + m.cy * pxStars.y}px)`;
       }
       if (textRef.current) {
-        textRef.current.style.transform = `translate(${c.x * P.text.x}px, ${c.y * P.text.y}px)`;
+        textRef.current.style.transform =
+          `translate(${m.cx * pxText.x}px, ${m.cy * pxText.y}px)`;
       }
 
       raf = requestAnimationFrame(tick);
@@ -80,21 +231,12 @@ export default function LandingEnvironment() {
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden select-none"
-      onMouseMove={handleMouseMove}
+      ref={containerRef}
+      className="relative w-full h-screen overflow-hidden select-none touch-none"
     >
-      {/* ============================================================
-          SCENE — parallax outer (RAF) + zoom inner (CSS transition)
-          ============================================================ */}
-      <div ref={sceneRef} className="absolute inset-[-20px]">
-        <div
-          className="absolute inset-0 origin-center transition-all duration-[3000ms]"
-          style={{
-            transform: transitioning ? "scale(1.6)" : "scale(1)",
-            filter: transitioning ? "blur(4px)" : "blur(0px)",
-            transitionTimingFunction: "cubic-bezier(0.05, 0.5, 0.2, 1)",
-          }}
-        >
+      {/* Scene — pan (outer) + zoom (inner) */}
+      <div ref={sceneRef} className="absolute inset-[-40px]">
+        <div ref={zoomRef} className="absolute inset-0 origin-center">
           <video
             autoPlay
             muted
@@ -123,8 +265,8 @@ export default function LandingEnvironment() {
         </div>
       </div>
 
-      {/* Stars — separate parallax layer (moves at different rate) */}
-      <div ref={starsRef} className="absolute inset-[-10px]">
+      {/* Stars — pans at half rate for depth */}
+      <div ref={starsRef} className="absolute inset-[-20px]">
         <StarField />
       </div>
 
@@ -132,21 +274,18 @@ export default function LandingEnvironment() {
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] w-[60vw] h-[40vh] pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
+          background: "radial-gradient(ellipse, rgba(212, 168, 83, 0.035) 0%, transparent 50%)",
           filter: "blur(80px)",
         }}
       />
 
-      {/* ============================================================
-          TEXT — counter-parallax (moves opposite for depth)
-          ============================================================ */}
+      {/* Text — no pan, just parallax */}
       <div
         ref={textRef}
-        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-opacity duration-[1200ms]"
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6"
         style={{
           opacity: transitioning ? 0 : 1,
-          transitionTimingFunction: "cubic-bezier(0.4, 0, 1, 1)",
+          transition: "opacity 1200ms cubic-bezier(0.4, 0, 1, 1)",
         }}
       >
         <p className="text-[10px] font-mono text-fog/60 tracking-[0.35em] uppercase animate-fade-down delay-200">
@@ -183,8 +322,8 @@ export default function LandingEnvironment() {
 
       {/* Bottom attribution */}
       <div
-        className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none transition-opacity duration-[400ms]"
-        style={{ opacity: transitioning ? 0 : 1 }}
+        className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none"
+        style={{ opacity: transitioning ? 0 : 1, transition: "opacity 400ms" }}
       >
         <p className="text-[10px] font-mono text-fog/40 tracking-[0.15em]">
           © 2026 Yunmakai LLC · Solus Records · Lunas Lake Studio
