@@ -5,6 +5,7 @@ import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
 import {
   AdaptiveDpr,
   AdaptiveEvents,
+  ContactShadows,
   OrbitControls,
   Preload,
   useGLTF,
@@ -95,27 +96,36 @@ const ORBIT_CONFIG = {
   makeDefault: true,
 } as const;
 
-/** Runtime lighting. Disable individual lights if Bruno baked them in. */
+/**
+ * Runtime lighting — single bulb + purple exterior bleed.
+ * Physically correct mode: intensity is in candela (cd) for point lights.
+ * Disable individual lights if Bruno baked them into textures.
+ */
 const LIGHTING_CONFIG = {
-  ambient: { intensity: 0.35, color: "#ffffff" },
-  lampPoint: {
-    position: [2.5, 2.5, -3] as [number, number, number],
-    intensity: 12,
+  ambient: { intensity: 0.03, color: "#1a0a2a" },
+  lampBulb: {
+    position: [2.5, 2.2, -3] as [number, number, number],
+    intensity: 800,
     color: "#d4a853",
-    distance: 12,
+    distance: 10,
     decay: 2,
   },
-  keyDirectional: {
-    position: [8, 10, 4] as [number, number, number],
-    intensity: 0.6,
-    color: "#ffffff",
+  exteriorPurple: {
+    position: [4.5, 2.0, 1.5] as [number, number, number],
+    intensity: 200,
+    color: "#6a2aaa",
+    distance: 8,
+    decay: 2,
   },
-  fillDirectional: {
-    position: [-6, 5, 4] as [number, number, number],
-    intensity: 0.3,
-    color: "#6bc4c4",
+  contactShadows: {
+    position: [0, -0.49, 0] as [number, number, number],
+    opacity: 0.7,
+    scale: 15,
+    blur: 2.5,
+    far: 6,
+    resolution: 512,
   },
-  fog: { color: "#050505", near: 15, far: 80 },
+  fog: { color: "#050505", near: 8, far: 40 },
 } as const;
 
 /**
@@ -451,25 +461,39 @@ function Scene() {
   return (
     <>
       <ambientLight intensity={L.ambient.intensity} color={L.ambient.color} />
+
+      {/* The lamp — single warm bulb, hero light source */}
       <pointLight
-        position={L.lampPoint.position}
-        intensity={L.lampPoint.intensity}
-        color={L.lampPoint.color}
-        distance={L.lampPoint.distance}
-        decay={L.lampPoint.decay}
+        position={L.lampBulb.position}
+        intensity={L.lampBulb.intensity}
+        color={L.lampBulb.color}
+        distance={L.lampBulb.distance}
+        decay={L.lampBulb.decay}
         castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-bias={-0.001}
       />
-      <directionalLight
-        position={L.keyDirectional.position}
-        intensity={L.keyDirectional.intensity}
-        color={L.keyDirectional.color}
-        castShadow
+
+      {/* Exterior motel sign bleed — purple through curtains/window */}
+      <pointLight
+        position={L.exteriorPurple.position}
+        intensity={L.exteriorPurple.intensity}
+        color={L.exteriorPurple.color}
+        distance={L.exteriorPurple.distance}
+        decay={L.exteriorPurple.decay}
       />
-      <directionalLight
-        position={L.fillDirectional.position}
-        intensity={L.fillDirectional.intensity}
-        color={L.fillDirectional.color}
+
+      {/* Contact shadows on floor — grounds furniture without raytraced shadows */}
+      <ContactShadows
+        position={L.contactShadows.position}
+        opacity={L.contactShadows.opacity}
+        scale={L.contactShadows.scale}
+        blur={L.contactShadows.blur}
+        far={L.contactShadows.far}
+        resolution={L.contactShadows.resolution}
       />
+
       <fog attach="fog" args={[L.fog.color, L.fog.near, L.fog.far]} />
 
       <RoomContent />
@@ -536,11 +560,15 @@ function Scene() {
 export default function MotelRoomScene() {
   return (
     <Canvas
-      shadows
+      shadows="soft"
       camera={{ position: ACTIVE_CAMERA.position, fov: CAMERA_FOV }}
       dpr={[1, 1.5]}
       performance={{ min: 0.5 }}
-      gl={{ antialias: false, alpha: false }}
+      gl={{
+        antialias: false,
+        alpha: false,
+        toneMappingExposure: 0.7,
+      }}
       style={{ background: "#050505" }}
     >
       <Suspense fallback={null}>
