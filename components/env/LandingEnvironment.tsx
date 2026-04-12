@@ -26,11 +26,11 @@ export default function LandingEnvironment() {
           SCENE LAYER — zooms + blurs when transitioning
           ============================================================ */}
       <div
-        className="absolute inset-0 origin-center transition-all duration-[1400ms]"
+        className="absolute inset-0 origin-center transition-all duration-[3000ms]"
         style={{
-          transform: transitioning ? "scale(2.8)" : "scale(1)",
-          filter: transitioning ? "blur(16px)" : "blur(0px)",
-          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+          transform: transitioning ? "scale(1.6)" : "scale(1)",
+          filter: transitioning ? "blur(4px)" : "blur(0px)",
+          transitionTimingFunction: "cubic-bezier(0.05, 0.5, 0.2, 1)",
         }}
       >
         {/* Bayou video — night graded */}
@@ -81,10 +81,10 @@ export default function LandingEnvironment() {
           TEXT LAYER — fades out fast so it doesn't stretch during zoom
           ============================================================ */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-all duration-[600ms]"
+        className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 transition-all duration-[1200ms]"
         style={{
           opacity: transitioning ? 0 : 1,
-          transform: transitioning ? "scale(0.95) translateY(-10px)" : "scale(1) translateY(0)",
+          transform: transitioning ? "translateY(-20px)" : "translateY(0)",
           transitionTimingFunction: "cubic-bezier(0.4, 0, 1, 1)",
         }}
       >
@@ -137,8 +137,8 @@ export default function LandingEnvironment() {
         className="absolute inset-0 bg-void z-20 pointer-events-none"
         style={{
           opacity: transitioning ? 1 : 0,
-          transition: "opacity 800ms cubic-bezier(0.4, 0, 0.2, 1)",
-          transitionDelay: transitioning ? "600ms" : "0ms",
+          transition: "opacity 1500ms cubic-bezier(0.4, 0, 0.2, 1)",
+          transitionDelay: transitioning ? "1500ms" : "0ms",
         }}
       />
     </div>

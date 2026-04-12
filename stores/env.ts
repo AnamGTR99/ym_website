@@ -12,7 +12,7 @@ interface EnvState {
   closeCredits: () => void;
 }
 
-const TRANSITION_DURATION = 1200; // ms
+const TRANSITION_DURATION = 3000; // ms
 
 let transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
