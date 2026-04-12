@@ -73,10 +73,8 @@ export default function RoomEnvironment() {
         <MotelRoomScene />
       </div>
 
-      {/* GLB loading readout — top right, always above canvas */}
-      <div className="hidden md:block">
-        <LoadingOverlay />
-      </div>
+      {/* Cinematic loader — full-screen, covers everything until scene ready */}
+      <LoadingOverlay />
 
       {/* Mobile fallback — 2D hotspots over static gradient */}
       <div className="md:hidden absolute inset-0">

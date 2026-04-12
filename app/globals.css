@@ -471,12 +471,36 @@ body {
   50% { transform: translateY(-6px); }
 }
 
+/* Slow breath — used on the cinematic loader title */
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.72;
+    transform: scale(1);
+    letter-spacing: 0.3em;
+    text-shadow: 0 0 20px rgba(212, 168, 83, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.015);
+    letter-spacing: 0.32em;
+    text-shadow: 0 0 30px rgba(212, 168, 83, 0.15);
+  }
+}
+
+/* Indeterminate progress sweep — for when total load size is unknown */
+@keyframes indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
 .animate-fade-in { animation: fade-in var(--duration-slow) var(--ease-cinematic) both; }
 .animate-fade-up { animation: fade-up var(--duration-slow) var(--ease-cinematic) both; }
 .animate-fade-down { animation: fade-down var(--duration-slow) var(--ease-cinematic) both; }
 .animate-scale-in { animation: scale-in var(--duration-slow) var(--ease-cinematic) both; }
 .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
 .animate-drift { animation: drift 6s ease-in-out infinite; }
+.animate-breathe { animation: breathe 5s ease-in-out infinite; }
+.animate-indeterminate { animation: indeterminate 1.8s ease-in-out infinite; }
 
 /* Animation delay utilities */
 .delay-100 { animation-delay: 100ms; }
@@ -485,6 +509,7 @@ body {
 .delay-400 { animation-delay: 400ms; }
 .delay-500 { animation-delay: 500ms; }
 .delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
 .delay-800 { animation-delay: 800ms; }
 .delay-1000 { animation-delay: 1000ms; }
 
