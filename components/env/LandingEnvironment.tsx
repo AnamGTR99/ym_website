@@ -58,7 +58,7 @@ export default function LandingEnvironment() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            filter: "brightness(0.3) saturate(0.35) contrast(1.3) sepia(0.15) hue-rotate(190deg)",
+            filter: "brightness(0.45) saturate(0.4) contrast(1.2) sepia(0.1) hue-rotate(190deg)",
           }}
         >
           <source src="/video/landing-bg-web.mp4" type="video/mp4" />
@@ -103,7 +103,7 @@ export default function LandingEnvironment() {
 
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
-        <p className="text-[10px] font-mono text-fog/50 tracking-[0.35em] uppercase animate-fade-down delay-200">
+        <p className="text-[10px] font-mono text-fog/60 tracking-[0.35em] uppercase animate-fade-down delay-200">
           Solus Records presents
         </p>
 
@@ -115,7 +115,7 @@ export default function LandingEnvironment() {
 
         <div className="w-20 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent mt-9 animate-fade-in delay-500" />
 
-        <p className="font-mono text-[11px] text-fog/40 mt-6 tracking-[0.2em] uppercase animate-fade-up delay-500">
+        <p className="font-mono text-[11px] text-fog/60 mt-6 tracking-[0.2em] uppercase animate-fade-up delay-500">
           An immersive digital universe
         </p>
 
@@ -130,14 +130,14 @@ export default function LandingEnvironment() {
           <span className="absolute inset-0 rounded-sm animate-pulse-glow opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         </button>
 
-        <p className="mt-12 text-[9px] font-mono text-smoke/25 tracking-[0.2em] uppercase animate-fade-in delay-1000">
+        <p className="mt-12 text-[10px] font-mono text-fog/50 tracking-[0.2em] uppercase animate-fade-in delay-1000">
           Best experienced with sound
         </p>
       </div>
 
       {/* Bottom attribution */}
       <div className="absolute bottom-5 left-0 right-0 z-10 flex justify-center pointer-events-none">
-        <p className="text-[9px] font-mono text-smoke/20 tracking-[0.15em]">
+        <p className="text-[10px] font-mono text-fog/40 tracking-[0.15em]">
           © 2026 Yunmakai LLC · Solus Records · Lunas Lake Studio
         </p>
       </div>
