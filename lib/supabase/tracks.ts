@@ -67,14 +67,18 @@ export type TrackInfo = Pick<
 export async function getTracksByProductId(
   shopifyProductId: string
 ): Promise<TrackInfo[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("track_product_map")
     .select("track_id, tracks!inner(id, title, artist, cover_url, duration_seconds, published)")
     .eq("shopify_product_id", shopifyProductId);
 
-  if (error || !data) return [];
+  if (error) {
+    console.error("[getTracksByProductId] error:", error.message, "productId:", shopifyProductId);
+    return [];
+  }
+  if (!data) return [];
 
   // Supabase returns the joined record as an object (inner join guarantees one match)
   type JoinRow = {
