@@ -33,6 +33,19 @@ export default function LoadingOverlay() {
     }
   }, [active, progress, total, startedAt]);
 
+  // Fallback: if the GLB was preloaded (cache hit), useProgress never fires
+  // and total stays 0. After 2.5 seconds of silence, assume cache hit and hide.
+  useEffect(() => {
+    if (phase !== "loading") return;
+    const fallback = setTimeout(() => {
+      if (phase === "loading") {
+        setPhase("ready");
+        setTimeout(() => setPhase("hidden"), 1200);
+      }
+    }, 2500);
+    return () => clearTimeout(fallback);
+  }, [phase]);
+
   if (phase === "hidden") return null;
 
   const indeterminate = total === 0;
