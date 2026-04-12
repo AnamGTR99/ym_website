@@ -51,3 +51,10 @@ next-env.d.ts
 
 # project docs (local only)
 /docs/
+
+# 3D model test files (large, local-only by default)
+# Force-add Bruno's final optimized GLB with `git add -f public/models/room.glb`
+/public/models/*.glb
+/public/models/*.gltf
+/public/models/*.bin
+!/public/models/.gitkeep
