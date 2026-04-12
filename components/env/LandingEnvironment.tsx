@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
@@ -12,6 +12,8 @@ export default function LandingEnvironment() {
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fadeRef = useRef<HTMLDivElement>(null);
 
   const handleEnter = useCallback(() => {
     if (transitioning) return;
@@ -20,11 +22,36 @@ export default function LandingEnvironment() {
     });
   }, [transitioning, startTransition, router]);
 
+  // Smooth loop crossfade — fades to black near the end, fades back on restart
+  useEffect(() => {
+    const video = videoRef.current;
+    const fade = fadeRef.current;
+    if (!video || !fade) return;
+
+    const FADE_DURATION = 2;
+
+    function onTimeUpdate() {
+      if (!video || !fade) return;
+      const remaining = video.duration - video.currentTime;
+      if (remaining < FADE_DURATION) {
+        fade.style.opacity = String(1 - remaining / FADE_DURATION);
+      } else if (video.currentTime < FADE_DURATION) {
+        fade.style.opacity = String(1 - video.currentTime / FADE_DURATION);
+      } else {
+        fade.style.opacity = "0";
+      }
+    }
+
+    video.addEventListener("timeupdate", onTimeUpdate);
+    return () => video.removeEventListener("timeupdate", onTimeUpdate);
+  }, []);
+
   return (
     <div className="relative w-full h-screen overflow-hidden select-none">
-      {/* Base — video heavily darkened with Ozark teal-green tint */}
+      {/* Base — bayou video with night color grade */}
       <div className="absolute inset-0">
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
@@ -37,7 +64,14 @@ export default function LandingEnvironment() {
           <source src="/video/landing-bg-web.mp4" type="video/mp4" />
         </video>
 
-        {/* Night sky gradient — deep blue-black blending with the lake */}
+        {/* Loop crossfade overlay — JS-controlled opacity */}
+        <div
+          ref={fadeRef}
+          className="absolute inset-0 bg-void pointer-events-none"
+          style={{ opacity: 0, transition: "opacity 0.15s linear" }}
+        />
+
+        {/* Night sky gradient */}
         <div
           className="absolute inset-0"
           style={{
@@ -45,12 +79,12 @@ export default function LandingEnvironment() {
           }}
         />
 
-        {/* Edge darkening — keeps text readable over the lake */}
+        {/* Edge darkening for text readability */}
         <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-void/80 to-transparent" />
         <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-void/60 to-transparent" />
       </div>
 
-      {/* Starfield — parallax CSS stars */}
+      {/* Starfield */}
       <StarField />
 
       {/* Atmospheric layers */}
@@ -69,27 +103,22 @@ export default function LandingEnvironment() {
 
       {/* Center content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6">
-        {/* Label */}
         <p className="text-[10px] font-mono text-fog/50 tracking-[0.35em] uppercase animate-fade-down delay-200">
           Solus Records presents
         </p>
 
-        {/* Title */}
         <h1 className="mt-7 text-center animate-breathe">
           <span className="block font-display text-bone uppercase tracking-[0.4em] text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-none">
             Yunmakai
           </span>
         </h1>
 
-        {/* Divider */}
         <div className="w-20 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent mt-9 animate-fade-in delay-500" />
 
-        {/* Tagline */}
         <p className="font-mono text-[11px] text-fog/40 mt-6 tracking-[0.2em] uppercase animate-fade-up delay-500">
           An immersive digital universe
         </p>
 
-        {/* Enter button */}
         <button
           onClick={handleEnter}
           disabled={transitioning}
@@ -101,7 +130,6 @@ export default function LandingEnvironment() {
           <span className="absolute inset-0 rounded-sm animate-pulse-glow opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
         </button>
 
-        {/* Sound hint */}
         <p className="mt-12 text-[9px] font-mono text-smoke/25 tracking-[0.2em] uppercase animate-fade-in delay-1000">
           Best experienced with sound
         </p>
