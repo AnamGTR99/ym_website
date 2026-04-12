@@ -30,7 +30,8 @@ async function verifyAdmin() {
 
   if (!user) throw new Error("Unauthorized");
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
