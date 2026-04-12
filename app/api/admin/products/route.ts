@@ -18,9 +18,10 @@ export async function GET() {
 
     return NextResponse.json(simplified);
   } catch (err) {
-    console.error("Failed to fetch products:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Failed to fetch products:", message);
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { error: "Failed to fetch products", detail: message },
       { status: 500 }
     );
   }
