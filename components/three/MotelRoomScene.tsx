@@ -12,10 +12,15 @@ import {
 import {
   EffectComposer,
   Bloom,
+  BrightnessContrast,
+  ChromaticAberration,
+  HueSaturation,
   Noise,
+  ToneMapping,
   Vignette,
 } from "@react-three/postprocessing";
-import { BlendFunction, KernelSize } from "postprocessing";
+import { BlendFunction, ToneMappingMode } from "postprocessing";
+import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { useEnvStore } from "@/stores/env";
@@ -119,22 +124,45 @@ const LIGHTING_CONFIG = {
  * (intentional — WebGL post gives us HDR bloom; CSS gives us film-grade
  * vignette falloff).
  */
+/**
+ * Post-processing stack — cinematic color grade.
+ * Purple shadows, amber highlights, tiny bloom, film grain, analog lens feel.
+ */
 const POST_CONFIG = {
+  toneMapping: {
+    mode: ToneMappingMode.ACES_FILMIC,
+  },
+  splitToning: {
+    shadowColor: 0x2a1040,
+    highlightColor: 0xd4a853,
+    intensity: 0.55,
+    contrast: 0.5,
+  },
+  brightnessContrast: {
+    brightness: -0.12,
+    contrast: 0.25,
+  },
+  hueSaturation: {
+    hue: -0.25,
+    saturation: -0.15,
+  },
   bloom: {
-    intensity: 0.9,
-    luminanceThreshold: 0.7,
-    luminanceSmoothing: 0.35,
+    intensity: 0.18,
+    luminanceThreshold: 0.85,
+    luminanceSmoothing: 0.025,
     mipmapBlur: true,
-    kernelSize: KernelSize.LARGE,
+  },
+  chromaticAberration: {
+    offset: [0.002, 0.002] as [number, number],
+    radialModulation: false,
   },
   noise: {
-    opacity: 0.18,
-    premultiply: false,
+    opacity: 0.12,
     blendFunction: BlendFunction.MULTIPLY,
   },
   vignette: {
-    offset: 0.32,
-    darkness: 0.7,
+    offset: 0.3,
+    darkness: 0.65,
     blendFunction: BlendFunction.NORMAL,
   },
 } as const;
@@ -458,16 +486,37 @@ function Scene() {
       <AdaptiveEvents />
 
       <EffectComposer multisampling={0}>
+        <ToneMapping mode={P.toneMapping.mode} />
+        <primitive
+          object={
+            new SplitToningEffect({
+              shadowColor: P.splitToning.shadowColor,
+              highlightColor: P.splitToning.highlightColor,
+              intensity: P.splitToning.intensity,
+              contrast: P.splitToning.contrast,
+            })
+          }
+        />
+        <BrightnessContrast
+          brightness={P.brightnessContrast.brightness}
+          contrast={P.brightnessContrast.contrast}
+        />
+        <HueSaturation
+          hue={P.hueSaturation.hue}
+          saturation={P.hueSaturation.saturation}
+        />
         <Bloom
           intensity={P.bloom.intensity}
           luminanceThreshold={P.bloom.luminanceThreshold}
           luminanceSmoothing={P.bloom.luminanceSmoothing}
           mipmapBlur={P.bloom.mipmapBlur}
-          kernelSize={P.bloom.kernelSize}
+        />
+        <ChromaticAberration
+          offset={P.chromaticAberration.offset}
+          radialModulation={P.chromaticAberration.radialModulation}
         />
         <Noise
           opacity={P.noise.opacity}
-          premultiply={P.noise.premultiply}
           blendFunction={P.noise.blendFunction}
         />
         <Vignette
