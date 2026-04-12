@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 /**
  * Server-side guard — returns the authenticated user or redirects to sign-in.
@@ -21,7 +21,7 @@ export async function requireAuth() {
 
 /**
  * Server-side guard — returns the authenticated admin user or redirects.
- * Checks profiles.role = 'admin'.
+ * Uses service-role client for the profile query to bypass RLS.
  */
 export async function requireAdmin() {
   const supabase = await createClient();
@@ -33,7 +33,8 @@ export async function requireAdmin() {
     redirect("/sign-in");
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
@@ -48,7 +49,7 @@ export async function requireAdmin() {
 
 /**
  * API route guard — returns the admin user or a JSON error response.
- * Use in API routes instead of redirect-based guards.
+ * Uses service-role client for the profile query to bypass RLS.
  */
 export async function requireAdminApi(): Promise<
   { user: Awaited<ReturnType<typeof requireAuth>>; error?: never } |
@@ -63,7 +64,8 @@ export async function requireAdminApi(): Promise<
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
