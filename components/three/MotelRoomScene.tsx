@@ -1131,10 +1131,74 @@ function TVMenuScreen({ onSelect }: { onSelect: (ch: TVChannel) => void }) {
   );
 }
 
-/* ---- Channel pages — placeholder content per channel ---- */
+/* ---- Channel pages — wired to real data ---- */
 
 function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => void }) {
   const info = CHANNELS.find((c) => c.id === channel);
+  const router = useRouter();
+  const openCredits = useEnvStore((s) => s.openCredits);
+  const startTransition = useEnvStore((s) => s.startTransition);
+
+  // Shop: fetch real products from Supabase product_cache
+  const [products, setProducts] = useState<import("@/app/room/actions").TVProduct[]>([]);
+  const [tracks, setTracks] = useState<import("@/app/room/actions").TVTrack[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (channel === "shop") {
+      setLoading(true);
+      import("@/app/room/actions").then((mod) =>
+        mod.getShopProducts().then((p) => { setProducts(p); setLoading(false); })
+      );
+    }
+    if (channel === "music") {
+      setLoading(true);
+      import("@/app/room/actions").then((mod) =>
+        mod.getMusicTracks().then((t) => { setTracks(t); setLoading(false); })
+      );
+    }
+    if (channel === "credits") {
+      openCredits();
+      onBack();
+    }
+  }, [channel, openCredits, onBack]);
+
+  const navigateToProduct = useCallback((handle: string) => {
+    animateCameraTo(
+      CAMERA_PRESETS.LOOK_AT_X.position as [number, number, number],
+      CAMERA_PRESETS.LOOK_AT_X.target as [number, number, number],
+      1.5,
+      () => {
+        setZoomedToTV(false);
+        startTransition("tv", () => router.push(`/tv/${handle}`));
+      }
+    );
+  }, [router, startTransition]);
+
+  const playTrack = useCallback((trackId: string) => {
+    import("@/stores/music").then((mod) => {
+      mod.useMusicStore.getState().playTrack(trackId);
+    });
+  }, []);
+
+  const formatDuration = (s: number | null) => {
+    if (!s) return "";
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  };
+
+  const rowStyle = {
+    padding: "10px 14px",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: "2px",
+    fontSize: "12px",
+    letterSpacing: "0.12em",
+    color: "rgba(200,192,168,0.7)",
+    cursor: "pointer",
+    display: "flex" as const,
+    justifyContent: "space-between" as const,
+    alignItems: "center" as const,
+  };
 
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "40px 50px" }}>
@@ -1167,33 +1231,33 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
       </div>
 
       {/* Channel content */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
         {channel === "shop" && (
           <>
             <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
               YUNMAKAI GOODS
             </div>
-            {["MOTEL TEES", "SOLUS VINYL", "BAYOU PRINTS"].map((item, i) => (
-              <div key={i} style={{
-                padding: "10px 14px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "2px",
-                fontSize: "12px",
-                letterSpacing: "0.15em",
-                color: "rgba(200,192,168,0.7)",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-              >
-                <span>{item}</span>
-                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)" }}>COMING SOON</span>
-              </div>
-            ))}
+            {loading ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
+            ) : products.length === 0 ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO PRODUCTS</div>
+            ) : (
+              products.map((p) => (
+                <div
+                  key={p.id}
+                  style={rowStyle}
+                  onClick={(e) => { e.stopPropagation(); navigateToProduct(p.handle); }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                >
+                  <div>
+                    <div style={{ marginBottom: "2px" }}>{p.title.toUpperCase()}</div>
+                    <div style={{ fontSize: "10px", color: "rgba(212,168,83,0.6)" }}>${p.price}</div>
+                  </div>
+                  <span style={{ fontSize: "10px", color: "rgba(212,168,83,0.5)", letterSpacing: "0.15em" }}>VIEW →</span>
+                </div>
+              ))
+            )}
           </>
         )}
         {channel === "music" && (
@@ -1201,40 +1265,30 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
             <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
               NOW PLAYING
             </div>
-            {["TRACK 01 — SWAMP HYMN", "TRACK 02 — NEON MOTEL", "TRACK 03 — BAYOU DRIFT"].map((item, i) => (
-              <div key={i} style={{
-                padding: "10px 14px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "2px",
-                fontSize: "12px",
-                letterSpacing: "0.1em",
-                color: "rgba(200,192,168,0.7)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-              >
-                <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "10px" }}>▶</span>
-                <span>{item}</span>
-              </div>
-            ))}
-          </>
-        )}
-        {channel === "credits" && (
-          <>
-            <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "8px" }}>
-              CREDITS
-            </div>
-            <div style={{ fontSize: "12px", lineHeight: 2.2, color: "rgba(200,192,168,0.6)", letterSpacing: "0.1em" }}>
-              <div>DIRECTION — <span style={{ color: "#c8c0a8" }}>YUNMAKAI</span></div>
-              <div>MUSIC — <span style={{ color: "#c8c0a8" }}>SOLUS RECORDS</span></div>
-              <div>3D ENVIRONMENT — <span style={{ color: "#c8c0a8" }}>BRUNO</span></div>
-              <div>DEVELOPMENT — <span style={{ color: "#c8c0a8" }}>STUDIO</span></div>
-            </div>
+            {loading ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
+            ) : tracks.length === 0 ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO TRACKS</div>
+            ) : (
+              tracks.map((t, i) => (
+                <div
+                  key={t.id}
+                  style={{ ...rowStyle, justifyContent: "flex-start", gap: "12px" }}
+                  onClick={(e) => { e.stopPropagation(); playTrack(t.id); }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                >
+                  <span style={{ color: "rgba(212,168,83,0.5)", fontSize: "10px", minWidth: "16px" }}>▶</span>
+                  <div style={{ flex: 1 }}>
+                    <div>{String(i + 1).padStart(2, "0")} — {t.title.toUpperCase()}</div>
+                    <div style={{ fontSize: "10px", color: "rgba(200,192,168,0.4)", marginTop: "1px" }}>{t.artist}</div>
+                  </div>
+                  {t.durationSeconds && (
+                    <span style={{ fontSize: "10px", color: "rgba(200,192,168,0.3)" }}>{formatDuration(t.durationSeconds)}</span>
+                  )}
+                </div>
+              ))
+            )}
           </>
         )}
       </div>
