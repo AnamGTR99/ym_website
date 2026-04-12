@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import AdminNav from "@/components/admin/AdminNav";
 
 export default async function AdminLayout({
@@ -17,8 +17,8 @@ export default async function AdminLayout({
     redirect("/sign-in?redirect=/admin");
   }
 
-  // Check admin role from profiles table
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
     .eq("id", user.id)
