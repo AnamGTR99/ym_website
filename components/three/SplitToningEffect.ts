@@ -13,18 +13,18 @@ void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor)
   // Perceptual luminance
   float lum = dot(col, vec3(0.299, 0.587, 0.114));
 
-  // S-curve contrast — pushes darks darker, brights brighter
+  // S-curve contrast
   float s = smoothstep(0.0, 1.0, lum);
   s = s * s * (3.0 - 2.0 * s);
   s = mix(lum, s, contrast);
 
-  // Split-tone: blend shadow color into darks, highlight color into brights
-  vec3 toned = mix(shadowColor, highlightColor, s);
+  // Split-tone: tint shadows toward shadowColor, highlights toward highlightColor
+  // Using overlay blend — preserves original brightness while shifting hue
+  vec3 shadowTint = mix(col, shadowColor, (1.0 - s) * intensity);
+  vec3 highlightTint = mix(col, highlightColor, s * intensity * 0.5);
+  vec3 result = mix(shadowTint, highlightTint, s);
 
-  // Mix toned result with original preserving texture detail
-  vec3 result = mix(col, toned * col, intensity);
-
-  outputColor = vec4(result, inputColor.a);
+  outputColor = vec4(clamp(result, 0.0, 1.0), inputColor.a);
 }
 `;
 

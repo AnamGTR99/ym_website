@@ -17,10 +17,9 @@ import {
   ChromaticAberration,
   HueSaturation,
   Noise,
-  ToneMapping,
   Vignette,
 } from "@react-three/postprocessing";
-import { BlendFunction, ToneMappingMode } from "postprocessing";
+import { BlendFunction } from "postprocessing";
 import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
@@ -139,22 +138,19 @@ const LIGHTING_CONFIG = {
  * Purple shadows, amber highlights, tiny bloom, film grain, analog lens feel.
  */
 const POST_CONFIG = {
-  toneMapping: {
-    mode: ToneMappingMode.ACES_FILMIC,
-  },
   splitToning: {
     shadowColor: 0x2a1040,
     highlightColor: 0xd4a853,
-    intensity: 0.55,
-    contrast: 0.5,
+    intensity: 0.35,
+    contrast: 0.4,
   },
   brightnessContrast: {
-    brightness: -0.12,
-    contrast: 0.25,
+    brightness: -0.05,
+    contrast: 0.12,
   },
   hueSaturation: {
-    hue: -0.25,
-    saturation: -0.15,
+    hue: -0.15,
+    saturation: -0.1,
   },
   bloom: {
     intensity: 0.18,
@@ -510,7 +506,6 @@ function Scene() {
       <AdaptiveEvents />
 
       <EffectComposer multisampling={0}>
-        <ToneMapping mode={P.toneMapping.mode} />
         <primitive
           object={
             new SplitToningEffect({
