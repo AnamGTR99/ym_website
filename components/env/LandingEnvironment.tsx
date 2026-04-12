@@ -6,7 +6,7 @@ import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
 import StarField from "./StarField";
 
-useGLTF.preload("/models/room.glb", "/draco/", true);
+useGLTF.preload("/models/setup.glb", true, false);
 
 /* ------------------------------------------------------------------ */
 /*  Camera config                                                      */

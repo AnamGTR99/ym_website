@@ -64,9 +64,9 @@ const useDebug = create<DebugState>((setState, getState) => ({
   hdr: true,
   ao: false,
   colorGrade: false,
-  exposure: 0.5,
-  ambient: 0.1,
-  lamp: 5,
+  exposure: 1.2,
+  ambient: 0.4,
+  lamp: 12,
   tvGlow: 0.3,
   glbLight: 200,
   hdrIntensity: 0.12,
@@ -468,7 +468,11 @@ function GLBRoom({
   onLoadFailedRef.current = onLoadFailed;
 
   /* ---- Load GLB via drei's useGLTF (handles Draco internally) ---- */
-  const gltf = useGLTF(GLB_PATH, DRACO_PATH);
+  // Args: (path, useDraco, useMeshopt, extendLoader)
+  // useDraco = true → uses Google gstatic CDN (battle-tested, always works)
+  // useMeshopt = false → CRITICAL: drei defaults to true which crashes
+  //   when MeshoptDecoder() from three-stdlib fails to initialize
+  const gltf = useGLTF(GLB_PATH, true, false);
 
   useEffect(() => {
     if (!gltf?.scene) return;
@@ -567,7 +571,12 @@ function GLBRoom({
     });
     screenRef.current = screenMesh;
     _screenMesh = screenMesh;
-    addLog(screenMesh ? `SCREEN FOUND: ${screenMesh.name} (mat: ${(screenMesh.material as THREE.MeshStandardMaterial)?.name})` : "SCREEN NOT FOUND ✗");
+    if (screenMesh) {
+      const sm = screenMesh as THREE.Mesh;
+      addLog(`SCREEN FOUND: ${sm.name} (mat: ${(sm.material as THREE.MeshStandardMaterial)?.name})`);
+    } else {
+      addLog("SCREEN NOT FOUND ✗");
+    }
 
     // Material pass
     applyMaterialPass(scene);
