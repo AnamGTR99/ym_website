@@ -9,6 +9,7 @@ import {
   Html,
   OrbitControls,
   Preload,
+  useGLTF,
 } from "@react-three/drei";
 import {
   EffectComposer,
@@ -24,7 +25,7 @@ import { BlendFunction } from "postprocessing";
 import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
-import { DRACOLoader, GLTFLoader, RGBELoader } from "three-stdlib";
+import { RGBELoader } from "three-stdlib";
 import { create } from "zustand";
 import { useEnvStore } from "@/stores/env";
 
@@ -154,13 +155,8 @@ const GLB_TRANSFORM = {
 } as const;
 
 /* ================================================================== */
-/*  DRACO SETUP — force WASM decoding + parallel preload              */
+/*  GLB LOADING — drei's useGLTF handles Draco internally             */
 /* ================================================================== */
-
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath(DRACO_PATH);
-dracoLoader.setDecoderConfig({ type: "wasm" });
-dracoLoader.preload();
 
 /* ================================================================== */
 /*  LOADING LOG — terminal overlay shared state                       */
@@ -471,154 +467,95 @@ function GLBRoom({
   onModelReadyRef.current = onModelReady;
   onLoadFailedRef.current = onLoadFailed;
 
-  /* ---- Manual GLB load with full lifecycle logging ---- */
-  useEffect(() => {
-    resetLog();
-    addLog("initialising draco decoder...");
+  /* ---- Load GLB via drei's useGLTF (handles Draco internally) ---- */
+  const gltf = useGLTF(GLB_PATH, DRACO_PATH);
 
-    // Observe WASM decoder readiness (internal promise)
-    const decoderPending = (dracoLoader as unknown as { decoderPending?: Promise<void> })
-      .decoderPending;
-    if (decoderPending) {
-      decoderPending.then(() => addLog("wasm decoder ready")).catch(() => {});
-    } else {
-      addLog("wasm decoder ready");
+  useEffect(() => {
+    if (!gltf?.scene) return;
+    resetLog();
+    addLog("parsing geometry...");
+
+    const scene = gltf.scene;
+
+    // Tag interactive meshes + diagnostics
+    const meshNames: string[] = [];
+    let totalTriangles = 0;
+    _interactiveOriginals.clear();
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        meshNames.push(obj.name);
+        const geo = obj.geometry;
+        totalTriangles += geo.index
+          ? geo.index.count / 3
+          : (geo.attributes.position?.count ?? 0) / 3;
+      }
+    });
+
+    // Tag interactive objects by name
+    for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
+      const obj = scene.getObjectByName(name);
+      if (!obj) continue;
+      obj.traverse((child) => {
+        child.userData.interactionAction = action;
+        if (child instanceof THREE.Mesh) {
+          const mat = child.material as THREE.MeshStandardMaterial;
+          if (mat) {
+            _interactiveOriginals.set(child, {
+              scale: child.scale.clone(),
+              emissive: mat.emissive.clone(),
+              emissiveIntensity: mat.emissiveIntensity,
+            });
+          }
+        }
+      });
     }
 
-    const loader = new GLTFLoader();
-    loader.setDRACOLoader(dracoLoader);
-
-    addLog("fetching model...");
-
-    let lastPct = 0;
-    loader.load(
-      GLB_PATH,
-      (gltf) => {
-        addLog("parsing geometry...");
-
-        // Tag interactive meshes + diagnostics
-        const meshNames: string[] = [];
-        let totalTriangles = 0;
-        _interactiveOriginals.clear();
-        gltf.scene.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            meshNames.push(obj.name);
-            const geo = obj.geometry;
-            totalTriangles += geo.index
-              ? geo.index.count / 3
-              : (geo.attributes.position?.count ?? 0) / 3;
-          }
-        });
-
-        // Tag interactive objects by name — handles both Mesh and Group nodes.
-        // When the named object is a Group, tag all descendant meshes.
-        for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
-          const obj = gltf.scene.getObjectByName(name);
-          if (!obj) continue;
-          obj.traverse((child) => {
-            child.userData.interactionAction = action;
-            if (child instanceof THREE.Mesh) {
-              const mat = child.material as THREE.MeshStandardMaterial;
-              if (mat) {
-                _interactiveOriginals.set(child, {
-                  scale: child.scale.clone(),
-                  emissive: mat.emissive.clone(),
-                  emissiveIntensity: mat.emissiveIntensity,
-                });
-              }
-            }
-          });
-        }
-
-        // Tame embedded lights from the GLB — store ref + grab position for cone
-        const embeddedLights: string[] = [];
-        gltf.scene.traverse((obj) => {
-          if ((obj as THREE.Light).isLight) {
-            const light = obj as THREE.Light;
-            obj.updateWorldMatrix(true, false);
-            const lightPos = new THREE.Vector3();
-            obj.getWorldPosition(lightPos);
-            embeddedLights.push(
-              `${obj.name || "(unnamed)"} [${light.type}] intensity=${light.intensity} pos=[${lightPos.toArray().map(n => n.toFixed(2))}]`
-            );
-            light.intensity = useDebug.getState().glbLight;
-            glbLightRef.current = light;
-            // Use the embedded light position for the cone + spot light
-            setBulbPos([lightPos.x, lightPos.y, lightPos.z]);
-            console.log("[MotelRoom] Using embedded light position for cone:", lightPos.toArray());
-          }
-        });
-        if (embeddedLights.length > 0) {
-          console.warn(
-            `[MotelRoom GLB] Tamed ${embeddedLights.length} embedded lights:\n  ` +
-              embeddedLights.join("\n  ")
-          );
-        }
-
-        console.log(
-          `[MotelRoom GLB] Parsed — ${meshNames.length} meshes, ` +
-            `${Math.round(totalTriangles).toLocaleString()} tris\n` +
-            `  Meshes: ${meshNames.join(", ")}`
-        );
-
-        const missing = Object.keys(INTERACTIVE_MESHES).filter(
-          (n) => !meshNames.includes(n)
-        );
-        if (missing.length > 0) {
-          console.warn("[MotelRoom GLB] Interactive meshes MISSING:", missing);
-        }
-
-        // Find the screen mesh for flicker animation
-        let screenMesh: THREE.Mesh | null = null;
-        gltf.scene.traverse((obj) => {
-          if (obj instanceof THREE.Mesh && obj.name.toLowerCase() === "screen") {
-            screenMesh = obj;
-            const m = obj.material as THREE.MeshStandardMaterial;
-            if (m) {
-              m.emissive = new THREE.Color(0xffffff);
-              m.emissiveIntensity = 2.5;
-              m.needsUpdate = true;
-            }
-          }
-        });
-        screenRef.current = screenMesh;
-        _screenMesh = screenMesh;
-
-        // Material pass — Cycles filmic shading
-        applyMaterialPass(gltf.scene);
-
-        // Find the bulb position for our spot light
-        let foundBulbPos: [number, number, number] | null = null;
-        gltf.scene.traverse((obj) => {
-          if (obj.userData._bulbWorldPos) {
-            foundBulbPos = obj.userData._bulbWorldPos as [number, number, number];
-            console.log("[MotelRoom] Bulb position:", foundBulbPos);
-          }
-        });
-        if (foundBulbPos) {
-          setBulbPos(foundBulbPos);
-        }
-
-        setModel(gltf.scene);
-      },
-      (progress) => {
-        if (progress.lengthComputable) {
-          const pct = Math.floor((progress.loaded / progress.total) * 100);
-          const rounded = Math.floor(pct / 10) * 10;
-          if (rounded > lastPct && rounded <= 100) {
-            lastPct = rounded;
-            addLog(`loading ${rounded}%`);
-          }
-        }
-      },
-      (err) => {
-        addLog("model load failed ✗");
-        console.error("[MotelRoom] GLB load error:", err);
-        onLoadFailedRef.current();
+    // Tame embedded lights from the GLB
+    scene.traverse((obj) => {
+      if ((obj as THREE.Light).isLight) {
+        const light = obj as THREE.Light;
+        obj.updateWorldMatrix(true, false);
+        const lightPos = new THREE.Vector3();
+        obj.getWorldPosition(lightPos);
+        light.intensity = useDebug.getState().glbLight;
+        glbLightRef.current = light;
+        setBulbPos([lightPos.x, lightPos.y, lightPos.z]);
       }
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    });
+
+    addLog(`loaded ${meshNames.length} meshes, ${Math.round(totalTriangles).toLocaleString()} tris`);
+
+    // Find the screen mesh
+    let screenMesh: THREE.Mesh | null = null;
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && obj.name.toLowerCase() === "screen") {
+        screenMesh = obj;
+        const m = obj.material as THREE.MeshStandardMaterial;
+        if (m) {
+          m.emissive = new THREE.Color(0xffffff);
+          m.emissiveIntensity = 2.5;
+          m.needsUpdate = true;
+        }
+      }
+    });
+    screenRef.current = screenMesh;
+    _screenMesh = screenMesh;
+
+    // Material pass
+    applyMaterialPass(scene);
+
+    // Find bulb position
+    let foundBulbPos: [number, number, number] | null = null;
+    scene.traverse((obj) => {
+      if (obj.userData._bulbWorldPos) {
+        foundBulbPos = obj.userData._bulbWorldPos as [number, number, number];
+      }
+    });
+    if (foundBulbPos) setBulbPos(foundBulbPos);
+
+    setModel(scene);
+    addLog("scene ready ✓");
+  }, [gltf]);
 
   /* ---- Shader compile + find bulb position + signal ready ---- */
   useEffect(() => {
@@ -1131,10 +1068,74 @@ function TVMenuScreen({ onSelect }: { onSelect: (ch: TVChannel) => void }) {
   );
 }
 
-/* ---- Channel pages — placeholder content per channel ---- */
+/* ---- Channel pages — wired to real data ---- */
 
 function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => void }) {
   const info = CHANNELS.find((c) => c.id === channel);
+  const router = useRouter();
+  const openCredits = useEnvStore((s) => s.openCredits);
+  const startTransition = useEnvStore((s) => s.startTransition);
+
+  // Shop: fetch real products from Supabase product_cache
+  const [products, setProducts] = useState<import("@/app/room/actions").TVProduct[]>([]);
+  const [tracks, setTracks] = useState<import("@/app/room/actions").TVTrack[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (channel === "shop") {
+      setLoading(true);
+      import("@/app/room/actions").then((mod) =>
+        mod.getShopProducts().then((p) => { setProducts(p); setLoading(false); })
+      );
+    }
+    if (channel === "music") {
+      setLoading(true);
+      import("@/app/room/actions").then((mod) =>
+        mod.getMusicTracks().then((t) => { setTracks(t); setLoading(false); })
+      );
+    }
+    if (channel === "credits") {
+      openCredits();
+      onBack();
+    }
+  }, [channel, openCredits, onBack]);
+
+  const navigateToProduct = useCallback((handle: string) => {
+    animateCameraTo(
+      CAMERA_PRESETS.LOOK_AT_X.position as [number, number, number],
+      CAMERA_PRESETS.LOOK_AT_X.target as [number, number, number],
+      1.5,
+      () => {
+        setZoomedToTV(false);
+        startTransition("tv", () => router.push(`/tv/${handle}`));
+      }
+    );
+  }, [router, startTransition]);
+
+  const playTrack = useCallback((trackId: string) => {
+    import("@/stores/music").then((mod) => {
+      mod.useMusicStore.getState().playTrack(trackId);
+    });
+  }, []);
+
+  const formatDuration = (s: number | null) => {
+    if (!s) return "";
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  };
+
+  const rowStyle = {
+    padding: "10px 14px",
+    background: "rgba(255,255,255,0.03)",
+    border: "1px solid rgba(255,255,255,0.06)",
+    borderRadius: "2px",
+    fontSize: "12px",
+    letterSpacing: "0.12em",
+    color: "rgba(200,192,168,0.7)",
+    cursor: "pointer",
+    display: "flex" as const,
+    justifyContent: "space-between" as const,
+    alignItems: "center" as const,
+  };
 
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "40px 50px" }}>
@@ -1167,33 +1168,33 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
       </div>
 
       {/* Channel content */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
         {channel === "shop" && (
           <>
             <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
               YUNMAKAI GOODS
             </div>
-            {["MOTEL TEES", "SOLUS VINYL", "BAYOU PRINTS"].map((item, i) => (
-              <div key={i} style={{
-                padding: "10px 14px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "2px",
-                fontSize: "12px",
-                letterSpacing: "0.15em",
-                color: "rgba(200,192,168,0.7)",
-                cursor: "pointer",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-              >
-                <span>{item}</span>
-                <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)" }}>COMING SOON</span>
-              </div>
-            ))}
+            {loading ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
+            ) : products.length === 0 ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO PRODUCTS</div>
+            ) : (
+              products.map((p) => (
+                <div
+                  key={p.id}
+                  style={rowStyle}
+                  onClick={(e) => { e.stopPropagation(); navigateToProduct(p.handle); }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                >
+                  <div>
+                    <div style={{ marginBottom: "2px" }}>{p.title.toUpperCase()}</div>
+                    <div style={{ fontSize: "10px", color: "rgba(212,168,83,0.6)" }}>${p.price}</div>
+                  </div>
+                  <span style={{ fontSize: "10px", color: "rgba(212,168,83,0.5)", letterSpacing: "0.15em" }}>VIEW →</span>
+                </div>
+              ))
+            )}
           </>
         )}
         {channel === "music" && (
@@ -1201,40 +1202,30 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
             <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
               NOW PLAYING
             </div>
-            {["TRACK 01 — SWAMP HYMN", "TRACK 02 — NEON MOTEL", "TRACK 03 — BAYOU DRIFT"].map((item, i) => (
-              <div key={i} style={{
-                padding: "10px 14px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.06)",
-                borderRadius: "2px",
-                fontSize: "12px",
-                letterSpacing: "0.1em",
-                color: "rgba(200,192,168,0.7)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
-              >
-                <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "10px" }}>▶</span>
-                <span>{item}</span>
-              </div>
-            ))}
-          </>
-        )}
-        {channel === "credits" && (
-          <>
-            <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "8px" }}>
-              CREDITS
-            </div>
-            <div style={{ fontSize: "12px", lineHeight: 2.2, color: "rgba(200,192,168,0.6)", letterSpacing: "0.1em" }}>
-              <div>DIRECTION — <span style={{ color: "#c8c0a8" }}>YUNMAKAI</span></div>
-              <div>MUSIC — <span style={{ color: "#c8c0a8" }}>SOLUS RECORDS</span></div>
-              <div>3D ENVIRONMENT — <span style={{ color: "#c8c0a8" }}>BRUNO</span></div>
-              <div>DEVELOPMENT — <span style={{ color: "#c8c0a8" }}>STUDIO</span></div>
-            </div>
+            {loading ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
+            ) : tracks.length === 0 ? (
+              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO TRACKS</div>
+            ) : (
+              tracks.map((t, i) => (
+                <div
+                  key={t.id}
+                  style={{ ...rowStyle, justifyContent: "flex-start", gap: "12px" }}
+                  onClick={(e) => { e.stopPropagation(); playTrack(t.id); }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
+                >
+                  <span style={{ color: "rgba(212,168,83,0.5)", fontSize: "10px", minWidth: "16px" }}>▶</span>
+                  <div style={{ flex: 1 }}>
+                    <div>{String(i + 1).padStart(2, "0")} — {t.title.toUpperCase()}</div>
+                    <div style={{ fontSize: "10px", color: "rgba(200,192,168,0.4)", marginTop: "1px" }}>{t.artist}</div>
+                  </div>
+                  {t.durationSeconds && (
+                    <span style={{ fontSize: "10px", color: "rgba(200,192,168,0.3)" }}>{formatDuration(t.durationSeconds)}</span>
+                  )}
+                </div>
+              ))
+            )}
           </>
         )}
       </div>
