@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Image from "next/image";
 import { useMusicStore } from "@/stores/music";
 import type { TrackInfo } from "@/lib/supabase/tracks";
@@ -16,29 +17,66 @@ export default function TrackList({ tracks }: { tracks: TrackInfo[] }) {
   const currentTrack = useMusicStore((s) => s.currentTrack);
   const isPlaying = useMusicStore((s) => s.isPlaying);
 
+  // Stop playback when navigating away from this product
+  useEffect(() => {
+    return () => {
+      const state = useMusicStore.getState();
+      if (state.currentTrack) {
+        state.stop();
+      }
+    };
+  }, []);
+
+  // If a track is playing from a different product, stop it
+  useEffect(() => {
+    const current = useMusicStore.getState().currentTrack;
+    if (current && !tracks.some((t) => t.id === current.id)) {
+      useMusicStore.getState().stop();
+    }
+  }, [tracks]);
+
   if (tracks.length === 0) return null;
 
   return (
-    <div className="w-full border border-charcoal rounded overflow-hidden animate-fade-up delay-200">
-      <div className="px-4 py-3 border-b border-charcoal bg-abyss">
-        <p className="text-label text-fog">
-          Linked Tracks
-        </p>
+    <div className="w-full rounded overflow-hidden animate-fade-up delay-200">
+      {/* Header */}
+      <div className="px-5 py-3 bg-soot border border-charcoal border-b-0 rounded-t">
+        <div className="flex items-center justify-between">
+          <p className="text-label text-fog">
+            {tracks.length === 1 ? "Track" : `${tracks.length} Tracks`}
+          </p>
+          <p className="text-[9px] font-mono text-smoke uppercase tracking-[0.15em]">
+            Yunmakai
+          </p>
+        </div>
       </div>
 
-      <div className="divide-y divide-charcoal">
-        {tracks.map((track) => {
+      {/* Track rows */}
+      <div className="border border-charcoal border-t-0 rounded-b divide-y divide-charcoal/50">
+        {tracks.map((track, i) => {
           const active = currentTrack?.id === track.id;
 
           return (
             <button
               key={track.id}
               onClick={() => playTrack(track.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-soot ${
-                active ? "bg-soot/50" : ""
+              className={`w-full flex items-center gap-4 px-5 py-4 text-left transition-all duration-200 group ${
+                active
+                  ? "bg-amber/5"
+                  : "hover:bg-soot/80"
               }`}
             >
-              {/* Cover */}
+              {/* Track number */}
+              <span className={`w-5 text-right text-xs font-mono tabular-nums flex-shrink-0 ${
+                active ? "text-amber" : "text-smoke group-hover:hidden"
+              }`}>
+                {active && isPlaying ? "♫" : String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="w-5 text-center text-xs flex-shrink-0 hidden group-hover:block text-amber">
+                ▶
+              </span>
+
+              {/* Cover art */}
               <div className="w-10 h-10 flex-shrink-0 rounded overflow-hidden bg-charcoal">
                 {track.cover_url ? (
                   <Image
@@ -49,43 +87,32 @@ export default function TrackList({ tracks }: { tracks: TrackInfo[] }) {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-smoke text-xs">
+                  <div className={`w-full h-full flex items-center justify-center text-xs ${
+                    active ? "text-amber" : "text-smoke"
+                  }`}>
                     ♪
                   </div>
                 )}
               </div>
 
-              {/* Info */}
+              {/* Track info */}
               <div className="flex-1 min-w-0">
-                <p
-                  className={`text-sm font-mono truncate ${
-                    active ? "text-amber" : "text-bone"
-                  }`}
-                >
+                <p className={`text-sm truncate transition-colors ${
+                  active ? "text-amber font-medium" : "text-bone group-hover:text-white"
+                }`}>
                   {track.title}
                 </p>
-                <p className="text-[10px] font-mono text-smoke truncate">
+                <p className="text-[10px] font-mono text-smoke truncate mt-0.5">
                   {track.artist}
                 </p>
               </div>
 
               {/* Duration */}
               {track.duration_seconds && (
-                <span className="text-[10px] font-mono text-smoke flex-shrink-0">
+                <span className="text-[10px] font-mono text-smoke flex-shrink-0 tabular-nums">
                   {formatDuration(track.duration_seconds)}
                 </span>
               )}
-
-              {/* Play indicator */}
-              <span className="w-4 text-center flex-shrink-0">
-                {active && isPlaying ? (
-                  <span className="text-amber text-xs">▶</span>
-                ) : (
-                  <span className="text-ash hover:text-fog text-xs">
-                    ▶
-                  </span>
-                )}
-              </span>
             </button>
           );
         })}

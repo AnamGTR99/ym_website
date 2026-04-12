@@ -1,5 +1,4 @@
 import { createAdminClient } from "./server";
-import { createClient } from "./server";
 
 export interface Track {
   id: string;
@@ -17,12 +16,11 @@ export interface Track {
 
 /**
  * Fetch a published track by ID.
- * Uses anon client — RLS allows SELECT on published tracks.
  */
 export async function getPublishedTrack(
   trackId: string
 ): Promise<Track | null> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("tracks")
@@ -62,21 +60,23 @@ export type TrackInfo = Pick<
 
 /**
  * Fetch published tracks linked to a Shopify product via track_product_map.
- * Uses anon-safe RLS — both tables allow public SELECT on published rows.
  */
 export async function getTracksByProductId(
   shopifyProductId: string
 ): Promise<TrackInfo[]> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("track_product_map")
     .select("track_id, tracks!inner(id, title, artist, cover_url, duration_seconds, published)")
     .eq("shopify_product_id", shopifyProductId);
 
-  if (error || !data) return [];
+  if (error) {
+    console.error("[getTracksByProductId] error:", error.message, "productId:", shopifyProductId);
+    return [];
+  }
+  if (!data) return [];
 
-  // Supabase returns the joined record as an object (inner join guarantees one match)
   type JoinRow = {
     tracks: {
       id: string;

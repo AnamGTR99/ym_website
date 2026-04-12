@@ -14,23 +14,24 @@ export default async function EditTrackPage({
   const { id } = await params;
   const supabase = createAdminClient();
 
-  const { data: track } = await supabase
-    .from("tracks")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [trackResult, mappingsResult, productsResult] = await Promise.all([
+    supabase.from("tracks").select("*").eq("id", id).single(),
+    supabase.from("track_product_map").select("shopify_product_id").eq("track_id", id),
+    supabase.from("product_cache").select("shopify_id, title, handle, image_url").order("title"),
+  ]);
 
-  if (!track) notFound();
+  if (!trackResult.data) notFound();
 
-  // Fetch linked product IDs
-  const { data: mappings } = await supabase
-    .from("track_product_map")
-    .select("shopify_product_id")
-    .eq("track_id", id);
-
-  const linkedProductIds = (mappings ?? []).map(
+  const linkedProductIds = (mappingsResult.data ?? []).map(
     (m) => m.shopify_product_id
   );
+
+  const shopifyProducts = (productsResult.data ?? []).map((p) => ({
+    id: p.shopify_id,
+    title: p.title,
+    handle: p.handle,
+    image: p.image_url,
+  }));
 
   return (
     <div>
@@ -38,10 +39,11 @@ export default async function EditTrackPage({
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
         <TrackForm
-          track={track as Track}
+          track={trackResult.data as Track}
           linkedProductIds={linkedProductIds}
+          shopifyProducts={shopifyProducts}
         />
-        <TrackUploads track={track as Track} />
+        <TrackUploads track={trackResult.data as Track} />
       </div>
     </div>
   );

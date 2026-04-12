@@ -956,9 +956,7 @@ function DustParticles() {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={DUST_COUNT}
-          array={positions}
-          itemSize={3}
+          args={[positions, 3]}
         />
       </bufferGeometry>
       <pointsMaterial
@@ -1959,7 +1957,7 @@ function DebugPanel() {
     { label: "Color Grade", key: "colorGrade" },
   ];
 
-  const sliders: Array<{ label: string; key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight"; min: number; max: number; step: number }> = [
+  const sliders: Array<{ label: string; key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight" | "purpleLight"; min: number; max: number; step: number }> = [
     { label: "Exposure", key: "exposure", min: 0.05, max: 2, step: 0.05 },
     { label: "Ambient", key: "ambient", min: 0, max: 1, step: 0.01 },
     { label: "Lamp", key: "lamp", min: 0, max: 20, step: 0.5 },

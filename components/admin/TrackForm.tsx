@@ -10,12 +10,20 @@ import {
 } from "@/app/admin/tracks/actions";
 import ProductSelector from "./ProductSelector";
 
+export interface ShopifyProductItem {
+  id: string;
+  title: string;
+  handle: string;
+  image: string | null;
+}
+
 interface TrackFormProps {
   track?: Track;
   linkedProductIds?: string[];
+  shopifyProducts?: ShopifyProductItem[];
 }
 
-export default function TrackForm({ track, linkedProductIds }: TrackFormProps) {
+export default function TrackForm({ track, linkedProductIds, shopifyProducts }: TrackFormProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -201,7 +209,7 @@ export default function TrackForm({ track, linkedProductIds }: TrackFormProps) {
         <label className="block text-xs font-mono text-zinc-500 uppercase tracking-wider mb-1">
           Linked Shopify Products
         </label>
-        <ProductSelector selectedIds={productIds} onChange={setProductIds} />
+        <ProductSelector selectedIds={productIds} onChange={setProductIds} products={shopifyProducts} />
       </div>
 
       {/* File upload info */}
