@@ -264,10 +264,13 @@ function setZoomedToTV(val: boolean) {
   _zoomListeners.forEach((fn) => fn(val));
 }
 
+let _cameraAnimOnComplete: (() => void) | null = null;
+
 function animateCameraTo(
   pos: [number, number, number],
   lookAt: [number, number, number],
-  duration = 2.5
+  duration = 2.5,
+  onComplete?: () => void
 ) {
   _cameraAnimFrom.position.set(..._camPos);
   _cameraAnimFrom.lookAt.set(..._camTarget);
@@ -278,6 +281,7 @@ function animateCameraTo(
   };
   _cameraAnimProgress = 0;
   _cameraAnimating = true;
+  _cameraAnimOnComplete = onComplete ?? null;
 }
 
 /** Module-level ref for the bulb mesh — shared between GLBRoom and PostProcessingStack for GodRays */
@@ -713,8 +717,7 @@ function GLBRoom({
 
     // Screen mesh — animate camera to TV close-up
     if (e.object.name.toLowerCase() === "screen") {
-      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5);
-      setTimeout(() => setZoomedToTV(true), 2500);
+      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5, () => setZoomedToTV(true));
       return;
     }
 
@@ -724,8 +727,7 @@ function GLBRoom({
     if (!action) return;
 
     if (action === "navigate-tv") {
-      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5);
-      setTimeout(() => setZoomedToTV(true), 2500);
+      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5, () => setZoomedToTV(true));
     } else if (action === "open-credits") {
       // Zoom into the poster, then fade to black → /credits
       e.object.updateWorldMatrix(true, false);
@@ -737,11 +739,9 @@ function GLBRoom({
       animateCameraTo(
         targetPos.toArray() as [number, number, number],
         center.toArray() as [number, number, number],
-        1.2
+        1.2,
+        () => startTransition("credits", () => router.push("/credits"))
       );
-      setTimeout(() => {
-        startTransition("credits", () => router.push("/credits"));
-      }, 800);
     }
   };
 
@@ -1484,8 +1484,7 @@ function TVScreenHTML() {
   const handleScreenClick = useCallback(() => {
     if (_cameraAnimating) return;
     if (!zoomed) {
-      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5);
-      setTimeout(() => setZoomedToTV(true), 2500);
+      animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5, () => setZoomedToTV(true));
     }
   }, [zoomed]);
 
@@ -1674,49 +1673,33 @@ function PostProcessingStack() {
 /* ================================================================== */
 
 /** Subtle idle camera sway — pauses when user is orbiting */
-function CameraBreathing() {
-  const { camera } = useThree();
-  const basePos = useRef(new THREE.Vector3());
-  const initialized = useRef(false);
-  const userInteracting = useRef(false);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+/** Mouse parallax — camera target shifts subtly based on cursor position */
+function CameraParallax() {
+  const mouse = useRef({ x: 0, y: 0 });
+  const smoothMouse = useRef({ x: 0, y: 0 });
+  const baseTarget = useRef(new THREE.Vector3(...ACTIVE_CAMERA.target));
 
   useEffect(() => {
-    const onStart = () => {
-      userInteracting.current = true;
-      initialized.current = false;
-      if (idleTimer.current) clearTimeout(idleTimer.current);
+    const onMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = (e.clientY / window.innerHeight) * 2 - 1;
     };
-    const onEnd = () => {
-      idleTimer.current = setTimeout(() => {
-        userInteracting.current = false;
-      }, 2000);
-    };
-    window.addEventListener("pointerdown", onStart);
-    window.addEventListener("pointerup", onEnd);
-    window.addEventListener("wheel", onStart);
-    window.addEventListener("wheel", onEnd);
-    return () => {
-      window.removeEventListener("pointerdown", onStart);
-      window.removeEventListener("pointerup", onEnd);
-      window.removeEventListener("wheel", onStart);
-      window.removeEventListener("wheel", onEnd);
-    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
   }, []);
 
   useFrame((state) => {
-    if (_cameraAnimating || userInteracting.current) {
-      initialized.current = false;
-      return;
+    if (_cameraAnimating || _zoomedToTV) return;
+
+    smoothMouse.current.x += (mouse.current.x - smoothMouse.current.x) * 0.03;
+    smoothMouse.current.y += (mouse.current.y - smoothMouse.current.y) * 0.03;
+
+    const controls = state.controls as any;
+    if (controls?.target) {
+      controls.target.x = baseTarget.current.x + smoothMouse.current.x * 0.8;
+      controls.target.y = baseTarget.current.y - smoothMouse.current.y * 0.5;
+      controls.update();
     }
-    if (!initialized.current) {
-      basePos.current.copy(camera.position);
-      initialized.current = true;
-    }
-    const t = state.clock.elapsedTime;
-    camera.position.x = basePos.current.x + Math.sin(t * 0.3) * 0.08 + Math.sin(t * 0.7) * 0.04;
-    camera.position.y = basePos.current.y + Math.sin(t * 0.4) * 0.05 + Math.cos(t * 0.6) * 0.03;
-    camera.position.z = basePos.current.z + Math.cos(t * 0.35) * 0.06;
   });
 
   return null;
@@ -1753,6 +1736,10 @@ function CameraAnimator() {
     if (t >= 1) {
       _cameraAnimating = false;
       _cameraAnim = null;
+      if (_cameraAnimOnComplete) {
+        _cameraAnimOnComplete();
+        _cameraAnimOnComplete = null;
+      }
     }
   });
 
@@ -1789,7 +1776,7 @@ function Scene() {
       <RendererSync />
       <CameraTracker />
       <CameraAnimator />
-      <CameraBreathing />
+      <CameraParallax />
 
       {/* ---- Lighting — dark room, lamp + TV + bounce fills ---- */}
       <ambientLight intensity={d.ambient} color={0x0a0806} />
@@ -2173,7 +2160,7 @@ function BackButton() {
         position: "fixed",
         top: "1.5rem",
         left: "1.5rem",
-        zIndex: 1000,
+        zIndex: 10000,
         background: "rgba(0,0,0,0.5)",
         border: "1px solid rgba(255,255,255,0.15)",
         borderRadius: "6px",
