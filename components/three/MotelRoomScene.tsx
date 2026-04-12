@@ -2,7 +2,7 @@
 
 import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Environment, OrbitControls } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { useEnvStore } from "@/stores/env";
@@ -159,9 +159,6 @@ function Scene() {
 
       {/* Fill light from camera side */}
       <directionalLight position={[0, 3, 3]} intensity={0.3} color="#6bc4c4" />
-
-      {/* Environment — night preset for mood */}
-      <Environment preset="night" />
 
       {/* Fog — bayou mist bleeding into the room */}
       <fog attach="fog" args={["#050505", 5, 15]} />

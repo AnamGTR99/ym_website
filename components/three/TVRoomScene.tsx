@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, OrbitControls, useGLTF } from "@react-three/drei";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 /* ------------------------------------------------------------------ */
@@ -234,8 +234,6 @@ function Scene({ productImageUrl, glbUrl }: SceneProps) {
         decay={2}
       />
       <directionalLight position={[0, 4, 4]} intensity={0.25} color="#6bc4c4" />
-
-      <Environment preset="apartment" background={false} />
 
       <fog attach="fog" args={["#0a0a0a", 4, 12]} />
 
