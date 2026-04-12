@@ -1122,7 +1122,14 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Stable refs so useEffect doesn't re-run on every parent render
+  const onBackRef = useRef(onBack);
+  const openCreditsRef = useRef(openCredits);
+  onBackRef.current = onBack;
+  openCreditsRef.current = openCredits;
+
   useEffect(() => {
+    // Only re-run when the channel CHANGES, not when parent refs change
     if (channel === "shop") {
       setLoading(true);
       setError(null);
@@ -1130,20 +1137,19 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
         .then((r) => r.json())
         .then((data) => { setProducts(Array.isArray(data) ? data : []); setLoading(false); })
         .catch((e) => { setError(e.message); setLoading(false); });
-    }
-    if (channel === "music") {
+    } else if (channel === "music") {
       setLoading(true);
       setError(null);
       fetch("/api/tv/tracks")
         .then((r) => r.json())
         .then((data) => { setTracks(Array.isArray(data) ? data : []); setLoading(false); })
         .catch((e) => { setError(e.message); setLoading(false); });
+    } else if (channel === "credits") {
+      openCreditsRef.current();
+      onBackRef.current();
     }
-    if (channel === "credits") {
-      openCredits();
-      onBack();
-    }
-  }, [channel, openCredits, onBack]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channel]);
 
   const navigateToProduct = useCallback((handle: string) => {
     animateCameraTo(
