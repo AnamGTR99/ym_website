@@ -9,6 +9,7 @@ import {
   Html,
   OrbitControls,
   Preload,
+  useGLTF,
 } from "@react-three/drei";
 import {
   EffectComposer,
@@ -24,8 +25,7 @@ import { BlendFunction } from "postprocessing";
 import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
-import { GLTFLoader, RGBELoader } from "three-stdlib";
-import { MeshoptDecoder } from "meshoptimizer";
+import { RGBELoader } from "three-stdlib";
 import { create } from "zustand";
 import { useEnvStore } from "@/stores/env";
 
@@ -155,11 +155,8 @@ const GLB_TRANSFORM = {
 } as const;
 
 /* ================================================================== */
-/*  MESHOPT SETUP — no Web Worker needed, main-thread WASM decode     */
+/*  GLB LOADING — drei's useGLTF handles Draco internally             */
 /* ================================================================== */
-
-let _meshoptReady = false;
-const _meshoptPromise = MeshoptDecoder.ready.then(() => { _meshoptReady = true; });
 
 /* ================================================================== */
 /*  LOADING LOG — terminal overlay shared state                       */
@@ -470,145 +467,95 @@ function GLBRoom({
   onModelReadyRef.current = onModelReady;
   onLoadFailedRef.current = onLoadFailed;
 
-  /* ---- Manual GLB load with full lifecycle logging ---- */
+  /* ---- Load GLB via drei's useGLTF (handles Draco internally) ---- */
+  const gltf = useGLTF(GLB_PATH, DRACO_PATH);
+
   useEffect(() => {
+    if (!gltf?.scene) return;
     resetLog();
-    addLog("initialising meshopt decoder...");
+    addLog("parsing geometry...");
 
-    const loader = new GLTFLoader();
-    loader.setMeshoptDecoder(MeshoptDecoder);
+    const scene = gltf.scene;
 
-    addLog("fetching model...");
-
-    let lastPct = 0;
-    loader.load(
-      GLB_PATH,
-      (gltf) => {
-        addLog("parsing geometry...");
-
-        // Tag interactive meshes + diagnostics
-        const meshNames: string[] = [];
-        let totalTriangles = 0;
-        _interactiveOriginals.clear();
-        gltf.scene.traverse((obj) => {
-          if (obj instanceof THREE.Mesh) {
-            meshNames.push(obj.name);
-            const geo = obj.geometry;
-            totalTriangles += geo.index
-              ? geo.index.count / 3
-              : (geo.attributes.position?.count ?? 0) / 3;
-          }
-        });
-
-        // Tag interactive objects by name — handles both Mesh and Group nodes.
-        // When the named object is a Group, tag all descendant meshes.
-        for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
-          const obj = gltf.scene.getObjectByName(name);
-          if (!obj) continue;
-          obj.traverse((child) => {
-            child.userData.interactionAction = action;
-            if (child instanceof THREE.Mesh) {
-              const mat = child.material as THREE.MeshStandardMaterial;
-              if (mat) {
-                _interactiveOriginals.set(child, {
-                  scale: child.scale.clone(),
-                  emissive: mat.emissive.clone(),
-                  emissiveIntensity: mat.emissiveIntensity,
-                });
-              }
-            }
-          });
-        }
-
-        // Tame embedded lights from the GLB — store ref + grab position for cone
-        const embeddedLights: string[] = [];
-        gltf.scene.traverse((obj) => {
-          if ((obj as THREE.Light).isLight) {
-            const light = obj as THREE.Light;
-            obj.updateWorldMatrix(true, false);
-            const lightPos = new THREE.Vector3();
-            obj.getWorldPosition(lightPos);
-            embeddedLights.push(
-              `${obj.name || "(unnamed)"} [${light.type}] intensity=${light.intensity} pos=[${lightPos.toArray().map(n => n.toFixed(2))}]`
-            );
-            light.intensity = useDebug.getState().glbLight;
-            glbLightRef.current = light;
-            // Use the embedded light position for the cone + spot light
-            setBulbPos([lightPos.x, lightPos.y, lightPos.z]);
-            console.log("[MotelRoom] Using embedded light position for cone:", lightPos.toArray());
-          }
-        });
-        if (embeddedLights.length > 0) {
-          console.warn(
-            `[MotelRoom GLB] Tamed ${embeddedLights.length} embedded lights:\n  ` +
-              embeddedLights.join("\n  ")
-          );
-        }
-
-        console.log(
-          `[MotelRoom GLB] Parsed — ${meshNames.length} meshes, ` +
-            `${Math.round(totalTriangles).toLocaleString()} tris\n` +
-            `  Meshes: ${meshNames.join(", ")}`
-        );
-
-        const missing = Object.keys(INTERACTIVE_MESHES).filter(
-          (n) => !meshNames.includes(n)
-        );
-        if (missing.length > 0) {
-          console.warn("[MotelRoom GLB] Interactive meshes MISSING:", missing);
-        }
-
-        // Find the screen mesh for flicker animation
-        let screenMesh: THREE.Mesh | null = null;
-        gltf.scene.traverse((obj) => {
-          if (obj instanceof THREE.Mesh && obj.name.toLowerCase() === "screen") {
-            screenMesh = obj;
-            const m = obj.material as THREE.MeshStandardMaterial;
-            if (m) {
-              m.emissive = new THREE.Color(0xffffff);
-              m.emissiveIntensity = 2.5;
-              m.needsUpdate = true;
-            }
-          }
-        });
-        screenRef.current = screenMesh;
-        _screenMesh = screenMesh;
-
-        // Material pass — Cycles filmic shading
-        applyMaterialPass(gltf.scene);
-
-        // Find the bulb position for our spot light
-        let foundBulbPos: [number, number, number] | null = null;
-        gltf.scene.traverse((obj) => {
-          if (obj.userData._bulbWorldPos) {
-            foundBulbPos = obj.userData._bulbWorldPos as [number, number, number];
-            console.log("[MotelRoom] Bulb position:", foundBulbPos);
-          }
-        });
-        if (foundBulbPos) {
-          setBulbPos(foundBulbPos);
-        }
-
-        setModel(gltf.scene);
-      },
-      (progress) => {
-        if (progress.lengthComputable) {
-          const pct = Math.floor((progress.loaded / progress.total) * 100);
-          const rounded = Math.floor(pct / 10) * 10;
-          if (rounded > lastPct && rounded <= 100) {
-            lastPct = rounded;
-            addLog(`loading ${rounded}%`);
-          }
-        }
-      },
-      (err) => {
-        addLog("model load failed ✗");
-        console.error("[MotelRoom] GLB load error:", err);
-        onLoadFailedRef.current();
+    // Tag interactive meshes + diagnostics
+    const meshNames: string[] = [];
+    let totalTriangles = 0;
+    _interactiveOriginals.clear();
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        meshNames.push(obj.name);
+        const geo = obj.geometry;
+        totalTriangles += geo.index
+          ? geo.index.count / 3
+          : (geo.attributes.position?.count ?? 0) / 3;
       }
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    });
+
+    // Tag interactive objects by name
+    for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
+      const obj = scene.getObjectByName(name);
+      if (!obj) continue;
+      obj.traverse((child) => {
+        child.userData.interactionAction = action;
+        if (child instanceof THREE.Mesh) {
+          const mat = child.material as THREE.MeshStandardMaterial;
+          if (mat) {
+            _interactiveOriginals.set(child, {
+              scale: child.scale.clone(),
+              emissive: mat.emissive.clone(),
+              emissiveIntensity: mat.emissiveIntensity,
+            });
+          }
+        }
+      });
+    }
+
+    // Tame embedded lights from the GLB
+    scene.traverse((obj) => {
+      if ((obj as THREE.Light).isLight) {
+        const light = obj as THREE.Light;
+        obj.updateWorldMatrix(true, false);
+        const lightPos = new THREE.Vector3();
+        obj.getWorldPosition(lightPos);
+        light.intensity = useDebug.getState().glbLight;
+        glbLightRef.current = light;
+        setBulbPos([lightPos.x, lightPos.y, lightPos.z]);
+      }
+    });
+
+    addLog(`loaded ${meshNames.length} meshes, ${Math.round(totalTriangles).toLocaleString()} tris`);
+
+    // Find the screen mesh
+    let screenMesh: THREE.Mesh | null = null;
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh && obj.name.toLowerCase() === "screen") {
+        screenMesh = obj;
+        const m = obj.material as THREE.MeshStandardMaterial;
+        if (m) {
+          m.emissive = new THREE.Color(0xffffff);
+          m.emissiveIntensity = 2.5;
+          m.needsUpdate = true;
+        }
+      }
+    });
+    screenRef.current = screenMesh;
+    _screenMesh = screenMesh;
+
+    // Material pass
+    applyMaterialPass(scene);
+
+    // Find bulb position
+    let foundBulbPos: [number, number, number] | null = null;
+    scene.traverse((obj) => {
+      if (obj.userData._bulbWorldPos) {
+        foundBulbPos = obj.userData._bulbWorldPos as [number, number, number];
+      }
+    });
+    if (foundBulbPos) setBulbPos(foundBulbPos);
+
+    setModel(scene);
+    addLog("scene ready ✓");
+  }, [gltf]);
 
   /* ---- Shader compile + find bulb position + signal ready ---- */
   useEffect(() => {
