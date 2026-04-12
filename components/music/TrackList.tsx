@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Image from "next/image";
 import { useMusicStore } from "@/stores/music";
 import type { TrackInfo } from "@/lib/supabase/tracks";
@@ -15,6 +16,24 @@ export default function TrackList({ tracks }: { tracks: TrackInfo[] }) {
   const playTrack = useMusicStore((s) => s.playTrack);
   const currentTrack = useMusicStore((s) => s.currentTrack);
   const isPlaying = useMusicStore((s) => s.isPlaying);
+
+  // Stop playback when navigating away from this product
+  useEffect(() => {
+    return () => {
+      const state = useMusicStore.getState();
+      if (state.currentTrack) {
+        state.stop();
+      }
+    };
+  }, []);
+
+  // If a track is playing from a different product, stop it
+  useEffect(() => {
+    const current = useMusicStore.getState().currentTrack;
+    if (current && !tracks.some((t) => t.id === current.id)) {
+      useMusicStore.getState().stop();
+    }
+  }, [tracks]);
 
   if (tracks.length === 0) return null;
 
