@@ -2,7 +2,14 @@
 
 import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
+
+// Background preload — starts fetching the motel room GLB while the user
+// watches the bayou landing video. By the time they click "Enter", the GLB
+// is cached in memory and the /room page renders near-instantly.
+// useGLTF.preload does NOT need a Canvas or WebGL context.
+useGLTF.preload("/models/room.glb", "/draco/", true);
 
 export default function LandingEnvironment() {
   const router = useRouter();
