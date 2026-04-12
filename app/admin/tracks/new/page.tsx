@@ -1,17 +1,21 @@
+import { createAdminClient } from "@/lib/supabase/server";
 import TrackForm from "@/components/admin/TrackForm";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { getProducts } from "@/lib/shopify/products";
 
 export default async function NewTrackPage() {
   await requireAdmin();
 
-  const shopifyResult = await getProducts({ first: 50, sortKey: "TITLE" }).catch(() => ({ products: [] }));
+  const supabase = createAdminClient();
+  const { data: products } = await supabase
+    .from("product_cache")
+    .select("shopify_id, title, handle, image_url")
+    .order("title");
 
-  const shopifyProducts = shopifyResult.products.map((p) => ({
-    id: p.id,
+  const shopifyProducts = (products ?? []).map((p) => ({
+    id: p.shopify_id,
     title: p.title,
     handle: p.handle,
-    image: p.featuredImage?.url ?? null,
+    image: p.image_url,
   }));
 
   return (
