@@ -67,7 +67,7 @@ const useDebug = create<DebugState>((setState, getState) => ({
   hdr: true,
   ao: false,
   colorGrade: false,
-  exposure: 1.55,
+  exposure: 1.71,
   ambient: 0.85,
   lamp: 14,
   tvGlow: 0.35,
@@ -136,7 +136,7 @@ const CAMERA_START = {
 
 /** Camera — TV close-up (after clicking screen) */
 const CAMERA_TV = {
-  position: [-15.0, 8.2, -1.4] as [number, number, number],
+  position: [-16.5, 8.1, -1.5] as [number, number, number],
   target: [-27.496, 7.652, -2.408] as [number, number, number],
 };
 
