@@ -2867,6 +2867,9 @@ function LoadingTerminal() {
 function DebugPanel() {
   const d = useDebug();
 
+  // Only available in local development — never shown to end users on Vercel
+  if (process.env.NODE_ENV !== "development") return null;
+
   if (!d.open) {
     return (
       <button
