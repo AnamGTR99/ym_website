@@ -1,0 +1,14 @@
+# Binary files — prevent Git from corrupting these with line-ending conversion
+*.glb binary
+*.gltf binary
+*.wasm binary
+*.hdr binary
+*.exr binary
+*.bin binary
+*.mp4 binary
+*.mp3 binary
+*.wav binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
