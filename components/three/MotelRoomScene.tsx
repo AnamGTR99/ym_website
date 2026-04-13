@@ -2056,9 +2056,21 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
   }, []);
 
   // When zoomed and still on idle, auto-switch to the product grid.
+  // If ?product=<handle> is in the URL, jump straight to that product detail.
   useEffect(() => {
     if (interactive && channel === "idle") {
-      const t = setTimeout(() => setChannel("products"), 300);
+      let handle: string | null = null;
+      if (typeof window !== "undefined") {
+        handle = new URLSearchParams(window.location.search).get("product");
+      }
+      const t = setTimeout(() => {
+        if (handle) {
+          setSelectedHandle(handle);
+          setChannel("product-detail");
+        } else {
+          setChannel("products");
+        }
+      }, 300);
       return () => clearTimeout(t);
     }
   }, [interactive, channel]);

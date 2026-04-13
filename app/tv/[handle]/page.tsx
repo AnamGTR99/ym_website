@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import ProductScreen from "@/components/tv/ProductScreen";
-import ProductControls from "@/components/tv/ProductControls";
-import TrackList from "@/components/music/TrackList";
+import { redirect } from "next/navigation";
 import { getProductByHandle } from "@/lib/shopify/products";
-import { getTracksByProductId } from "@/lib/supabase/tracks";
 import { formatPrice } from "@/lib/shopify/utils";
 
 export const revalidate = 60;
 
+// The product detail view lives inside the CRT in the motel room. This
+// route only exists so direct product links (email, SEO) still resolve:
+// it keeps the Shopify metadata for preview cards and then bounces the
+// user into /room?tv=1&product=<handle> so the TV auto-opens the detail.
 export async function generateMetadata({
   params,
 }: {
@@ -60,49 +59,11 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({
+export default async function ProductRedirect({
   params,
 }: {
   params: Promise<{ handle: string }>;
 }) {
   const { handle } = await params;
-  const product = await getProductByHandle(handle);
-
-  if (!product) notFound();
-
-  // Fetch linked tracks (runs in parallel with product data on cache hit)
-  const tracks = await getTracksByProductId(product.id);
-
-  return (
-    <main className="grain min-h-screen flex flex-col items-center px-4 pt-6 pb-12 bg-void">
-        <div className="w-full max-w-5xl flex flex-col gap-6">
-          {/* Breadcrumb — return to the 3D room with the TV already zoomed in */}
-          <div className="flex items-center gap-3 animate-fade-down">
-            <Link
-              href="/room?tv=1"
-              className="text-xs font-mono text-fog hover:text-amber transition-colors"
-            >
-              ← Back to TV
-            </Link>
-            <span className="text-xs font-mono text-ash">|</span>
-            <span className="text-xs font-mono text-fog">
-              {product.title}
-            </span>
-          </div>
-
-          {/* Retro TV Unit: Screen left, Controls right */}
-          <div className="flex flex-col md:flex-row w-full border border-charcoal rounded overflow-hidden animate-fade-up">
-            <ProductScreen
-              images={product.images}
-              title={product.title}
-              glbUrl={product.glbUrl}
-            />
-            <ProductControls product={product} />
-          </div>
-
-          {/* Linked tracks — only rendered when tracks exist */}
-          <TrackList tracks={tracks} />
-        </div>
-    </main>
-  );
+  redirect(`/room?tv=1&product=${encodeURIComponent(handle)}`);
 }
