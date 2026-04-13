@@ -1,0 +1,42 @@
+- generic [active] [ref=e1] [cursor=pointer]:
+  - generic [ref=e2]:
+    - generic [ref=e18]:
+      - generic:
+        - generic:
+          - generic: "[00:00.000]"
+          - text: Sphere003_2 → mat:gold.001
+        - generic:
+          - generic: "[00:00.000]"
+          - text: loaded 92 meshes, 1,021,048 tris
+        - generic:
+          - generic: "[00:00.001]"
+          - text: "SCREEN FOUND: screen (mat: Screen)"
+        - generic:
+          - generic: "[00:00.001]"
+          - text: scene ready ✓
+        - generic:
+          - generic: "[00:00.003]"
+          - text: compiling shaders...
+        - generic:
+          - generic: "[00:00.040]"
+          - text: scene ready ✓
+      - generic: click the tv
+      - button "debug" [ref=e19]
+      - generic [ref=e25]:
+        - generic [ref=e27]: SOLUS RECORDS
+        - generic: ● REC 09:43:33
+        - generic: CH---
+        - generic: ▶ PLAY
+    - generic:
+      - paragraph: Motel Room
+  - generic [ref=e6]:
+    - link "Account" [ref=e7]:
+      - /url: /account
+    - button "Cart" [ref=e8]
+  - dialog "Shopping cart" [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Cart" [level=2] [ref=e12]
+        - button "Close cart" [ref=e13]: ✕
+      - paragraph [ref=e16]: Your cart is empty
+  - alert [ref=e17]

@@ -1,0 +1,61 @@
+- generic [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "← Back to TV" [ref=e5] [cursor=pointer]:
+          - /url: /tv
+        - generic [ref=e6]: "|"
+        - generic [ref=e7]: Bayou Nights EP
+      - generic [ref=e8]:
+        - generic [ref=e16]:
+          - button "TV" [ref=e17]
+          - button "Photo" [ref=e18]
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - paragraph [ref=e21]: Channel
+            - heading "Bayou Nights EP" [level=2] [ref=e22]
+            - generic [ref=e24]: $24.99
+          - separator [ref=e25]
+          - button "Add to Cart" [ref=e26] [cursor=pointer]
+          - separator [ref=e27]
+          - generic [ref=e28]:
+            - paragraph [ref=e29]: Description
+            - paragraph [ref=e61]: Limited edition EP from the swamp sessions
+      - generic [ref=e32]:
+        - generic [ref=e34]:
+          - paragraph [ref=e35]: Track
+          - paragraph [ref=e36]: Yunmakai
+        - button "01 ♪ Bayou Midnight Yunmakai 3:54" [ref=e38]:
+          - generic [ref=e39]: "01"
+          - generic [ref=e41]: ♪
+          - generic [ref=e42]:
+            - paragraph [ref=e43]: Bayou Midnight
+            - paragraph [ref=e44]: Yunmakai
+          - generic [ref=e45]: 3:54
+  - generic [ref=e46]:
+    - link "Account" [ref=e47] [cursor=pointer]:
+      - /url: /account
+    - button "Cart 1" [ref=e62]:
+      - text: Cart
+      - generic [ref=e63]: "1"
+  - dialog "Shopping cart" [ref=e49]:
+    - generic [ref=e50]:
+      - generic [ref=e51]:
+        - heading "Cart (1)" [level=2] [ref=e65]
+        - button "Close cart" [active] [ref=e53]: ✕
+      - generic [ref=e68]:
+        - paragraph [ref=e70]: Bayou Nights EP
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - button "−" [ref=e73]
+            - generic [ref=e74]: "1"
+            - button "+" [ref=e75]
+          - generic [ref=e76]: $24.99
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - generic [ref=e79]: Subtotal
+          - generic [ref=e80]: $24.99
+        - link "Checkout" [ref=e81] [cursor=pointer]:
+          - /url: https://yunmakai.myshopify.com/cart/c/hWNAxL2wwBm4UmuK3pDf4eYO?key=85ce26b089747da6c1314001b45ca030&_s=60c79d45-d866-43e8-b8cf-64806192cf55&_y=98682d2c-542b-4b96-b910-7bf0ef8196d7
+        - paragraph [ref=e82]: Taxes and shipping calculated at checkout
+  - alert [ref=e57]

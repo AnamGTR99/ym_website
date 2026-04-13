@@ -1,0 +1,38 @@
+- generic [active] [ref=e1] [cursor=pointer]:
+  - generic [ref=e2]:
+    - generic [ref=e18]:
+      - button "← back" [ref=e28]
+      - button "debug" [ref=e19]
+      - generic [ref=e25]:
+        - generic [ref=e54]:
+          - generic [ref=e55]: YUNMAKAI TV
+          - generic [ref=e56]: SELECT CHANNEL
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: "01"
+              - generic [ref=e60]: SHOP
+              - generic [ref=e61]: ▶
+            - generic [ref=e62]:
+              - generic [ref=e63]: "02"
+              - generic [ref=e64]: MUSIC
+              - generic [ref=e65]: ▶
+            - generic [ref=e66]:
+              - generic [ref=e67]: "03"
+              - generic [ref=e68]: CREDITS
+              - generic [ref=e69]: ▶
+        - generic: ● REC 09:44:15
+        - generic: CH---
+        - generic: ● LIVE
+    - generic:
+      - paragraph: Motel Room
+  - generic [ref=e6]:
+    - link "Account" [ref=e7]:
+      - /url: /account
+    - button "Cart" [ref=e8]
+  - dialog "Shopping cart" [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Cart" [level=2] [ref=e12]
+        - button "Close cart" [ref=e13]: ✕
+      - paragraph [ref=e16]: Your cart is empty
+  - alert [ref=e17]

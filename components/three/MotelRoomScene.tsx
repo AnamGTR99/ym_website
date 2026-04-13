@@ -18,16 +18,19 @@ import {
   DepthOfField,
   N8AO,
   Noise,
+  Outline,
   Vignette,
   SMAA,
 } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
+import { BlendFunction, KernelSize } from "postprocessing";
 import { SplitToningEffect } from "./SplitToningEffect";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { RGBELoader } from "three-stdlib";
 import { create } from "zustand";
 import { useEnvStore } from "@/stores/env";
+import { useMusicStore, getAudioElement } from "@/stores/music";
+import ModelViewer from "./ModelViewer";
 
 /* ================================================================== */
 /*  DEBUG STORE — toggles + sliders for live tuning                   */
@@ -64,15 +67,29 @@ const useDebug = create<DebugState>((setState, getState) => ({
   hdr: true,
   ao: false,
   colorGrade: false,
-  exposure: 1.2,
-  ambient: 0.4,
-  lamp: 12,
-  tvGlow: 0.3,
-  glbLight: 200,
-  hdrIntensity: 0.12,
-  purpleLight: 2.0,
+  exposure: 1.55,
+  ambient: 0.85,
+  lamp: 14,
+  tvGlow: 0.35,
+  glbLight: 240,
+  hdrIntensity: 0.28,
+  purpleLight: 2.4,
   toggle: (key) => setState({ [key]: !getState()[key] }),
   set: (key, val) => setState({ [key]: val }),
+}));
+
+/* ================================================================== */
+/*  HOVER STORE — which interactive target the cursor is currently on */
+/* ================================================================== */
+
+type HoverTarget = "tv" | "poster" | null;
+interface HoverState {
+  target: HoverTarget;
+  setTarget: (t: HoverTarget) => void;
+}
+const useHover = create<HoverState>((setState) => ({
+  target: null,
+  setTarget: (target) => setState({ target }),
 }));
 
 /* ================================================================== */
@@ -119,7 +136,7 @@ const CAMERA_START = {
 
 /** Camera — TV close-up (after clicking screen) */
 const CAMERA_TV = {
-  position: [-17.537, 7.184, -1.632] as [number, number, number],
+  position: [-15.0, 8.2, -1.4] as [number, number, number],
   target: [-27.496, 7.652, -2.408] as [number, number, number],
 };
 
@@ -255,9 +272,24 @@ let _cameraAnimating = false;
 let _zoomedToTV = false;
 let _zoomListeners = new Set<(zoomed: boolean) => void>();
 
+// When set, the global BackButton defers to this handler first. Used by
+// TV sub-views (e.g. product detail) to intercept "back" so it returns
+// to the TV grid instead of zooming the camera out of the TV entirely.
+// Returns true when the handler consumed the click.
+let _tvInternalBack: (() => boolean) | null = null;
+
 function setZoomedToTV(val: boolean) {
   _zoomedToTV = val;
   _zoomListeners.forEach((fn) => fn(val));
+  // Mirror to the env store so out-of-canvas UI (GlobalAudioPlayer, etc.)
+  // can react without tapping module-level state.
+  if (typeof window !== "undefined") {
+    try {
+      useEnvStore.getState().setTvZoomed(val);
+    } catch {
+      // no-op: store not initialised in SSR snapshot
+    }
+  }
 }
 
 let _cameraAnimOnComplete: (() => void) | null = null;
@@ -285,6 +317,19 @@ let _bulbMesh: THREE.Mesh | null = null;
 
 /** Module-level ref for the screen mesh — used by TVScreenHTML to position content */
 let _screenMesh: THREE.Mesh | null = null;
+
+/** Module-level ref for the poster (bayou-bg) mesh — used by the Outline pass */
+let _posterMesh: THREE.Object3D | null = null;
+
+// DEV HOOK — expose module state so Playwright can inspect from the outside.
+// Safe to leave in (tree-shaken / dead in prod if window is undefined).
+if (typeof window !== "undefined") {
+  (window as unknown as { __ym?: Record<string, unknown> }).__ym = {
+    get screen() { return _screenMesh; },
+    get poster() { return _posterMesh; },
+    get hovered() { return _hoveredInteractive; },
+  };
+}
 
 /** Module-level hover state — shared between GLBRoom (3D raycasts) and TVScreenHTML (HTML mouse events) */
 let _hoveredInteractive: THREE.Mesh | null = null;
@@ -522,6 +567,12 @@ function GLBRoom({
       }
 
       if (!obj) continue;
+
+      // Capture top-level object for the Outline pass
+      if (name === "bayou-bg") {
+        _posterMesh = obj;
+      }
+
       obj.traverse((child) => {
         child.userData.interactionAction = action;
         if (child instanceof THREE.Mesh) {
@@ -567,6 +618,9 @@ function GLBRoom({
           m.emissiveIntensity = 2.5;
           m.needsUpdate = true;
         }
+        // Tag as interactive so pointer-over fires and the Outline pass
+        // can pick it up via the hover store.
+        obj.userData.interactionAction = "navigate-tv";
       }
     });
     screenRef.current = screenMesh;
@@ -636,6 +690,24 @@ function GLBRoom({
 
     addLog("scene ready \u2713");
     onModelReadyRef.current();
+
+    // If the user arrived via /room?tv=1 (e.g. clicking "Back to TV" on a
+    // product page), skip the default overview and zoom straight onto the
+    // TV so they land back on the channel grid.
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tv") === "1") {
+        const timer = setTimeout(() => {
+          animateCameraTo(
+            CAMERA_TV.position,
+            CAMERA_TV.target,
+            1.1,
+            () => setZoomedToTV(true)
+          );
+        }, 250);
+        return () => clearTimeout(timer);
+      }
+    }
   }, [model, gl, rootScene, camera]);
 
   /* ---- Sync lights to debug sliders + lamp flicker ---- */
@@ -723,18 +795,35 @@ function GLBRoom({
   };
 
   const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
-    if (e.object.userData.interactionAction) {
-      document.body.style.cursor = "pointer";
-      _hoveredInteractive = e.object as THREE.Mesh;
+    const action = e.object.userData.interactionAction as InteractionAction | undefined;
+    if (!action) return;
+    document.body.style.cursor = "pointer";
+    _hoveredInteractive = e.object as THREE.Mesh;
+
+    // Resolve which interactive target this mesh belongs to so the
+    // Outline pass knows which one to colour blue.
+    let cur: THREE.Object3D | null = e.object;
+    let target: HoverTarget = null;
+    while (cur) {
+      if (cur === _screenMesh) { target = "tv"; break; }
+      if (cur === _posterMesh) { target = "poster"; break; }
+      cur = cur.parent;
     }
+    if (!target) {
+      if (action === "navigate-tv") target = "tv";
+      else if (action === "open-credits") target = "poster";
+    }
+    useHover.getState().setTarget(target);
   };
 
   const handlePointerOut = () => {
     document.body.style.cursor = "default";
     resetHoveredMesh();
+    useHover.getState().setTarget(null);
   };
 
-  /* ---- Hover pulse — subtle scale bump + white emissive glow ---- */
+  /* ---- Hover pulse — subtle scale throb only. Border glow is handled
+          by the Outline post-effect in PostProcessingStack. ---- */
   useFrame((state) => {
     const mesh = _hoveredInteractive;
     if (!mesh) return;
@@ -747,16 +836,6 @@ function GLBRoom({
       orig.scale.y * pulse,
       orig.scale.z * pulse
     );
-    const mat = mesh.material as THREE.MeshStandardMaterial;
-    if (mat) {
-      const glow = 0.3 + Math.sin(t * 2.5) * 0.15;
-      mat.emissive.setRGB(
-        orig.emissive.r + glow,
-        orig.emissive.g + glow,
-        orig.emissive.b + glow
-      );
-      mat.emissiveIntensity = orig.emissiveIntensity + glow;
-    }
   });
 
   if (!model) return null;
@@ -988,13 +1067,14 @@ function LightCone({ position }: { position: [number, number, number] }) {
 
 const VHS_WORDS = ["YUNMAKAI", "SOLUS RECORDS", "TUNE IN", "CHANNEL 01", "TEST SIGNAL"];
 
-type TVChannel = "idle" | "menu" | "shop" | "music" | "credits";
-
-const CHANNELS: { id: TVChannel; label: string; chNum: string }[] = [
-  { id: "shop", label: "SHOP", chNum: "01" },
-  { id: "music", label: "MUSIC", chNum: "02" },
-  { id: "credits", label: "CREDITS", chNum: "03" },
-];
+// TV is now a pure product navigation surface. All of these states render
+// INSIDE the CRT — no camera moves, no page navigations. Credits live on
+// the poster hotspot (separate overlay).
+//   idle          — TV is not zoomed; test pattern / tune-in hint
+//   products      — channel grid of all products
+//   product-detail — single product view (title, price, image, add-to-cart,
+//                   linked tracks) inside the CRT
+type TVChannel = "idle" | "products" | "product-detail";
 
 /* ---- Idle screen — cycling words when not zoomed ---- */
 
@@ -1036,256 +1116,916 @@ function TVIdleScreen({ onScreenClick }: { onScreenClick: () => void }) {
   );
 }
 
-/* ---- Channel menu — grid of selectable channels ---- */
+/* ---- Product channel grid — first TV view when zoomed in ---- */
 
-function TVMenuScreen({ onSelect }: { onSelect: (ch: TVChannel) => void }) {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
+  // NOTE: do NOT call useRouter() here — this component renders inside drei's
+  // <Html> portal, which doesn't propagate Next.js App Router context and
+  // will throw "invariant expected app router to be mounted".
+  const [products, setProducts] = useState<
+    Array<{ shopify_id: string; title: string; handle: string; price: string; image_url: string | null }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch once on mount. Runs inside the R3F Html portal — server actions
+  // won't work here, so we use the public /api/tv/products endpoint.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/tv/products")
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setProducts(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e.message);
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const rowStyle = {
+    padding: "12px 16px",
+    background: "rgba(10,8,5,0.55)",
+    border: "1px solid rgba(255,255,255,0.07)",
+    borderLeft: "2px solid rgba(212,168,83,0.25)",
+    borderRadius: "2px",
+    fontSize: "12px",
+    letterSpacing: "0.12em",
+    color: "rgba(200,192,168,0.75)",
+    cursor: "pointer",
+    display: "flex" as const,
+    justifyContent: "space-between" as const,
+    alignItems: "center" as const,
+    gap: "18px",
+    transition: "all 0.18s ease",
+  };
 
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "40px 50px" }}>
-      <div style={{
-        fontSize: "18px",
-        fontWeight: 700,
-        letterSpacing: "0.3em",
-        textTransform: "uppercase",
-        textShadow: "1.5px 0 #ff0040, -1.5px 0 #00ffcc",
-        marginBottom: "8px",
-      }}>
-        YUNMAKAI TV
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "42px 52px 34px 52px" }}>
+      {/* Header */}
+      <div style={{ marginBottom: "24px" }}>
+        <div
+          style={{
+            fontSize: "18px",
+            fontWeight: 700,
+            letterSpacing: "0.32em",
+            textTransform: "uppercase",
+            textShadow: "1.5px 0 #ff0040, -1.5px 0 #00ffcc",
+            marginBottom: "10px",
+            lineHeight: 1,
+          }}
+        >
+          YUNMAKAI TV
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            fontSize: "9px",
+            color: "rgba(200,192,168,0.42)",
+            letterSpacing: "0.32em",
+            textTransform: "uppercase",
+          }}
+        >
+          <span>Channel Grid</span>
+          <span style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, rgba(212,168,83,0.3), transparent)" }} />
+          <span style={{ color: "rgba(212,168,83,0.55)" }}>
+            {loading ? "TUNING" : products.length === 0 ? "NO SIGNAL" : `${String(products.length).padStart(2, "0")} SIGNALS`}
+          </span>
+        </div>
       </div>
-      <div style={{ fontSize: "9px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em", marginBottom: "28px" }}>
-        SELECT CHANNEL
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-        {CHANNELS.map((ch, i) => (
-          <div
-            key={ch.id}
-            onClick={(e) => { e.stopPropagation(); onSelect(ch.id); }}
-            onMouseEnter={() => setHoveredIdx(i)}
-            onMouseLeave={() => setHoveredIdx(null)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              padding: "10px 16px",
-              cursor: "pointer",
-              background: hoveredIdx === i ? "rgba(212,168,83,0.12)" : "rgba(255,255,255,0.03)",
-              border: `1px solid ${hoveredIdx === i ? "rgba(212,168,83,0.4)" : "rgba(255,255,255,0.06)"}`,
-              borderRadius: "2px",
-              transition: "all 0.15s ease",
-            }}
-          >
-            <span style={{
-              fontSize: "20px",
-              fontWeight: 700,
-              color: hoveredIdx === i ? "#d4a853" : "rgba(255,255,255,0.3)",
-              fontFamily: "monospace",
-              minWidth: "36px",
-              transition: "color 0.15s ease",
-            }}>
-              {ch.chNum}
-            </span>
-            <span style={{
-              fontSize: "14px",
-              fontWeight: 600,
-              letterSpacing: "0.2em",
-              color: hoveredIdx === i ? "#c8c0a8" : "rgba(200,192,168,0.6)",
-              transition: "color 0.15s ease",
-            }}>
-              {ch.label}
-            </span>
-            <span style={{
-              marginLeft: "auto",
-              fontSize: "10px",
-              color: "rgba(255,255,255,0.2)",
-            }}>
-              ▶
-            </span>
+
+      {/* Product channel list */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+        {error && (
+          <div style={{ fontSize: "11px", color: "#ff4444", letterSpacing: "0.1em" }}>
+            ERROR: {error}
           </div>
-        ))}
+        )}
+        {loading ? (
+          <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>
+            LOADING...
+          </div>
+        ) : products.length === 0 ? (
+          <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>
+            NO PRODUCTS
+          </div>
+        ) : (
+          products.map((p, i) => (
+            <div
+              key={p.shopify_id}
+              style={rowStyle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(p.handle);
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget;
+                el.style.borderLeftColor = "rgba(212,168,83,0.85)";
+                el.style.borderColor = "rgba(212,168,83,0.3)";
+                el.style.background = "rgba(212,168,83,0.08)";
+                el.style.transform = "translateX(3px)";
+                el.style.boxShadow = "0 0 18px rgba(212,168,83,0.15)";
+                const arrow = el.querySelector("[data-arrow]") as HTMLElement | null;
+                if (arrow) arrow.style.transform = "translateX(3px)";
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget;
+                el.style.borderLeftColor = "rgba(212,168,83,0.25)";
+                el.style.borderColor = "rgba(255,255,255,0.07)";
+                el.style.background = "rgba(10,8,5,0.55)";
+                el.style.transform = "translateX(0)";
+                el.style.boxShadow = "none";
+                const arrow = el.querySelector("[data-arrow]") as HTMLElement | null;
+                if (arrow) arrow.style.transform = "translateX(0)";
+              }}
+            >
+              {/* Channel badge — boxed number */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 42,
+                  minHeight: 36,
+                  flexShrink: 0,
+                  border: "1px solid rgba(212,168,83,0.25)",
+                  borderRadius: "2px",
+                  background: "rgba(0,0,0,0.4)",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "9px",
+                    color: "rgba(212,168,83,0.55)",
+                    letterSpacing: "0.1em",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    marginBottom: "1px",
+                  }}
+                >
+                  CH
+                </span>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    color: "#e8e0c8",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    lineHeight: 1,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </div>
+
+              {/* Title + price */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    letterSpacing: "0.14em",
+                    color: "#e8e0c8",
+                    marginBottom: "3px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {p.title.toUpperCase()}
+                </div>
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "#d4a853",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  ${p.price}
+                </div>
+              </div>
+
+              {/* VIEW arrow */}
+              <span
+                data-arrow
+                style={{
+                  fontSize: "9px",
+                  color: "rgba(212,168,83,0.55)",
+                  letterSpacing: "0.2em",
+                  fontFamily: "'JetBrains Mono', monospace",
+                  transition: "transform 0.2s ease",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                VIEW <span style={{ fontSize: "11px" }}>→</span>
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
 
-/* ---- Channel pages — wired to real data ---- */
+/* ---- Product detail view — opens inside the CRT when a row is selected ---- */
 
-function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => void }) {
-  const info = CHANNELS.find((c) => c.id === channel);
-  // NOTE: do NOT call useRouter() here — this component renders inside drei's
-  // <Html> portal, which doesn't propagate Next.js App Router context and
-  // will throw "invariant expected app router to be mounted". Use
-  // window.location.href for navigation instead.
-  const openCredits = useEnvStore((s) => s.openCredits);
-  const startTransition = useEnvStore((s) => s.startTransition);
+type TVProductDetailData = {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  price: string;
+  image: string | null;
+  glbUrl: string | null;
+  variantId: string | null;
+  availableForSale: boolean;
+};
 
-  // Shop + Music: fetch via public API routes (works inside R3F Html portal)
-  const [products, setProducts] = useState<Array<{ shopify_id: string; title: string; handle: string; price: string; image_url: string | null }>>([]);
-  const [tracks, setTracks] = useState<Array<{ id: string; title: string; artist: string; duration_seconds: number | null; cover_url: string | null }>>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+type TVTrackData = {
+  id: string;
+  title: string;
+  artist: string;
+  cover_url: string | null;
+  duration_seconds: number | null;
+};
 
-  // Stable refs so useEffect doesn't re-run on every parent render
-  const onBackRef = useRef(onBack);
-  const openCreditsRef = useRef(openCredits);
-  onBackRef.current = onBack;
-  openCreditsRef.current = openCredits;
+/* -------- Media stage: 3D model / image / test pattern, centered hero -------- */
 
-  useEffect(() => {
-    // Only re-run when the channel CHANGES, not when parent refs change
-    if (channel === "shop") {
-      setLoading(true);
-      setError(null);
-      fetch("/api/tv/products")
-        .then((r) => r.json())
-        .then((data) => { setProducts(Array.isArray(data) ? data : []); setLoading(false); })
-        .catch((e) => { setError(e.message); setLoading(false); });
-    } else if (channel === "music") {
-      setLoading(true);
-      setError(null);
-      fetch("/api/tv/tracks")
-        .then((r) => r.json())
-        .then((data) => { setTracks(Array.isArray(data) ? data : []); setLoading(false); })
-        .catch((e) => { setError(e.message); setLoading(false); });
-    } else if (channel === "credits") {
-      openCreditsRef.current();
-      onBackRef.current();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel]);
-
-  const navigateToProduct = useCallback((handle: string) => {
-    animateCameraTo(
-      CAMERA_PRESETS.LOOK_AT_X.position as [number, number, number],
-      CAMERA_PRESETS.LOOK_AT_X.target as [number, number, number],
-      1.5,
-      () => {
-        setZoomedToTV(false);
-        startTransition("tv", () => {
-          window.location.href = `/tv/${handle}`;
-        });
-      }
+function TVProductStage({ product }: { product: TVProductDetailData }) {
+  // Priority: glb > image > VHS test pattern fallback
+  if (product.glbUrl) {
+    return (
+      <div
+        style={{
+          width: 180,
+          height: 180,
+          position: "relative",
+          borderRadius: "2px",
+          overflow: "hidden",
+          // Recessed CRT viewfinder look
+          boxShadow:
+            "inset 0 0 30px rgba(0,0,0,0.9), 0 0 40px rgba(212,168,83,0.12), 0 0 0 1px rgba(212,168,83,0.25)",
+          background:
+            "radial-gradient(circle at 50% 45%, rgba(40,30,18,0.7) 0%, rgba(0,0,0,0.95) 70%)",
+        }}
+      >
+        <ModelViewer src={product.glbUrl} alt={product.title} />
+      </div>
     );
-  }, [startTransition]);
+  }
 
-  const playTrack = useCallback((trackId: string) => {
-    import("@/stores/music").then((mod) => {
-      mod.useMusicStore.getState().playTrack(trackId);
-    });
+  if (product.image) {
+    return (
+      <div
+        style={{
+          width: 180,
+          height: 180,
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "2px",
+          backgroundImage: `url(${product.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          boxShadow:
+            "inset 0 0 30px rgba(0,0,0,0.8), 0 0 40px rgba(212,168,83,0.1), 0 0 0 1px rgba(212,168,83,0.25)",
+        }}
+      >
+        {/* VHS scanline overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 3px)",
+            pointerEvents: "none",
+          }}
+        />
+      </div>
+    );
+  }
+
+  // No media — VHS "TEST PATTERN" style placeholder. Rotating bar for life.
+  return (
+    <div
+      style={{
+        width: 180,
+        height: 180,
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: "2px",
+        background: "#0a0a0a",
+        boxShadow:
+          "inset 0 0 40px rgba(0,0,0,0.9), 0 0 40px rgba(212,168,83,0.08), 0 0 0 1px rgba(212,168,83,0.2)",
+      }}
+    >
+      {/* SMPTE-ish color bars */}
+      <div
+        style={{
+          position: "absolute",
+          top: "18%",
+          left: "12%",
+          right: "12%",
+          height: "40%",
+          display: "flex",
+          filter: "saturate(0.55) brightness(0.4)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        {["#6b6b6b", "#c9c94e", "#4ec9c9", "#4ec94e", "#c94ec9", "#c94e4e", "#4e4ec9"].map(
+          (c, i) => (
+            <div key={i} style={{ flex: 1, background: c }} />
+          )
+        )}
+      </div>
+      {/* Center readout */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "18%",
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontSize: "8px",
+          letterSpacing: "0.35em",
+          color: "rgba(212,168,83,0.55)",
+          fontFamily: "monospace",
+        }}
+      >
+        NO SIGNAL
+      </div>
+      {/* Sweeping scanline */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          height: "3px",
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)",
+          filter: "blur(0.8px)",
+          animation: "tvStageSweep 3.2s linear infinite",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Static dots */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "3px 3px",
+          mixBlendMode: "screen",
+          pointerEvents: "none",
+        }}
+      />
+    </div>
+  );
+}
+
+/* -------- Mini music player — cinematic bottom strip inside the CRT -------- */
+
+function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
+  const currentTrack = useMusicStore((s) => s.currentTrack);
+  const isPlaying = useMusicStore((s) => s.isPlaying);
+  const progress = useMusicStore((s) => s.progress);
+  const duration = useMusicStore((s) => s.duration);
+  const buffering = useMusicStore((s) => s.buffering);
+
+  // Pair the music store with its audio element events — GlobalAudioPlayer
+  // normally does this, but it's unmounted during the initial landing flow
+  // so we wire it up here too to keep the player responsive inside the CRT.
+  useEffect(() => {
+    const audio = getAudioElement();
+    const setProgress = useMusicStore.getState().setProgress;
+    const setDuration = useMusicStore.getState().setDuration;
+    const setBuffering = useMusicStore.getState().setBuffering;
+
+    const onTime = () => setProgress(audio.currentTime);
+    const onMeta = () => {
+      if (isFinite(audio.duration)) setDuration(audio.duration);
+    };
+    const onEnded = () => {
+      useMusicStore.getState().pause();
+      setProgress(0);
+    };
+    const onWaiting = () => setBuffering(true);
+    const onCanPlay = () => setBuffering(false);
+
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("loadedmetadata", onMeta);
+    audio.addEventListener("ended", onEnded);
+    audio.addEventListener("waiting", onWaiting);
+    audio.addEventListener("canplay", onCanPlay);
+    return () => {
+      audio.removeEventListener("timeupdate", onTime);
+      audio.removeEventListener("loadedmetadata", onMeta);
+      audio.removeEventListener("ended", onEnded);
+      audio.removeEventListener("waiting", onWaiting);
+      audio.removeEventListener("canplay", onCanPlay);
+    };
   }, []);
 
-  const formatDuration = (s: number | null) => {
-    if (!s) return "";
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  // Which of the product's tracks is currently loaded (if any)
+  const activeIdx = useMemo(() => {
+    if (!currentTrack) return -1;
+    return tracks.findIndex((t) => t.id === currentTrack.id);
+  }, [tracks, currentTrack]);
+
+  const displayTrack = activeIdx >= 0 ? tracks[activeIdx] : tracks[0];
+  if (!displayTrack) return null;
+
+  const isActive = activeIdx >= 0;
+  const effectiveDuration =
+    isActive && duration > 0
+      ? duration
+      : displayTrack.duration_seconds ?? 0;
+  const effectiveProgress = isActive ? progress : 0;
+  const progressPct =
+    effectiveDuration > 0
+      ? Math.min(100, (effectiveProgress / effectiveDuration) * 100)
+      : 0;
+
+  const fmt = (s: number) => {
+    if (!isFinite(s) || s < 0) return "0:00";
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${m}:${String(sec).padStart(2, "0")}`;
   };
 
-  const rowStyle = {
-    padding: "10px 14px",
-    background: "rgba(255,255,255,0.03)",
-    border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: "2px",
-    fontSize: "12px",
-    letterSpacing: "0.12em",
-    color: "rgba(200,192,168,0.7)",
-    cursor: "pointer",
-    display: "flex" as const,
-    justifyContent: "space-between" as const,
-    alignItems: "center" as const,
+  const onPlayPause = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isActive) {
+      useMusicStore.getState().playTrack(displayTrack.id);
+      return;
+    }
+    useMusicStore.getState().togglePlay();
+  };
+
+  const onSelectTrack = (e: React.MouseEvent, trackId: string) => {
+    e.stopPropagation();
+    useMusicStore.getState().playTrack(trackId);
+  };
+
+  const onSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!isActive || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    useMusicStore.getState().seek(ratio * duration);
   };
 
   return (
-    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "40px 50px" }}>
-      {/* Header with back button */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
-        <div
-          onClick={(e) => { e.stopPropagation(); onBack(); }}
+    <div
+      style={{
+        position: "relative",
+        padding: "10px 14px 8px 14px",
+        borderTop: "1px solid rgba(212,168,83,0.15)",
+        background:
+          "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,10,5,0.6) 50%, rgba(0,0,0,0.65) 100%)",
+      }}
+    >
+      {/* Label */}
+      <div
+        style={{
+          fontSize: "9px",
+          letterSpacing: "0.32em",
+          color: isActive ? "#d4a853" : "rgba(232,224,200,0.55)",
+          textTransform: "uppercase",
+          marginBottom: "7px",
+          display: "flex",
+          alignItems: "center",
+          gap: "7px",
+          fontWeight: 600,
+        }}
+      >
+        <span
           style={{
-            fontSize: "11px",
-            color: "rgba(200,192,168,0.5)",
-            cursor: "pointer",
-            padding: "4px 10px",
-            border: "1px solid rgba(255,255,255,0.1)",
-            borderRadius: "2px",
-            letterSpacing: "0.1em",
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: isActive && isPlaying ? "#ff2020" : "rgba(212,168,83,0.55)",
+            boxShadow: isActive && isPlaying ? "0 0 8px #ff2020" : "0 0 4px rgba(212,168,83,0.3)",
+            animation: isActive && isPlaying ? "tvStageBlink 1s step-end infinite" : undefined,
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.4)"; e.currentTarget.style.color = "#d4a853"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(200,192,168,0.5)"; }}
+        />
+        <span>
+          {isActive
+            ? isPlaying
+              ? "NOW PLAYING"
+              : buffering
+              ? "BUFFERING"
+              : "PAUSED"
+            : "AUDIO · TAP TO PLAY"}
+        </span>
+      </div>
+
+      {/* Main row */}
+      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+        {/* Play / pause — breathing amber circle */}
+        <div
+          onClick={onPlayPause}
+          style={{
+            width: 34,
+            height: 34,
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            border: `1px solid ${isActive ? "rgba(212,168,83,0.75)" : "rgba(255,255,255,0.2)"}`,
+            borderRadius: "50%",
+            color: isActive ? "#d4a853" : "rgba(255,255,255,0.6)",
+            fontSize: "13px",
+            cursor: "pointer",
+            background: isActive
+              ? "radial-gradient(circle at center, rgba(212,168,83,0.15) 0%, transparent 70%)"
+              : "transparent",
+            boxShadow:
+              isActive && isPlaying
+                ? "0 0 14px rgba(212,168,83,0.45)"
+                : "none",
+            transition: "all 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = "rgba(212,168,83,0.9)";
+            e.currentTarget.style.color = "#d4a853";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = isActive
+              ? "rgba(212,168,83,0.75)"
+              : "rgba(255,255,255,0.2)";
+            e.currentTarget.style.color = isActive ? "#d4a853" : "rgba(255,255,255,0.6)";
+          }}
         >
-          ← BACK
+          {buffering && isActive ? (
+            <span style={{ fontSize: "10px", animation: "tvStageBlink 0.8s step-end infinite" }}>
+              ···
+            </span>
+          ) : isActive && isPlaying ? (
+            <span style={{ fontSize: "10px" }}>❚❚</span>
+          ) : (
+            <span style={{ marginLeft: "2px" }}>▶</span>
+          )}
         </div>
-        <div style={{
-          fontSize: "16px",
-          fontWeight: 700,
-          letterSpacing: "0.25em",
-          textShadow: "1.5px 0 #ff0040, -1.5px 0 #00ffcc",
-        }}>
-          CH-{info?.chNum} {info?.label}
+
+        {/* Track title + artist + progress bar */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "baseline",
+              gap: "12px",
+              marginBottom: "5px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "10px",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#e8e0c8",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {displayTrack.title}
+              <span style={{ color: "rgba(200,192,168,0.35)", margin: "0 6px" }}>·</span>
+              <span style={{ color: "rgba(200,192,168,0.55)" }}>{displayTrack.artist}</span>
+            </div>
+            <div
+              style={{
+                fontSize: "9px",
+                fontFamily: "monospace",
+                color: "#d4a853",
+                whiteSpace: "nowrap",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {fmt(effectiveProgress)}
+              <span style={{ color: "rgba(200,192,168,0.35)" }}> / </span>
+              {fmt(effectiveDuration)}
+            </div>
+          </div>
+
+          {/* Scrubbable progress bar with glow */}
+          <div
+            onClick={onSeek}
+            style={{
+              position: "relative",
+              height: "3px",
+              background: "rgba(255,255,255,0.08)",
+              cursor: isActive ? "pointer" : "default",
+              borderRadius: "1px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: `${progressPct}%`,
+                background: "linear-gradient(90deg, rgba(212,168,83,0.8), #d4a853)",
+                boxShadow: isActive ? "0 0 10px rgba(212,168,83,0.6)" : "none",
+                transition: "width 100ms linear",
+              }}
+            />
+            {/* Playhead dot */}
+            {isActive && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: `${progressPct}%`,
+                  top: "50%",
+                  width: 7,
+                  height: 7,
+                  marginLeft: -3,
+                  marginTop: -3,
+                  background: "#d4a853",
+                  borderRadius: "50%",
+                  boxShadow: "0 0 8px rgba(212,168,83,0.9)",
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Channel content */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
-        {channel === "shop" && (
-          <>
-            <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
-              YUNMAKAI GOODS
+      {/* Multi-track selector — only if the product has more than one track */}
+      {tracks.length > 1 && (
+        <div
+          style={{
+            display: "flex",
+            gap: "6px",
+            marginTop: "7px",
+            flexWrap: "wrap",
+          }}
+        >
+          {tracks.map((t, i) => {
+            const isThis = currentTrack?.id === t.id;
+            return (
+              <div
+                key={t.id}
+                onClick={(e) => onSelectTrack(e, t.id)}
+                style={{
+                  fontSize: "8px",
+                  letterSpacing: "0.15em",
+                  padding: "3px 8px",
+                  border: `1px solid ${
+                    isThis ? "rgba(212,168,83,0.6)" : "rgba(255,255,255,0.12)"
+                  }`,
+                  color: isThis ? "#d4a853" : "rgba(200,192,168,0.45)",
+                  background: isThis ? "rgba(212,168,83,0.08)" : "transparent",
+                  borderRadius: "2px",
+                  cursor: "pointer",
+                  textTransform: "uppercase",
+                }}
+              >
+                {String(i + 1).padStart(2, "0")} {t.title}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// NOTE: `onBack` is kept in the prop signature for symmetry but is no
+// longer wired to a visible in-CRT button. The global BackButton defers
+// to _tvInternalBack (set by VHSScreen) which calls the parent-level
+// handleBackToGrid directly, so the in-CRT pill would be redundant.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: () => void }) {
+  const [product, setProduct] = useState<TVProductDetailData | null>(null);
+  const [tracks, setTracks] = useState<TVTrackData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+
+  // Fetch product + linked tracks in one roundtrip
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetch(`/api/tv/product/${handle}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.error) {
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
+        setProduct(data.product ?? null);
+        setTracks(Array.isArray(data.tracks) ? data.tracks : []);
+        setLoading(false);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "failed");
+        setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [handle]);
+
+  const addToCart = useCallback(() => {
+    if (!product?.variantId || adding) return;
+    setAdding(true);
+    import("@/stores/cart").then((mod) => {
+      mod.useCartStore
+        .getState()
+        .addItem(product.variantId!, 1)
+        .then(() => {
+          setAdding(false);
+          setAdded(true);
+          setTimeout(() => setAdded(false), 1800);
+        })
+        .catch(() => setAdding(false));
+    });
+  }, [product, adding]);
+
+  // Shorten long descriptions — the CRT area is narrow
+  const shortDescription = useMemo(() => {
+    if (!product?.description) return "";
+    const max = 120;
+    if (product.description.length <= max) return product.description;
+    return product.description.slice(0, max).trimEnd() + "…";
+  }, [product]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        display: "flex",
+        flexDirection: "column",
+        padding: "18px 24px 0 24px",
+      }}
+    >
+      {/* Header spacer — the global "Back" button (outside the CRT) handles
+          navigation, and the CRT chrome shows CH-YM / LIVE markers around
+          this area. Keeping an empty row preserves the layout rhythm. */}
+      <div style={{ height: "4px", marginBottom: "4px" }} />
+
+      {loading && (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "10px",
+            color: "rgba(200,192,168,0.4)",
+            letterSpacing: "0.3em",
+          }}
+        >
+          TUNING CHANNEL…
+        </div>
+      )}
+      {error && !loading && (
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "10px",
+            color: "#ff4444",
+            letterSpacing: "0.15em",
+          }}
+        >
+          ERROR: {error}
+        </div>
+      )}
+
+      {!loading && !error && product && (
+        <>
+          {/* Hero stage — centred media + title + price + description + add-to-cart */}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "flex-start",
+              gap: "10px",
+              minHeight: 0,
+            }}
+          >
+            <TVProductStage product={product} />
+
+            {/* Title in display serif-like CRT style */}
+            <div
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                color: "#e8e0c8",
+                textTransform: "uppercase",
+                textAlign: "center",
+                textShadow: "1px 0 rgba(255,0,64,0.3), -1px 0 rgba(0,255,204,0.3)",
+                marginTop: "2px",
+              }}
+            >
+              {product.title}
             </div>
-            {error && <div style={{ fontSize: "11px", color: "#ff4444", letterSpacing: "0.1em" }}>ERROR: {error}</div>}
-            {loading ? (
-              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
-            ) : products.length === 0 ? (
-              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO PRODUCTS</div>
-            ) : (
-              products.map((p) => (
-                <div
-                  key={p.shopify_id}
-                  style={rowStyle}
-                  onClick={(e) => { e.stopPropagation(); navigateToProduct(p.handle); }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
-                >
-                  <div>
-                    <div style={{ marginBottom: "2px" }}>{p.title.toUpperCase()}</div>
-                    <div style={{ fontSize: "10px", color: "rgba(212,168,83,0.6)" }}>${p.price}</div>
-                  </div>
-                  <span style={{ fontSize: "10px", color: "rgba(212,168,83,0.5)", letterSpacing: "0.15em" }}>VIEW →</span>
-                </div>
-              ))
-            )}
-          </>
-        )}
-        {channel === "music" && (
-          <>
-            <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.5)", letterSpacing: "0.15em", marginBottom: "4px" }}>
-              NOW PLAYING
+
+            {/* Divider */}
+            <div
+              style={{
+                width: "48px",
+                height: "1px",
+                background:
+                  "linear-gradient(90deg, transparent, rgba(212,168,83,0.55), transparent)",
+              }}
+            />
+
+            {/* Price + short description + add to cart — tight vertical stack */}
+            <div
+              style={{
+                fontSize: "13px",
+                color: "#d4a853",
+                fontFamily: "monospace",
+                letterSpacing: "0.08em",
+              }}
+            >
+              {product.price}
             </div>
-            {loading ? (
-              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.4)", letterSpacing: "0.2em" }}>LOADING...</div>
-            ) : tracks.length === 0 ? (
-              <div style={{ fontSize: "11px", color: "rgba(200,192,168,0.3)", letterSpacing: "0.15em" }}>NO TRACKS</div>
-            ) : (
-              tracks.map((t, i) => (
-                <div
-                  key={t.id}
-                  style={{ ...rowStyle, justifyContent: "flex-start", gap: "12px" }}
-                  onClick={(e) => { e.stopPropagation(); playTrack(t.id); }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "rgba(212,168,83,0.3)"; e.currentTarget.style.background = "rgba(212,168,83,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
-                >
-                  <span style={{ color: "rgba(212,168,83,0.5)", fontSize: "10px", minWidth: "16px" }}>▶</span>
-                  <div style={{ flex: 1 }}>
-                    <div>{String(i + 1).padStart(2, "0")} — {t.title.toUpperCase()}</div>
-                    <div style={{ fontSize: "10px", color: "rgba(200,192,168,0.4)", marginTop: "1px" }}>{t.artist}</div>
-                  </div>
-                  {t.duration_seconds && (
-                    <span style={{ fontSize: "10px", color: "rgba(200,192,168,0.3)" }}>{formatDuration(t.duration_seconds)}</span>
-                  )}
-                </div>
-              ))
-            )}
-          </>
-        )}
-      </div>
+
+            <div
+              style={{
+                fontSize: "9px",
+                lineHeight: 1.55,
+                color: "rgba(200,192,168,0.55)",
+                letterSpacing: "0.04em",
+                textAlign: "center",
+                maxWidth: "82%",
+              }}
+            >
+              {shortDescription}
+            </div>
+
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart();
+              }}
+              style={{
+                marginTop: "4px",
+                padding: "8px 22px",
+                fontSize: "10px",
+                fontWeight: 700,
+                letterSpacing: "0.3em",
+                textTransform: "uppercase",
+                cursor: product.variantId && !adding ? "pointer" : "default",
+                color: added
+                  ? "#0a0a0a"
+                  : product.variantId
+                  ? "#0a0a0a"
+                  : "rgba(200,192,168,0.3)",
+                background: added
+                  ? "rgba(120, 200, 120, 0.85)"
+                  : product.variantId
+                  ? "rgba(212,168,83,0.9)"
+                  : "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(212,168,83,0.45)",
+                borderRadius: "2px",
+                opacity: adding ? 0.6 : 1,
+                transition: "all 0.2s ease",
+                boxShadow: product.variantId
+                  ? "0 0 20px rgba(212,168,83,0.2)"
+                  : "none",
+              }}
+              onMouseEnter={(e) => {
+                if (!product.variantId || adding || added) return;
+                e.currentTarget.style.background = "#d4a853";
+                e.currentTarget.style.boxShadow = "0 0 28px rgba(212,168,83,0.55)";
+              }}
+              onMouseLeave={(e) => {
+                if (!product.variantId || adding || added) return;
+                e.currentTarget.style.background = "rgba(212,168,83,0.9)";
+                e.currentTarget.style.boxShadow = "0 0 20px rgba(212,168,83,0.2)";
+              }}
+            >
+              {added ? "ADDED ✓" : adding ? "ADDING…" : "ADD TO CART"}
+            </div>
+          </div>
+
+          {/* Music player strip — sits at the bottom of the CRT */}
+          {tracks.length > 0 && <TVMusicPlayer tracks={tracks} />}
+        </>
+      )}
     </div>
   );
 }
@@ -1294,11 +2034,15 @@ function TVChannelPage({ channel, onBack }: { channel: TVChannel; onBack: () => 
 
 function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { interactive: boolean; onScreenClick: () => void; onHoverStart: () => void; onHoverEnd: () => void }) {
   const [channel, setChannel] = useState<TVChannel>("idle");
+  const [selectedHandle, setSelectedHandle] = useState<string | null>(null);
   const [time, setTime] = useState("00:00:00");
 
-  // Reset to idle when zooming out
+  // Reset to idle when zooming out — and wipe any selected product
   useEffect(() => {
-    if (!interactive) setChannel("idle");
+    if (!interactive) {
+      setChannel("idle");
+      setSelectedHandle(null);
+    }
   }, [interactive]);
 
   useEffect(() => {
@@ -1311,17 +2055,46 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
     return () => clearInterval(id);
   }, []);
 
-  // When zoomed and still on idle, auto-switch to menu
+  // When zoomed and still on idle, auto-switch to the product grid.
   useEffect(() => {
     if (interactive && channel === "idle") {
-      const t = setTimeout(() => setChannel("menu"), 300);
+      const t = setTimeout(() => setChannel("products"), 300);
       return () => clearTimeout(t);
     }
   }, [interactive, channel]);
 
-  const activeChNum = channel === "idle" || channel === "menu"
-    ? "--"
-    : CHANNELS.find((c) => c.id === channel)?.chNum ?? "--";
+  const handleSelectProduct = useCallback((handle: string) => {
+    setSelectedHandle(handle);
+    setChannel("product-detail");
+  }, []);
+
+  const handleBackToGrid = useCallback(() => {
+    setSelectedHandle(null);
+    setChannel("products");
+  }, []);
+
+  // Register an internal back handler so the global BackButton can defer
+  // to us — product-detail should pop back to the grid instead of
+  // zooming the camera out of the TV entirely.
+  useEffect(() => {
+    _tvInternalBack = () => {
+      if (channel === "product-detail") {
+        handleBackToGrid();
+        return true;
+      }
+      return false;
+    };
+    return () => { _tvInternalBack = null; };
+  }, [channel, handleBackToGrid]);
+
+  // Readout in the top-right chrome. Mode-aware so it feels alive
+  // instead of hardcoded.
+  const activeChNum =
+    channel === "idle"
+      ? "--"
+      : channel === "products"
+      ? "GRID"
+      : "SHOP";
 
   return (
     <div
@@ -1342,58 +2115,80 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
     >
       {/* Page content */}
       {channel === "idle" && <TVIdleScreen onScreenClick={onScreenClick} />}
-      {channel === "menu" && <TVMenuScreen onSelect={setChannel} />}
-      {channel !== "idle" && channel !== "menu" && (
-        <TVChannelPage channel={channel} onBack={() => setChannel("menu")} />
+      {channel === "products" && <TVProductGrid onSelect={handleSelectProduct} />}
+      {channel === "product-detail" && selectedHandle && (
+        <TVProductDetail handle={selectedHandle} onBack={handleBackToGrid} />
       )}
 
-      {/* REC indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "14px",
-          right: "18px",
-          fontSize: "12px",
-          color: "#ff2020",
-          textShadow: "0 0 6px rgba(255, 0, 0, 0.6)",
-          fontFamily: "monospace",
-          animation: "vhsRecBlink 1s step-end infinite",
-          pointerEvents: "none",
-        }}
-      >
-        ● REC {time}
-      </div>
+      {/* REC indicator — hidden on product-detail where the music player
+          owns the bottom-right corner. Moved to the bottom-LEFT on the
+          grid view to avoid bumping into CH-YM / LIVE chrome elements. */}
+      {channel !== "product-detail" && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "14px",
+            left: "18px",
+            fontSize: "11px",
+            color: "#ff2020",
+            textShadow: "0 0 6px rgba(255, 0, 0, 0.55)",
+            fontFamily: "monospace",
+            letterSpacing: "0.08em",
+            animation: "vhsRecBlink 1s step-end infinite",
+            pointerEvents: "none",
+          }}
+        >
+          ● REC {time}
+        </div>
+      )}
 
-      {/* Channel */}
+      {/* Channel readout — top-right chrome */}
       <div
         style={{
           position: "absolute",
           top: "14px",
           right: "18px",
-          fontSize: "16px",
-          color: "#ffffff",
-          textShadow: "0 0 6px rgba(255, 255, 255, 0.3)",
-          fontFamily: "monospace",
+          fontSize: "11px",
+          color: "#e8e0c8",
+          textShadow: "0 0 6px rgba(232,224,200,0.35)",
+          fontFamily: "'JetBrains Mono', monospace",
+          letterSpacing: "0.15em",
           pointerEvents: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "4px",
         }}
       >
-        CH-{activeChNum}
+        <span style={{ color: "rgba(200,192,168,0.45)" }}>CH</span>
+        <span>{activeChNum}</span>
       </div>
 
-      {/* Play indicator */}
+      {/* Status indicator — top-left chrome */}
       <div
         style={{
           position: "absolute",
           top: "14px",
           left: "18px",
-          fontSize: "11px",
-          color: "rgba(255, 255, 255, 0.4)",
-          fontFamily: "monospace",
-          letterSpacing: "0.1em",
+          fontSize: "10px",
+          color: channel === "idle" ? "rgba(232,224,200,0.35)" : "#d4a853",
+          fontFamily: "'JetBrains Mono', monospace",
+          letterSpacing: "0.2em",
           pointerEvents: "none",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "6px",
         }}
       >
-        {channel === "idle" ? "▶ PLAY" : "● LIVE"}
+        <span
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: "50%",
+            background: channel === "idle" ? "rgba(232,224,200,0.35)" : "#d4a853",
+            boxShadow: channel === "idle" ? "none" : "0 0 6px #d4a853",
+          }}
+        />
+        {channel === "idle" ? "STANDBY" : "LIVE"}
       </div>
 
       {/* Scanlines */}
@@ -1482,6 +2277,16 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
           50% { transform: translate(1px, -1px); }
           75% { transform: translate(-1px, -1px); }
           100% { transform: translate(0, 0); }
+        }
+        @keyframes tvStageSweep {
+          0%   { top: -6%;  opacity: 0; }
+          10%  { opacity: 0.9; }
+          90%  { opacity: 0.9; }
+          100% { top: 108%; opacity: 0; }
+        }
+        @keyframes tvStageBlink {
+          0%, 100% { opacity: 1; }
+          50%      { opacity: 0.25; }
         }
       `}</style>
     </div>
@@ -1688,6 +2493,8 @@ function PostProcessingStack() {
   const P = POST_CONFIG;
   const d = useDebug();
   const [bulbReady, setBulbReady] = useState(false);
+  const [outlineTargetsReady, setOutlineTargetsReady] = useState(false);
+  const hoverTarget = useHover((s) => s.target);
 
   const splitToning = useMemo(
     () =>
@@ -1709,6 +2516,36 @@ function PostProcessingStack() {
     }, 200);
     return () => clearInterval(id);
   }, []);
+
+  // Poll for poster + screen mesh availability — both must exist before
+  // we can populate the Outline selection.
+  useEffect(() => {
+    if (_screenMesh && _posterMesh) { setOutlineTargetsReady(true); return; }
+    const id = setInterval(() => {
+      if (_screenMesh && _posterMesh) {
+        setOutlineTargetsReady(true);
+        clearInterval(id);
+      }
+    }, 200);
+    return () => clearInterval(id);
+  }, []);
+
+  // Split the two interactive targets into base (white, at-rest) and
+  // hover (blue). The currently-hovered target is removed from the base
+  // selection so the colours don't stack.
+  const { baseSelection, hoverSelection } = useMemo(() => {
+    const base: THREE.Object3D[] = [];
+    const hover: THREE.Object3D[] = [];
+    if (_screenMesh) {
+      if (hoverTarget === "tv") hover.push(_screenMesh);
+      else base.push(_screenMesh);
+    }
+    if (_posterMesh) {
+      if (hoverTarget === "poster") hover.push(_posterMesh);
+      else base.push(_posterMesh);
+    }
+    return { baseSelection: base, hoverSelection: hover };
+  }, [hoverTarget, outlineTargetsReady]);
 
   return (
     <EffectComposer multisampling={0} enabled>
@@ -1734,6 +2571,36 @@ function PostProcessingStack() {
       />
       <BrightnessContrast brightness={-0.03} contrast={0.15} />
       <primitive object={splitToning} dispose={null} />
+
+      {/* Interactive target glow — always-on white border around TV + poster.
+          Bright enough to read at a glance, wide kernel for a soft halo,
+          bloomed further via the global Bloom pass. */}
+      <Outline
+        selection={baseSelection}
+        visibleEdgeColor={0xffffff}
+        hiddenEdgeColor={0xffffff}
+        edgeStrength={6}
+        width={2000}
+        kernelSize={KernelSize.VERY_LARGE}
+        blur
+        xRay={false}
+        pulseSpeed={0}
+      />
+      {/* Hover accent — swaps the hovered target's outline from white → pure
+          electric cyan and cranks strength so it reads as an obvious cue
+          even against the TV's own emissive glow. */}
+      <Outline
+        selection={hoverSelection}
+        visibleEdgeColor={0x00e5ff}
+        hiddenEdgeColor={0x00e5ff}
+        edgeStrength={16}
+        width={2400}
+        kernelSize={KernelSize.HUGE}
+        blur
+        xRay
+        pulseSpeed={0.6}
+      />
+
       <Noise opacity={d.noise ? P.noise.opacity : 0} blendFunction={BlendFunction.SCREEN} />
       <Vignette offset={P.vignette.offset} darkness={d.vignette ? P.vignette.darkness : 0} />
     </EffectComposer>
@@ -1833,9 +2700,28 @@ function CameraTracker() {
 function RendererSync() {
   const { gl } = useThree();
   const exposure = useDebug((s) => s.exposure);
+  const zoomedRef = useRef(false);
+  const currentExposureRef = useRef(exposure);
+
   useEffect(() => {
+    const listener = (zoomed: boolean) => { zoomedRef.current = zoomed; };
+    _zoomListeners.add(listener);
+    return () => { _zoomListeners.delete(listener); };
+  }, []);
+
+  // Sync base exposure ref when debug slider changes
+  useEffect(() => {
+    currentExposureRef.current = exposure;
     gl.toneMappingExposure = exposure;
   }, [gl, exposure]);
+
+  // Lerp toward brighter when TV zoomed, back to base when unzoomed
+  useFrame(() => {
+    const target = zoomedRef.current ? exposure * 1.4 : exposure;
+    currentExposureRef.current += (target - currentExposureRef.current) * 0.025;
+    gl.toneMappingExposure = currentExposureRef.current;
+  });
+
   return null;
 }
 
@@ -1851,7 +2737,7 @@ function Scene() {
       <CameraParallax />
 
       {/* ---- Lighting — dark room, lamp + TV + bounce fills ---- */}
-      <ambientLight intensity={d.ambient} color={0x0a0806} />
+      <ambientLight intensity={d.ambient} color={0x1a1410} />
 
       {/* Purple exterior light — neon bleed through the curtain/window */}
       <pointLight
@@ -2214,6 +3100,7 @@ function TVHint() {
 
 function BackButton() {
   const [show, setShow] = useState(_zoomedToTV);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     _zoomListeners.add(setShow);
@@ -2222,30 +3109,47 @@ function BackButton() {
 
   if (!show) return null;
 
+  const handleClick = () => {
+    // Defer to the TV's internal back handler first — e.g. product
+    // detail should pop back to the grid instead of zooming out.
+    if (_tvInternalBack && _tvInternalBack()) return;
+    animateCameraTo(CAMERA_START.position, CAMERA_START.target, 2.0);
+    setZoomedToTV(false);
+  };
+
   return (
     <button
-      onClick={() => {
-        animateCameraTo(CAMERA_START.position, CAMERA_START.target, 2.0);
-        setZoomedToTV(false);
-      }}
+      onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: "fixed",
-        top: "1.5rem",
-        left: "1.5rem",
+        top: "1.4rem",
+        left: "1.4rem",
         zIndex: 10000,
-        background: "rgba(0,0,0,0.5)",
-        border: "1px solid rgba(255,255,255,0.15)",
-        borderRadius: "6px",
-        color: "rgba(255,255,255,0.7)",
-        fontFamily: "monospace",
-        fontSize: "12px",
-        padding: "8px 16px",
+        background: hovered ? "rgba(10,10,10,0.75)" : "rgba(0,0,0,0.55)",
+        border: `1px solid ${hovered ? "rgba(212,168,83,0.55)" : "rgba(255,255,255,0.18)"}`,
+        borderRadius: "2px",
+        color: hovered ? "#d4a853" : "rgba(232,224,200,0.8)",
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "10px",
+        fontWeight: 500,
+        letterSpacing: "0.28em",
+        textTransform: "uppercase",
+        padding: "9px 16px 9px 14px",
         cursor: "pointer",
-        backdropFilter: "blur(4px)",
-        transition: "opacity 300ms ease",
+        backdropFilter: "blur(6px)",
+        transition: "all 200ms ease",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "10px",
+        boxShadow: hovered
+          ? "0 0 22px rgba(212,168,83,0.22), inset 0 0 12px rgba(212,168,83,0.04)"
+          : "0 0 14px rgba(0,0,0,0.5)",
       }}
     >
-      ← back
+      <span style={{ fontSize: "11px" }}>←</span>
+      <span>Back</span>
     </button>
   );
 }

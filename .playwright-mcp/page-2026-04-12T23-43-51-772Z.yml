@@ -1,0 +1,46 @@
+- generic [active] [ref=e1] [cursor=pointer]:
+  - generic [ref=e2]:
+    - generic [ref=e18]:
+      - button "← back" [ref=e28]
+      - button "debug" [ref=e19]
+      - generic [ref=e25]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: ← BACK
+            - generic [ref=e33]: CH-02 MUSIC
+          - generic [ref=e34]:
+            - generic [ref=e35]: NOW PLAYING
+            - generic [ref=e36]:
+              - generic [ref=e37]: ▶
+              - generic [ref=e38]:
+                - generic [ref=e39]: 01 — BAYOU MIDNIGHT
+                - generic [ref=e40]: Yunmakai
+              - generic [ref=e41]: 3:54
+            - generic [ref=e42]:
+              - generic [ref=e43]: ▶
+              - generic [ref=e44]:
+                - generic [ref=e45]: 02 — MOTEL LIGHTS
+                - generic [ref=e46]: Yunmakai
+              - generic [ref=e47]: 3:07
+            - generic [ref=e48]:
+              - generic [ref=e49]: ▶
+              - generic [ref=e50]:
+                - generic [ref=e51]: 03 — SOUTHERN HAZE
+                - generic [ref=e52]: Yunmakai
+              - generic [ref=e53]: 5:12
+        - generic: ● REC 09:43:51
+        - generic: CH-02
+        - generic: ● LIVE
+    - generic:
+      - paragraph: Motel Room
+  - generic [ref=e6]:
+    - link "Account" [ref=e7]:
+      - /url: /account
+    - button "Cart" [ref=e8]
+  - dialog "Shopping cart" [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Cart" [level=2] [ref=e12]
+        - button "Close cart" [ref=e13]: ✕
+      - paragraph [ref=e16]: Your cart is empty
+  - alert [ref=e17]

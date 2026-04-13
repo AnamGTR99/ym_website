@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e12]:
+        - paragraph [ref=e13]: Solus Records presents
+        - heading "Yunmakai" [level=1] [ref=e14]:
+          - generic [ref=e15]: Yunmakai
+        - paragraph [ref=e17]: An immersive digital universe
+        - button "Enter" [ref=e18]:
+          - generic [ref=e19]: Enter
+        - paragraph [ref=e21]: Best experienced with sound
+      - generic:
+        - paragraph: © 2026 Yunmakai LLC · Solus Records · Lunas Lake Studio
+    - generic [ref=e24]:
+      - paragraph [ref=e25]: Solus Records
+      - heading "Yunmakai" [level=1] [ref=e26]
+      - generic [ref=e29]:
+        - generic [ref=e30]: Tuning signal
+        - generic [ref=e31]: "088"
+  - generic [ref=e34]:
+    - link "Account" [ref=e35] [cursor=pointer]:
+      - /url: /account
+    - button "Cart" [ref=e36]
+  - dialog "Shopping cart" [ref=e37]:
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - heading "Cart" [level=2] [ref=e40]
+        - button "Close cart" [ref=e41]: ✕
+      - paragraph [ref=e44]: Your cart is empty
+  - button "Open Next.js Dev Tools" [ref=e50] [cursor=pointer]:
+    - img [ref=e51]
+  - alert [ref=e54]

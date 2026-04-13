@@ -1,0 +1,364 @@
+[    2461ms] [LOG] [LoadingOverlay] Progress: 0% (0/1) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4475ms] [LOG] [LoadingOverlay] Progress: 25% (1/4) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4487ms] [LOG] [LoadingOverlay] Progress: 2% (2/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4491ms] [LOG] [LoadingOverlay] Progress: 3% (3/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4505ms] [LOG] [LoadingOverlay] Progress: 4% (4/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4506ms] [LOG] [LoadingOverlay] Progress: 5% (5/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4507ms] [LOG] [LoadingOverlay] Progress: 7% (6/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4521ms] [LOG] [LoadingOverlay] Progress: 8% (7/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4524ms] [LOG] [LoadingOverlay] Progress: 9% (8/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4526ms] [LOG] [LoadingOverlay] Progress: 10% (9/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4528ms] [LOG] [LoadingOverlay] Progress: 11% (10/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4531ms] [LOG] [LoadingOverlay] Progress: 12% (11/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4533ms] [LOG] [LoadingOverlay] Progress: 13% (12/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4536ms] [LOG] [LoadingOverlay] Progress: 14% (13/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4538ms] [LOG] [LoadingOverlay] Progress: 15% (14/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4540ms] [LOG] [LoadingOverlay] Progress: 16% (15/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4543ms] [LOG] [LoadingOverlay] Progress: 17% (16/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4545ms] [LOG] [LoadingOverlay] Progress: 18% (17/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4548ms] [LOG] [LoadingOverlay] Progress: 20% (18/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4549ms] [LOG] [LoadingOverlay] Progress: 21% (19/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4550ms] [LOG] [LoadingOverlay] Progress: 22% (20/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4551ms] [LOG] [LoadingOverlay] Progress: 23% (21/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4553ms] [LOG] [LoadingOverlay] Progress: 24% (22/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4560ms] [LOG] [LoadingOverlay] Progress: 25% (23/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4561ms] [LOG] [LoadingOverlay] Progress: 26% (24/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4562ms] [LOG] [LoadingOverlay] Progress: 27% (25/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4566ms] [LOG] [LoadingOverlay] Progress: 28% (26/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4569ms] [LOG] [LoadingOverlay] Progress: 29% (27/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4572ms] [LOG] [LoadingOverlay] Progress: 30% (28/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4578ms] [LOG] [LoadingOverlay] Progress: 32% (29/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4581ms] [LOG] [LoadingOverlay] Progress: 33% (30/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4584ms] [LOG] [LoadingOverlay] Progress: 34% (31/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4593ms] [LOG] [LoadingOverlay] Progress: 35% (32/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4595ms] [LOG] [LoadingOverlay] Progress: 36% (33/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4596ms] [LOG] [LoadingOverlay] Progress: 37% (34/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4597ms] [LOG] [LoadingOverlay] Progress: 38% (35/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4598ms] [LOG] [LoadingOverlay] Progress: 39% (36/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4599ms] [LOG] [LoadingOverlay] Progress: 40% (37/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4600ms] [LOG] [LoadingOverlay] Progress: 41% (38/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4600ms] [LOG] [LoadingOverlay] Progress: 42% (39/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4601ms] [LOG] [LoadingOverlay] Progress: 43% (40/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4602ms] [LOG] [LoadingOverlay] Progress: 45% (41/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4603ms] [LOG] [LoadingOverlay] Progress: 46% (42/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4604ms] [LOG] [LoadingOverlay] Progress: 47% (43/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4605ms] [LOG] [LoadingOverlay] Progress: 48% (44/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4605ms] [LOG] [LoadingOverlay] Progress: 49% (45/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4606ms] [LOG] [LoadingOverlay] Progress: 50% (46/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4607ms] [LOG] [LoadingOverlay] Progress: 51% (47/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4609ms] [LOG] [LoadingOverlay] Progress: 52% (48/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4610ms] [LOG] [LoadingOverlay] Progress: 53% (49/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4611ms] [LOG] [LoadingOverlay] Progress: 54% (50/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4612ms] [LOG] [LoadingOverlay] Progress: 55% (51/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4613ms] [LOG] [LoadingOverlay] Progress: 57% (52/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4614ms] [LOG] [LoadingOverlay] Progress: 58% (53/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4615ms] [LOG] [LoadingOverlay] Progress: 59% (54/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4616ms] [LOG] [LoadingOverlay] Progress: 60% (55/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4617ms] [LOG] [LoadingOverlay] Progress: 61% (56/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4617ms] [LOG] [LoadingOverlay] Progress: 62% (57/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4619ms] [LOG] [LoadingOverlay] Progress: 63% (58/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4619ms] [LOG] [LoadingOverlay] Progress: 64% (59/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4620ms] [LOG] [LoadingOverlay] Progress: 65% (60/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4621ms] [LOG] [LoadingOverlay] Progress: 66% (61/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4621ms] [LOG] [LoadingOverlay] Progress: 67% (62/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4622ms] [LOG] [LoadingOverlay] Progress: 68% (63/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4623ms] [LOG] [LoadingOverlay] Progress: 70% (64/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4624ms] [LOG] [LoadingOverlay] Progress: 71% (65/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4625ms] [LOG] [LoadingOverlay] Progress: 72% (66/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4626ms] [LOG] [LoadingOverlay] Progress: 73% (67/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4627ms] [LOG] [LoadingOverlay] Progress: 74% (68/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4627ms] [LOG] [LoadingOverlay] Progress: 75% (69/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4628ms] [LOG] [LoadingOverlay] Progress: 76% (70/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4629ms] [LOG] [LoadingOverlay] Progress: 77% (71/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4630ms] [LOG] [LoadingOverlay] Progress: 78% (72/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4630ms] [LOG] [LoadingOverlay] Progress: 79% (73/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4631ms] [LOG] [LoadingOverlay] Progress: 80% (74/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4632ms] [LOG] [LoadingOverlay] Progress: 82% (75/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4633ms] [LOG] [LoadingOverlay] Progress: 83% (76/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4634ms] [LOG] [LoadingOverlay] Progress: 84% (77/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4636ms] [LOG] [LoadingOverlay] Progress: 85% (78/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4637ms] [LOG] [LoadingOverlay] Progress: 86% (79/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4638ms] [LOG] [LoadingOverlay] Progress: 87% (80/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4639ms] [LOG] [LoadingOverlay] Progress: 88% (81/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4639ms] [LOG] [LoadingOverlay] Progress: 89% (82/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4640ms] [LOG] [LoadingOverlay] Progress: 90% (83/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4641ms] [LOG] [LoadingOverlay] Progress: 91% (84/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4642ms] [LOG] [LoadingOverlay] Progress: 92% (85/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4643ms] [LOG] [LoadingOverlay] Progress: 93% (86/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4644ms] [LOG] [LoadingOverlay] Progress: 95% (87/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4644ms] [LOG] [LoadingOverlay] Progress: 96% (88/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4645ms] [LOG] [LoadingOverlay] Progress: 97% (89/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4646ms] [LOG] [LoadingOverlay] Progress: 98% (90/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4647ms] [LOG] [LoadingOverlay] Progress: 99% (91/92) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4845ms] [LOG] [LoadingOverlay] Progress: 100% (92/92) active=false @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4846ms] [LOG] [LoadingOverlay] Complete — 3.0s total @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4850ms] [LOG] [MotelRoom] Bulb spot light wired — pos: [0, 0, 0] target: [0, -3, 0] @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1641
+[    4887ms] [LOG] [MotelRoom] Found bulb mesh "lampara_bombillodata001" at: [0, 0, 0] @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1641
+[    4887ms] [LOG] [MotelRoom] Found bulb mesh "lampara_bombillodata001_1" at: [0, 0, 0] @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1641
+[    4887ms] [LOG] [MotelRoom] Debug state: {lamp: 12, ambient: 0.4, exposure: 1.2, tvGlow: 0.3, glbLight: 200} @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1641
+[    4898ms] [LOG] [MotelRoom] Bulb spot light wired — pos: [0, 0, 0] target: [0, -3, 0] @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1641
+[    4900ms] [LOG] [LoadingOverlay] Progress: 0% (92/93) active=true @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    4901ms] [LOG] [TVScreenHTML] Screen bbox center: [-21.53, 7.71, -1.86] size: [0.43, 2.90, 5.00] @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1662
+[    6639ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[    6652ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[    6667ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[    6843ms] [LOG] [MotelRoom] HDR environment map loaded @ https://ym-website-theta.vercel.app/_next/static/chunks/959f3b5ce3dbde95.js:1662
+[    6844ms] [LOG] [LoadingOverlay] Progress: 100% (93/93) active=false @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[    6844ms] [LOG] [LoadingOverlay] Complete — 5.0s total @ https://ym-website-theta.vercel.app/_next/static/chunks/78ba0fc8289289d7.js:0
+[   11127ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11143ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11426ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11461ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11462ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11544ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11587ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11620ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11657ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11693ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11727ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11761ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11794ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11835ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11862ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11910ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11936ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   11976ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12014ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12046ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12108ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12136ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12178ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12220ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12253ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12283ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12321ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12354ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12386ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12422ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12456ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12491ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12524ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12559ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12593ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12625ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12655ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12686ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12720ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12752ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12784ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12809ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12843ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12873ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12911ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12941ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   12972ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13007ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13047ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13076ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13109ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13141ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13169ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13203ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13239ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13264ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13287ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13309ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13333ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13356ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13384ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13406ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13431ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13456ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13473ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13489ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13505ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13521ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13538ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13556ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13571ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13598ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13616ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13634ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13649ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13667ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13685ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13703ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13720ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13737ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13755ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13774ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13797ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13814ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13831ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13848ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13866ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13883ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13900ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13918ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13935ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13953ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13969ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   13988ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14008ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14031ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14049ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14066ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14083ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14099ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14116ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14132ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14147ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14164ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14180ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14192ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14218ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14234ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14252ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14268ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14285ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14302ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14317ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14334ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14350ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14367ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14386ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14407ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14424ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14439ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14456ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14482ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14491ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14508ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14524ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14537ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14553ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14569ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14586ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14605ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14622ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14636ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14654ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14671ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14694ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14709ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14726ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14766ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14791ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14806ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14829ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14854ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14879ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14895ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14927ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14936ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14954ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14972ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   14989ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15006ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15024ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15044ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15064ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15082ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15106ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15121ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15142ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15161ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15174ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15191ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15208ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15225ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15242ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15257ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15273ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15292ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15306ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15322ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15336ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15353ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15372ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15389ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15404ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15425ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15447ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15466ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15483ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15500ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15516ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15532ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15549ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15568ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15586ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15605ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15620ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15639ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15660ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15678ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15699ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15728ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15739ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15756ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15773ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15797ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15817ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15837ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15855ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15877ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15896ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15916ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15933ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15950ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15969ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   15987ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16006ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16019ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16037ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16055ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16074ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16102ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16119ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16138ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16154ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16172ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16191ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16214ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16235ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16250ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16269ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16284ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16308ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16322ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16339ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16356ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16373ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16390ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16411ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16439ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16448ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16475ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16495ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16515ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16536ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16555ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16574ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16592ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16607ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16629ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16642ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16657ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16682ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16698ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16717ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16733ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16750ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16766ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16783ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16800ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16817ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16838ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16852ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16869ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16887ms] [WARNING] [.WebGL-0x10400482c00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ https://ym-website-theta.vercel.app/room:0
+[   16887ms] [WARNING] WebGL: too many errors, no more errors will be reported to the console for this context. @ https://ym-website-theta.vercel.app/room:0
+[   91235ms] Minified React error #419; visit https://react.dev/errors/419 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+[  121253ms] [ERROR] Connecting to 'https://yunmakai.myshopify.com/api/2025-01/graphql.json' violates the following Content Security Policy directive: "connect-src 'self' blob: https://*.supabase.co https://*.shopify.com wss://*.supabase.co https://www.gstatic.com". The action has been blocked. @ https://ym-website-theta.vercel.app/_next/static/chunks/5aa5138f471b4a20.js:2
+[  121255ms] [ERROR] Fetch API cannot load https://yunmakai.myshopify.com/api/2025-01/graphql.json. Refused to connect because it violates the document's Content Security Policy. @ https://ym-website-theta.vercel.app/_next/static/chunks/5aa5138f471b4a20.js:2

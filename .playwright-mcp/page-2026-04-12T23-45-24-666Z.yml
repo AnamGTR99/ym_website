@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - link "← Back to TV" [ref=e5] [cursor=pointer]:
+          - /url: /tv
+        - generic [ref=e6]: "|"
+        - generic [ref=e7]: Bayou Nights EP
+      - generic [ref=e8]:
+        - generic [ref=e15]:
+          - button "TV" [ref=e16]
+          - button "Photo" [ref=e17]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - paragraph [ref=e20]: Channel
+            - heading "Bayou Nights EP" [level=2] [ref=e21]
+            - generic [ref=e23]: $24.99
+          - separator [ref=e24]
+          - button "Add to Cart" [ref=e25] [cursor=pointer]
+          - separator [ref=e26]
+          - generic [ref=e27]:
+            - paragraph [ref=e28]: Description
+            - paragraph [ref=e57]: Limited edition EP from the swamp sessions
+      - generic [ref=e31]:
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: Track
+          - paragraph [ref=e35]: Yunmakai
+        - button "01 ♪ Bayou Midnight Yunmakai 3:54" [ref=e37]:
+          - generic [ref=e38]: "01"
+          - generic [ref=e40]: ♪
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: Bayou Midnight
+            - paragraph [ref=e43]: Yunmakai
+          - generic [ref=e44]: 3:54
+  - generic [ref=e45]:
+    - link "Account" [ref=e46] [cursor=pointer]:
+      - /url: /account
+    - button "Cart" [ref=e47]
+  - dialog "Shopping cart" [ref=e48]:
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - heading "Cart" [level=2] [ref=e51]
+        - button "Close cart" [ref=e52]: ✕
+      - generic [ref=e59]:
+        - paragraph [ref=e60]: Failed to add item to cart
+        - button "✕" [ref=e61]
+      - paragraph [ref=e55]: Your cart is empty
+  - alert [ref=e56]

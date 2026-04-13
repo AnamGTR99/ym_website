@@ -1,0 +1,319 @@
+[    2196ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    2275ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    2583ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3001/favicon.ico:0
+[    8431ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    8518ms] [LOG] [Fast Refresh] done in 188ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[    8619ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   10035ms] [LOG] [Fast Refresh] done in 1516ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   10228ms] [WARNING] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   11137ms] [LOG] [MotelRoom] Bulb spot light wired — pos: [0, 0, 0] target: [0, -3, 0] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   11240ms] [LOG] [MotelRoom] Found bulb mesh "lampara_bombillodata001" at: [0, 0, 0] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   11241ms] [LOG] [MotelRoom] Found bulb mesh "lampara_bombillodata001_1" at: [0, 0, 0] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   11242ms] [LOG] [MotelRoom] Debug state: {lamp: 12, ambient: 0.4, exposure: 1.2, tvGlow: 0.3, glbLight: 200} @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   11243ms] [LOG] [MotelRoom] Bulb spot light wired — pos: [0, 0, 0] target: [0, -3, 0] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   19209ms] [LOG] [MotelRoom] Bulb spot light wired — pos: [0, 0, 0] target: [0, -3, 0] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   19386ms] [LOG] [LoadingOverlay] Progress: 99% (92/93) active=true @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   22695ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   22724ms] [LOG] [TVScreenHTML] Screen bbox center: [-21.53, 7.71, -1.86] size: [0.43, 2.90, 5.00] @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   22729ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   22936ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   22936ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   22936ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   24125ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   24561ms] [LOG] [MotelRoom] HDR environment map loaded @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   24650ms] [LOG] [MotelRoom] HDR environment map loaded @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   24654ms] [LOG] [LoadingOverlay] Progress: 100% (93/93) active=false @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   24655ms] [LOG] [LoadingOverlay] Complete — 14.3s total @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   25460ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25465ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25500ms] [LOG] [Fast Refresh] done in 2788ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   25505ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25617ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25660ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25660ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25783ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25802ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25821ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25840ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25860ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25880ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25900ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25918ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25939ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25957ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25976ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   25994ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26016ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26037ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26056ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26074ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26092ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26111ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26133ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26153ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26175ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26194ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26214ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26235ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26255ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26275ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26294ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26315ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26336ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26355ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26375ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26393ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26413ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26432ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26453ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26492ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26513ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26534ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26555ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26577ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26599ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26618ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26643ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26758ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26779ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26814ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26832ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26836ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26890ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26891ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26909ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26969ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26969ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   26993ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27018ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27094ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27094ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27100ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27117ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27136ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27149ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27167ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27183ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27200ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27217ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27237ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27252ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27274ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27291ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27311ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27350ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27369ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27389ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27407ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27434ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27456ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27475ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27496ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27518ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27535ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27556ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27575ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27626ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27630ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27635ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27655ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27674ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27693ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27712ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27732ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27749ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27768ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27789ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27807ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27826ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27843ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27861ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27887ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27908ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27943ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27963ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   27998ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28015ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28033ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28053ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28072ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28118ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28122ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28169ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28169ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28184ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28200ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28251ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28251ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28285ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28297ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28323ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28352ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28361ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28383ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28405ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28424ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28446ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28466ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28493ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28518ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28538ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28560ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28579ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28611ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28620ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28641ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28663ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28684ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28705ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28724ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28742ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28764ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28791ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28810ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28829ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28848ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28867ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28893ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28913ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28939ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28958ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   28979ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29001ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29021ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29039ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29059ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29080ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29100ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29118ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29178ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29193ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29214ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29234ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29257ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29283ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29308ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29329ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29361ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29488ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29488ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29488ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29638ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29638ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29652ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29712ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29712ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29724ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29749ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29752ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29910ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29944ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29956ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   29975ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30000ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30021ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30041ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30060ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30079ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30101ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30124ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30142ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30165ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30194ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30218ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30225ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30250ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30273ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30285ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30305ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30332ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30348ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30366ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30405ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30436ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30446ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30480ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30498ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30519ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30538ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30557ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30577ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30597ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30616ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30636ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30675ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30675ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30700ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30712ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30760ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30782ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30803ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30821ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30846ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30868ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30893ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30919ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30942ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30949ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30970ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   30991ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31013ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31034ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31053ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31072ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31090ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31110ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31131ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31152ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31175ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31194ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31216ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31236ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31258ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31278ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31298ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31317ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31337ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31359ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31392ms] [WARNING] [.WebGL-0x1140048da00] GL_INVALID_OPERATION: glBlitFramebuffer: Read and write depth stencil attachments cannot be the same image. @ http://localhost:3001/room:0
+[   31398ms] [WARNING] WebGL: too many errors, no more errors will be reported to the console for this context. @ http://localhost:3001/room:0
+[   39925ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   42333ms] [LOG] [Fast Refresh] done in 2492ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   62134ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   66940ms] [ERROR] ./components/env/LandingEnvironment.tsx:404:1
+Parsing ecmascript source code failed
+  402 |     </div>
+  403 |   );
+> 404 | }
+      | ^
+  405 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./components/env/LandingEnvironment.tsx
+    ./app/page.tsx @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[   91404ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   96381ms] [ERROR] ./components/env/LandingEnvironment.tsx:404:1
+Parsing ecmascript source code failed
+  402 |     </div>
+  403 |   );
+> 404 | }
+      | ^
+  405 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import trace:
+  Server Component:
+    ./components/env/LandingEnvironment.tsx
+    ./app/page.tsx @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3127
+[   98312ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[   98531ms] [LOG] [Fast Refresh] done in 628ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  119551ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  119897ms] [LOG] [Fast Refresh] done in 461ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  135967ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  137205ms] [LOG] [Fast Refresh] done in 1338ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  137647ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297
+[  137713ms] [LOG] [Fast Refresh] done in 167ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_f3530cac._.js:2297

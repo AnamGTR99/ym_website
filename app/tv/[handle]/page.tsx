@@ -76,10 +76,10 @@ export default async function ProductPage({
   return (
     <main className="grain min-h-screen flex flex-col items-center px-4 pt-6 pb-12 bg-void">
         <div className="w-full max-w-5xl flex flex-col gap-6">
-          {/* Breadcrumb */}
+          {/* Breadcrumb — return to the 3D room with the TV already zoomed in */}
           <div className="flex items-center gap-3 animate-fade-down">
             <Link
-              href="/tv"
+              href="/room?tv=1"
               className="text-xs font-mono text-fog hover:text-amber transition-colors"
             >
               ← Back to TV

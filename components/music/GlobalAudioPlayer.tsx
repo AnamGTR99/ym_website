@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import { useMusicStore, getAudioElement } from "@/stores/music";
+import { useEnvStore } from "@/stores/env";
 import ProgressBar from "./ProgressBar";
 
 function formatTime(seconds: number): string {
@@ -74,8 +75,12 @@ export default function GlobalAudioPlayer() {
     };
   }, [setProgress, setDuration, setBuffering]);
 
-  // Hidden when no track
-  if (!currentTrack) return null;
+  // Hide whenever the in-CRT player is visible — TVProductDetail has its
+  // own cinematic strip. Two stacked players look redundant.
+  const tvZoomed = useEnvStore((s) => s.tvZoomed);
+
+  // Hidden when no track or when the TV's own player is taking over
+  if (!currentTrack || tvZoomed) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-abyss border-t border-charcoal">

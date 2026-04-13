@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
@@ -45,6 +45,16 @@ export default function LandingEnvironment() {
   const zoomRef = useRef<HTMLDivElement>(null);
   const starsRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // --- Preloader state ---
+  // Holds a black overlay with a progress bar until the BG video has
+  // buffered enough to play, then fades the whole scene in as one unit
+  // so stars/video/text don't pop in at different times.
+  const [videoReady, setVideoReady] = useState(false);
+  const [minElapsed, setMinElapsed] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const ready = videoReady && minElapsed;
 
   // Camera state — all in refs for zero re-renders
   const zoom = useRef({ current: 1, target: 1 });
@@ -59,6 +69,55 @@ export default function LandingEnvironment() {
     if (transitioning) return;
     startTransition("room", () => router.push("/room"));
   }, [transitioning, startTransition, router]);
+
+  // --- Preloader: wait for BG video to buffer ---
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    // readyState >= 3 = HAVE_FUTURE_DATA (enough buffered to play)
+    if (v.readyState >= 3) {
+      setVideoReady(true);
+      return;
+    }
+    const onReady = () => setVideoReady(true);
+    v.addEventListener("canplaythrough", onReady);
+    v.addEventListener("loadeddata", onReady);
+    v.addEventListener("error", onReady); // fail-open so we don't block forever
+    // Hard fallback: after 6s, give up and show the scene anyway
+    const hardTimeout = setTimeout(() => setVideoReady(true), 6000);
+    return () => {
+      v.removeEventListener("canplaythrough", onReady);
+      v.removeEventListener("loadeddata", onReady);
+      v.removeEventListener("error", onReady);
+      clearTimeout(hardTimeout);
+    };
+  }, []);
+
+  // Minimum display time so the loader always feels intentional
+  useEffect(() => {
+    const t = setTimeout(() => setMinElapsed(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Progress bar animation: 0 → 88% over ~1.3s, hold until ready, then 100%
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const DURATION = 1300;
+    const TARGET = 88;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / DURATION);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      setProgress(TARGET * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  useEffect(() => {
+    if (ready) setProgress(100);
+  }, [ready]);
 
   // --- Wheel → zoom ---
   useEffect(() => {
@@ -232,16 +291,27 @@ export default function LandingEnvironment() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden select-none touch-none"
+      className="relative w-full h-screen overflow-hidden select-none touch-none bg-void"
     >
+      {/* Scene wrapper — stays at opacity 0 until preloader finishes */}
+      <div
+        className="absolute inset-0"
+        style={{
+          opacity: ready ? 1 : 0,
+          transition: "opacity 1200ms cubic-bezier(0.4, 0, 0.2, 1)",
+          transitionDelay: ready ? "200ms" : "0ms",
+        }}
+      >
       {/* Scene — pan (outer) + zoom (inner) */}
       <div ref={sceneRef} className="absolute inset-[-40px]">
         <div ref={zoomRef} className="absolute inset-0 origin-center">
           <video
+            ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               filter: "brightness(0.45) saturate(0.4) contrast(1.2) sepia(0.1) hue-rotate(190deg)",
@@ -339,6 +409,63 @@ export default function LandingEnvironment() {
           transitionDelay: transitioning ? "1500ms" : "0ms",
         }}
       />
+      </div>
+      {/* /Scene wrapper */}
+
+      {/* ------------------------------------------------------------- */}
+      {/*  Preloader overlay                                             */}
+      {/*  Holds the screen black while BG video buffers, shows a progress */}
+      {/*  bar, then fades out as the scene fades in.                     */}
+      {/* ------------------------------------------------------------- */}
+      <div
+        className="absolute inset-0 z-40 bg-void flex flex-col items-center justify-center"
+        style={{
+          opacity: ready ? 0 : 1,
+          transition: "opacity 900ms cubic-bezier(0.4, 0, 0.2, 1)",
+          pointerEvents: ready ? "none" : "auto",
+        }}
+        aria-hidden={ready}
+      >
+        {/* Faint grain + vignette so the black isn't dead-flat */}
+        <div className="grain absolute inset-0 opacity-60" />
+        <div className="vignette-heavy absolute inset-0" />
+
+        {/* Center column */}
+        <div className="relative flex flex-col items-center gap-10">
+          {/* Label above wordmark */}
+          <p className="font-mono text-[9px] uppercase tracking-[0.45em] text-fog/40">
+            Solus Records
+          </p>
+
+          {/* Wordmark — slightly dimmer than the final landing, breathing */}
+          <h1 className="font-display text-bone/90 uppercase tracking-[0.4em] text-3xl sm:text-4xl md:text-5xl leading-none animate-breathe">
+            Yunmakai
+          </h1>
+
+          {/* Thin divider */}
+          <div className="w-16 h-px bg-gradient-to-r from-transparent via-amber/40 to-transparent" />
+
+          {/* Progress bar group */}
+          <div className="flex flex-col items-center gap-3">
+            <div className="flex items-center justify-between w-[260px] font-mono text-[9px] tracking-[0.25em] uppercase text-fog/50">
+              <span>{ready ? "Signal locked" : "Tuning signal"}</span>
+              <span className="tabular-nums text-amber/70">
+                {String(Math.round(progress)).padStart(3, "0")}
+              </span>
+            </div>
+            <div className="relative w-[260px] h-px bg-bone/10 overflow-hidden">
+              <div
+                className="absolute inset-y-0 left-0 bg-amber/80"
+                style={{
+                  width: `${progress}%`,
+                  transition: ready ? "width 420ms cubic-bezier(0.2, 0.7, 0.2, 1)" : "none",
+                  boxShadow: "0 0 12px rgba(212, 168, 83, 0.45)",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
