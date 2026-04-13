@@ -11,13 +11,23 @@ interface EnvState {
   // in-CRT UI takes over.
   tvZoomed: boolean;
   setScene: (scene: Scene) => void;
-  startTransition: (to: Scene, onComplete: () => void) => void;
+  /**
+   * Fade to black, then run `onComplete` (which typically navigates).
+   * Defaults to 3000ms — matches the landing → room transition where
+   * the room needs time to start loading the GLB. Pass a shorter
+   * duration (e.g. 1100) for in-scene transitions like room → credits.
+   */
+  startTransition: (
+    to: Scene,
+    onComplete: () => void,
+    durationMs?: number
+  ) => void;
   openCredits: () => void;
   closeCredits: () => void;
   setTvZoomed: (v: boolean) => void;
 }
 
-const TRANSITION_DURATION = 3000; // ms
+const DEFAULT_TRANSITION_DURATION = 3000; // ms
 
 let transitionTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -30,7 +40,7 @@ export const useEnvStore = create<EnvState>((set) => ({
   setScene: (scene) => set({ currentScene: scene }),
   setTvZoomed: (v) => set({ tvZoomed: v }),
 
-  startTransition: (to, onComplete) => {
+  startTransition: (to, onComplete, durationMs = DEFAULT_TRANSITION_DURATION) => {
     // Clear any in-flight transition timer
     if (transitionTimer) clearTimeout(transitionTimer);
     set({ transitioning: true });
@@ -38,7 +48,7 @@ export const useEnvStore = create<EnvState>((set) => ({
       transitionTimer = null;
       set({ currentScene: to, transitioning: false });
       onComplete();
-    }, TRANSITION_DURATION);
+    }, durationMs);
   },
 
   openCredits: () => set({ showCredits: true }),

@@ -5,6 +5,49 @@ import { useEnvStore } from "@/stores/env";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 /* ------------------------------------------------------------------ */
+/*  Credits back button — same visual language as the in-room one      */
+/* ------------------------------------------------------------------ */
+
+function CreditsBackButton({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: "fixed",
+        top: "1.4rem",
+        left: "1.4rem",
+        zIndex: 10000,
+        background: hovered ? "rgba(10,10,10,0.75)" : "rgba(0,0,0,0.55)",
+        border: `1px solid ${hovered ? "rgba(212,168,83,0.55)" : "rgba(255,255,255,0.18)"}`,
+        borderRadius: "2px",
+        color: hovered ? "#d4a853" : "rgba(232,224,200,0.8)",
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "10px",
+        fontWeight: 500,
+        letterSpacing: "0.28em",
+        textTransform: "uppercase",
+        padding: "9px 16px 9px 14px",
+        cursor: "pointer",
+        backdropFilter: "blur(6px)",
+        transition: "all 200ms ease",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "10px",
+        boxShadow: hovered
+          ? "0 0 22px rgba(212,168,83,0.22), inset 0 0 12px rgba(212,168,83,0.04)"
+          : "0 0 14px rgba(0,0,0,0.5)",
+      }}
+    >
+      <span style={{ fontSize: "11px" }}>←</span>
+      <span>Back</span>
+    </button>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Credits content — movie-style rolling credits                      */
 /* ------------------------------------------------------------------ */
 
@@ -230,27 +273,8 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
       </div>
 
 
-      {/* Back button */}
-      <button
-        onClick={handleClose}
-        style={{
-          position: "fixed",
-          top: "1.5rem",
-          left: "1.5rem",
-          zIndex: 1000,
-          background: "rgba(0,0,0,0.5)",
-          border: "1px solid rgba(255,255,255,0.15)",
-          borderRadius: "6px",
-          color: "rgba(255,255,255,0.7)",
-          fontFamily: "monospace",
-          fontSize: "12px",
-          padding: "8px 16px",
-          cursor: "pointer",
-          backdropFilter: "blur(4px)",
-        }}
-      >
-        ← back
-      </button>
+      {/* Back button — matches the MotelRoomScene BackButton style */}
+      <CreditsBackButton onClick={handleClose} />
 
       {/* CSS animations */}
       <style>{`

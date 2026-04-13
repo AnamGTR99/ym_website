@@ -761,6 +761,13 @@ function GLBRoom({
     e.stopPropagation();
     if (transitioning || _cameraAnimating) return;
 
+    // While zoomed into the TV the HTML overlay is the ONLY thing that
+    // should be receiving clicks. Any 3D raycast that leaks through
+    // (e.g. clicking empty space to the left of the CRT that happens
+    // to hit the poster behind the TV) must be ignored — otherwise
+    // users get teleported into /credits at random.
+    if (_zoomedToTV) return;
+
     // Screen mesh — animate camera to TV close-up
     // Check both mesh name and material name (Bruno's GLB has material named "Screen")
     const meshName = e.object.name?.toLowerCase() ?? "";
@@ -778,23 +785,42 @@ function GLBRoom({
     if (action === "navigate-tv") {
       animateCameraTo(CAMERA_TV.position, CAMERA_TV.target, 2.5, () => setZoomedToTV(true));
     } else if (action === "open-credits") {
-      // Zoom into the poster, then fade to black → /credits
+      // Two-stage transition into /credits:
+      //   (1) push the camera toward the poster for 1.0s
+      //   (2) while the camera is still moving, start a 1.1s fade to black
+      //       and navigate when that fade lands
+      //
+      // Stage 1 and 2 overlap intentionally — the camera arrives at the
+      // poster roughly when the overlay hits full black, so there's no
+      // awkward "camera done, now wait for the fade" dead time. The
+      // /credits page boots with its own 700ms fade-in from black so the
+      // hand-off from room → credits is seamless.
       e.object.updateWorldMatrix(true, false);
       const box = new THREE.Box3().setFromObject(e.object);
       const center = new THREE.Vector3();
       box.getCenter(center);
       const camDir = new THREE.Vector3(..._camPos).sub(center).normalize();
-      const targetPos = center.clone().add(camDir.multiplyScalar(2));
+      const targetPos = center.clone().add(camDir.multiplyScalar(1.6));
       animateCameraTo(
         targetPos.toArray() as [number, number, number],
         center.toArray() as [number, number, number],
-        1.2,
-        () => startTransition("credits", () => router.push("/credits"))
+        1.0
+      );
+      // Kick off the fade + navigation immediately — the camera push
+      // and the black fade-in run in parallel.
+      startTransition(
+        "credits",
+        () => router.push("/credits"),
+        1100
       );
     }
   };
 
   const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    // No hover feedback on 3D meshes while zoomed into the TV — any
+    // bleed-through raycast (e.g. the poster behind the CRT) would
+    // otherwise flip the cursor to pointer and outline the wrong mesh.
+    if (_zoomedToTV) return;
     const action = e.object.userData.interactionAction as InteractionAction | undefined;
     if (!action) return;
     document.body.style.cursor = "pointer";
@@ -2324,26 +2350,21 @@ function TVScreenHTML() {
     return () => clearInterval(id);
   }, []);
 
-  // Position at the geometric center of the screen mesh (not the origin,
-  // which may be offset in Blender), then face the camera
+  // Position the HTML overlay at the center of the screen mesh, and
+  // orient it so it faces the CAMERA_TV position directly — no manual
+  // tilt. The previous -8° rotateX was calibrated against an older
+  // CAMERA_TV that sat below the screen centre; now that the camera
+  // sits above the centre, any manual tilt causes the HTML to lean
+  // outward. lookAt(CAMERA_TV) alone keeps the overlay dead-on with
+  // whatever camera preset we're using.
   useEffect(() => {
     if (!ready || !groupRef.current || !_screenMesh) return;
     _screenMesh.updateWorldMatrix(true, false);
     const box = new THREE.Box3().setFromObject(_screenMesh);
     const center = new THREE.Vector3();
     box.getCenter(center);
-    const size = new THREE.Vector3();
-    box.getSize(size);
-    console.log(
-      "[TVScreenHTML] Screen bbox center:",
-      center.toArray().map((n) => n.toFixed(2)),
-      "size:",
-      size.toArray().map((n) => n.toFixed(2))
-    );
     groupRef.current.position.copy(center);
     groupRef.current.lookAt(new THREE.Vector3(...CAMERA_TV.position));
-    // Tilt top toward the TV screen (~15 degrees on local X)
-    groupRef.current.rotateX(THREE.MathUtils.degToRad(-8));
   }, [ready]);
 
   const handleScreenClick = useCallback(() => {
