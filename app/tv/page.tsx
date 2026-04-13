@@ -26,7 +26,7 @@ export default async function TVPage() {
             <h1 className="text-display-md text-bone mt-1">Channel Grid</h1>
           </div>
           <Link
-            href="/room"
+            href="/room?tv=1"
             className="text-xs font-mono text-fog hover:text-amber transition-colors"
           >
             ← Back to Room

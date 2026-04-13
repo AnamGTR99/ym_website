@@ -11,6 +11,13 @@
 # testing
 /coverage
 
+# playwright MCP artifacts (debug snapshots, console logs)
+/.playwright-mcp/
+# root-level test screenshots from Playwright MCP
+/*.png
+/*.jpg
+/*.jpeg
+
 # next.js
 /.next/
 /out/

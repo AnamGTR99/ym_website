@@ -38,10 +38,10 @@ const CREDITS: CreditEntry[] = [
   // Technical credits
   { type: "section", text: "TECHNICAL CREW" },
   { type: "spacer" },
-  { type: "role", text: "Lead Developer", name: "Hugo Zbor" },
+  { type: "role", text: "Lead Developer", name: "Anam" },
   { type: "role", text: "3D Environment Artist", name: "Bruno" },
-  { type: "role", text: "Platform Architecture", name: "Hugo Zbor" },
-  { type: "role", text: "UI / UX Design", name: "Hugo Zbor" },
+  { type: "role", text: "Platform Architecture", name: "Anam" },
+  { type: "role", text: "UI / UX Design", name: "Anam" },
   { type: "spacer" },
   { type: "divider" },
   { type: "spacer" },
