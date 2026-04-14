@@ -67,13 +67,13 @@ const useDebug = create<DebugState>((setState, getState) => ({
   hdr: true,
   ao: false,
   colorGrade: false,
-  exposure: 1.71,
-  ambient: 0.85,
-  lamp: 14,
-  tvGlow: 0.35,
-  glbLight: 240,
-  hdrIntensity: 0.28,
-  purpleLight: 2.4,
+  exposure: 0.5,
+  ambient: 0.4,
+  lamp: 5,
+  tvGlow: 0.3,
+  glbLight: 200,
+  hdrIntensity: 0.15,
+  purpleLight: 2.0,
   toggle: (key) => setState({ [key]: !getState()[key] }),
   set: (key, val) => setState({ [key]: val }),
 }));
@@ -136,7 +136,7 @@ const CAMERA_START = {
 
 /** Camera — TV close-up (after clicking screen) */
 const CAMERA_TV = {
-  position: [-16.5, 8.1, -1.5] as [number, number, number],
+  position: [-14.5, 7.05, -1.35] as [number, number, number],
   target: [-27.496, 7.652, -2.408] as [number, number, number],
 };
 
@@ -158,10 +158,13 @@ const ORBIT_CONFIG = {
 type InteractionAction = "navigate-tv" | "open-credits" | "none";
 
 const INTERACTIVE_MESHES: Record<string, InteractionAction> = {
-  TV: "navigate-tv",
-  TV_Screen: "navigate-tv",
+  screen: "navigate-tv",
+  "Crt tv.001": "navigate-tv",
+  "Crt tv.002": "navigate-tv",
+  "Crt tv.003": "navigate-tv",
+  "Crt tv.004": "navigate-tv",
+  "Crt tv.005": "navigate-tv",
   "bayou-bg": "open-credits",
-  // Lamp: "toggle-lamp", // reserved
 };
 
 /** GLB global transform — apply if Bruno's scene needs scale/offset. */
@@ -235,11 +238,11 @@ const POST_CONFIG = {
     mipmapBlur: true,
   },
   noise: {
-    opacity: 0.01,
+    opacity: 0.006,
   },
   vignette: {
-    offset: 0.1,
-    darkness: 0.85,
+    offset: 0.05,
+    darkness: 1.1,
   },
   splitToning: {
     shadowColor: 0x060402,
@@ -320,6 +323,9 @@ let _screenMesh: THREE.Mesh | null = null;
 
 /** Module-level ref for the poster (bayou-bg) mesh — used by the Outline pass */
 let _posterMesh: THREE.Object3D | null = null;
+
+/** Module-level ref for the CRT TV body mesh — used for hover glow */
+let _crtBodyMesh: THREE.Mesh | null = null;
 
 // DEV HOOK — expose module state so Playwright can inspect from the outside.
 // Safe to leave in (tree-shaken / dead in prod if window is undefined).
@@ -547,6 +553,11 @@ function GLBRoom({
     addLog(`${meshNames.length} meshes, ${Math.round(totalTriangles).toLocaleString()} tris`);
     meshMaterialMap.forEach((m) => addLog(m));
 
+    // Dump ALL object names (mesh and non-mesh) for debugging
+    const allNames: string[] = [];
+    scene.traverse((obj) => { if (obj.name) allNames.push(`${obj.name} [${obj.type}]`); });
+    console.log("[MotelRoom] ALL objects in scene:", allNames);
+
     // Tag interactive objects by name OR material name
     // Bruno's GLB has generic mesh names but meaningful material names
     for (const [name, action] of Object.entries(INTERACTIVE_MESHES)) {
@@ -573,6 +584,20 @@ function GLBRoom({
         _posterMesh = obj;
       }
 
+      // Capture CRT body for hover glow — may be a Group, find first child Mesh
+      if (name === "Crt tv.001") {
+        if (obj instanceof THREE.Mesh) {
+          _crtBodyMesh = obj;
+        } else {
+          obj.traverse((child) => {
+            if (child instanceof THREE.Mesh && !_crtBodyMesh) {
+              _crtBodyMesh = child;
+            }
+          });
+        }
+        console.log("[MotelRoom] CRT body mesh found via INTERACTIVE_MESHES:", _crtBodyMesh?.name, _crtBodyMesh?.type);
+      }
+
       obj.traverse((child) => {
         child.userData.interactionAction = action;
         if (child instanceof THREE.Mesh) {
@@ -586,6 +611,26 @@ function GLBRoom({
           }
         }
       });
+    }
+
+    // Fallback: find CRT body by partial name match if not found above
+    if (!_crtBodyMesh) {
+      scene.traverse((obj) => {
+        if (_crtBodyMesh) return;
+        const n = obj.name.toLowerCase();
+        if (n.includes("crt") || (n.includes("tv") && !n.includes("screen"))) {
+          if (obj instanceof THREE.Mesh) {
+            _crtBodyMesh = obj;
+          } else {
+            obj.traverse((child) => {
+              if (child instanceof THREE.Mesh && !_crtBodyMesh) {
+                _crtBodyMesh = child;
+              }
+            });
+          }
+        }
+      });
+      console.log("[MotelRoom] CRT body mesh found via fallback:", _crtBodyMesh?.name, _crtBodyMesh?.type);
     }
 
     // Tame embedded lights from the GLB
@@ -631,6 +676,19 @@ function GLBRoom({
     } else {
       addLog("SCREEN NOT FOUND ✗");
     }
+
+    // Find CRT TV body mesh for hover glow
+    _crtBodyMesh = null;
+    scene.traverse((obj) => {
+      if (_crtBodyMesh) return;
+      if (obj instanceof THREE.Mesh) {
+        const n = obj.name.toLowerCase();
+        if (n.includes("crt") && n.includes("tv")) {
+          _crtBodyMesh = obj;
+        }
+      }
+    });
+    console.log("[MotelRoom] CRT body for glow:", _crtBodyMesh?.name ?? "NOT FOUND");
 
     // Material pass
     applyMaterialPass(scene);
@@ -737,12 +795,6 @@ function GLBRoom({
     const mat = mesh.material as THREE.MeshStandardMaterial;
     if (!mat) return;
 
-    // When zoomed to TV, dim emissive so HTML content reads clearly
-    if (_zoomedToTV) {
-      mat.emissiveIntensity = 0.15;
-      mat.emissive.setRGB(0.4, 0.5, 0.55);
-      return;
-    }
 
     const t = state.clock.elapsedTime;
     // Base hum with bright white flashes
@@ -817,14 +869,12 @@ function GLBRoom({
   };
 
   const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
-    // No hover feedback on 3D meshes while zoomed into the TV — any
-    // bleed-through raycast (e.g. the poster behind the CRT) would
-    // otherwise flip the cursor to pointer and outline the wrong mesh.
     if (_zoomedToTV) return;
     const action = e.object.userData.interactionAction as InteractionAction | undefined;
     if (!action) return;
     document.body.style.cursor = "pointer";
     _hoveredInteractive = e.object as THREE.Mesh;
+    console.log("[3D Hover] mesh:", e.object.name, "action:", action);
 
     // Resolve which interactive target this mesh belongs to so the
     // Outline pass knows which one to colour blue.
@@ -848,20 +898,56 @@ function GLBRoom({
     useHover.getState().setTarget(null);
   };
 
-  /* ---- Hover pulse — subtle scale throb only. Border glow is handled
-          by the Outline post-effect in PostProcessingStack. ---- */
-  useFrame((state) => {
-    const mesh = _hoveredInteractive;
-    if (!mesh) return;
-    const orig = _interactiveOriginals.get(mesh);
-    if (!orig) return;
-    const t = state.clock.elapsedTime;
-    const pulse = 1 + Math.sin(t * 3) * 0.015;
-    mesh.scale.set(
-      orig.scale.x * pulse,
-      orig.scale.y * pulse,
-      orig.scale.z * pulse
-    );
+  /* ---- Hover glow — emissive glow from within on hovered meshes ---- */
+  const glowState = useRef({ tv: 0, poster: 0, logged: false });
+
+  useFrame(() => {
+    if (!model) return;
+
+    // Read directly from store (not via hook) to avoid stale closure
+    const ht = useHover.getState().target;
+    if (ht && !glowState.current.logged) {
+      console.log("[HoverGlow useFrame] target:", ht, "model children:", model.children.length);
+      glowState.current.logged = true;
+    }
+    if (!ht) glowState.current.logged = false;
+    const tvTarget = ht === "tv" ? 1 : 0;
+    const posterTarget = ht === "poster" ? 1 : 0;
+    glowState.current.tv += (tvTarget - glowState.current.tv) * 0.06;
+    glowState.current.poster += (posterTarget - glowState.current.poster) * 0.06;
+
+    const tvG = glowState.current.tv;
+    const posterG = glowState.current.poster;
+
+    // Log once to see what names exist
+    if (tvG > 0.5 && !glowState.current.logged) {
+      glowState.current.logged = true;
+      const names: string[] = [];
+      model.traverse((obj) => { if (obj instanceof THREE.Mesh) names.push(obj.name); });
+      console.log("[HoverGlow] ALL mesh names in model:", names);
+    }
+
+    // Only traverse when there's actually glow to apply or fade
+    if (tvG < 0.001 && posterG < 0.001) return;
+
+    model.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const mat = obj.material as THREE.MeshStandardMaterial;
+      if (!mat) return;
+      const n = obj.name.toLowerCase();
+
+      // TV body meshes — match any mesh with "crt" or "tv" (but not "screen")
+      if (tvG > 0.001 && (n.includes("crt") || (n.includes("tv") && !n.includes("screen")))) {
+        mat.emissiveIntensity = tvG * 4;
+        mat.emissive.setRGB(tvG * 0.8, tvG * 0.85, tvG * 1.0);
+      }
+
+      // Poster meshes
+      if (posterG > 0.001 && n.includes("bayou")) {
+        mat.emissiveIntensity = posterG * 4;
+        mat.emissive.setRGB(posterG * 0.8, posterG * 0.85, posterG * 1.0);
+      }
+    });
   });
 
   if (!model) return null;
@@ -1105,13 +1191,6 @@ type TVChannel = "idle" | "products" | "product-detail";
 /* ---- Idle screen — cycling words when not zoomed ---- */
 
 function TVIdleScreen({ onScreenClick }: { onScreenClick: () => void }) {
-  const [wordIndex, setWordIndex] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setWordIndex((i) => (i + 1) % VHS_WORDS.length), 2500);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <div
       style={{
@@ -1121,22 +1200,34 @@ function TVIdleScreen({ onScreenClick }: { onScreenClick: () => void }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        textShadow: "1.5px 0 #ff0040, -1.5px 0 #00ffcc",
         cursor: "pointer",
       }}
       onClick={onScreenClick}
     >
+      {/* Static noise background */}
       <div
-        key={wordIndex}
         style={{
-          fontSize: "32px",
+          position: "absolute",
+          inset: 0,
+          opacity: 0.12,
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect fill='white' width='2' height='2'/%3E%3C/svg%3E\")",
+          backgroundSize: "4px 4px",
+          animation: "vhsNoise 0.1s steps(5) infinite",
+          mixBlendMode: "overlay" as const,
+        }}
+      />
+      <div
+        style={{
+          fontSize: "28px",
           fontWeight: 700,
-          letterSpacing: "0.25em",
+          letterSpacing: "0.3em",
           textTransform: "uppercase",
-          animation: "vhsTextIn 0.4s ease-out",
+          color: "rgba(200, 192, 168, 0.25)",
+          textShadow: "0 0 20px rgba(200, 192, 168, 0.1)",
         }}
       >
-        {VHS_WORDS[wordIndex]}
+        YUNMAKAI
       </div>
     </div>
   );
@@ -1177,7 +1268,7 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
     padding: "12px 16px",
     background: "rgba(10,8,5,0.55)",
     border: "1px solid rgba(255,255,255,0.07)",
-    borderLeft: "2px solid rgba(212,168,83,0.25)",
+    borderLeft: "2px solid rgba(224,224,224,0.25)",
     borderRadius: "2px",
     fontSize: "12px",
     letterSpacing: "0.12em",
@@ -1219,8 +1310,8 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
           }}
         >
           <span>Channel Grid</span>
-          <span style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, rgba(212,168,83,0.3), transparent)" }} />
-          <span style={{ color: "rgba(212,168,83,0.55)" }}>
+          <span style={{ flex: 1, height: "1px", background: "linear-gradient(90deg, rgba(224,224,224,0.3), transparent)" }} />
+          <span style={{ color: "rgba(224,224,224,0.55)" }}>
             {loading ? "TUNING" : products.length === 0 ? "NO SIGNAL" : `${String(products.length).padStart(2, "0")} SIGNALS`}
           </span>
         </div>
@@ -1252,17 +1343,17 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
               }}
               onMouseEnter={(e) => {
                 const el = e.currentTarget;
-                el.style.borderLeftColor = "rgba(212,168,83,0.85)";
-                el.style.borderColor = "rgba(212,168,83,0.3)";
-                el.style.background = "rgba(212,168,83,0.08)";
+                el.style.borderLeftColor = "rgba(224,224,224,0.85)";
+                el.style.borderColor = "rgba(224,224,224,0.3)";
+                el.style.background = "rgba(224,224,224,0.08)";
                 el.style.transform = "translateX(3px)";
-                el.style.boxShadow = "0 0 18px rgba(212,168,83,0.15)";
+                el.style.boxShadow = "0 0 18px rgba(224,224,224,0.15)";
                 const arrow = el.querySelector("[data-arrow]") as HTMLElement | null;
                 if (arrow) arrow.style.transform = "translateX(3px)";
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget;
-                el.style.borderLeftColor = "rgba(212,168,83,0.25)";
+                el.style.borderLeftColor = "rgba(224,224,224,0.25)";
                 el.style.borderColor = "rgba(255,255,255,0.07)";
                 el.style.background = "rgba(10,8,5,0.55)";
                 el.style.transform = "translateX(0)";
@@ -1281,7 +1372,7 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
                   width: 42,
                   minHeight: 36,
                   flexShrink: 0,
-                  border: "1px solid rgba(212,168,83,0.25)",
+                  border: "1px solid rgba(224,224,224,0.25)",
                   borderRadius: "2px",
                   background: "rgba(0,0,0,0.4)",
                 }}
@@ -1289,7 +1380,7 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
                 <span
                   style={{
                     fontSize: "9px",
-                    color: "rgba(212,168,83,0.55)",
+                    color: "rgba(224,224,224,0.55)",
                     letterSpacing: "0.1em",
                     fontFamily: "'JetBrains Mono', monospace",
                     marginBottom: "1px",
@@ -1328,7 +1419,7 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
                 <div
                   style={{
                     fontSize: "10px",
-                    color: "#d4a853",
+                    color: "#e0e0e0",
                     fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.06em",
                   }}
@@ -1342,7 +1433,7 @@ function TVProductGrid({ onSelect }: { onSelect: (handle: string) => void }) {
                 data-arrow
                 style={{
                   fontSize: "9px",
-                  color: "rgba(212,168,83,0.55)",
+                  color: "rgba(224,224,224,0.55)",
                   letterSpacing: "0.2em",
                   fontFamily: "'JetBrains Mono', monospace",
                   transition: "transform 0.2s ease",
@@ -1398,7 +1489,7 @@ function TVProductStage({ product }: { product: TVProductDetailData }) {
           overflow: "hidden",
           // Recessed CRT viewfinder look
           boxShadow:
-            "inset 0 0 30px rgba(0,0,0,0.9), 0 0 40px rgba(212,168,83,0.12), 0 0 0 1px rgba(212,168,83,0.25)",
+            "inset 0 0 30px rgba(0,0,0,0.9), 0 0 40px rgba(224,224,224,0.12), 0 0 0 1px rgba(224,224,224,0.25)",
           background:
             "radial-gradient(circle at 50% 45%, rgba(40,30,18,0.7) 0%, rgba(0,0,0,0.95) 70%)",
         }}
@@ -1421,7 +1512,7 @@ function TVProductStage({ product }: { product: TVProductDetailData }) {
           backgroundSize: "cover",
           backgroundPosition: "center",
           boxShadow:
-            "inset 0 0 30px rgba(0,0,0,0.8), 0 0 40px rgba(212,168,83,0.1), 0 0 0 1px rgba(212,168,83,0.25)",
+            "inset 0 0 30px rgba(0,0,0,0.8), 0 0 40px rgba(224,224,224,0.1), 0 0 0 1px rgba(224,224,224,0.25)",
         }}
       >
         {/* VHS scanline overlay */}
@@ -1449,7 +1540,7 @@ function TVProductStage({ product }: { product: TVProductDetailData }) {
         borderRadius: "2px",
         background: "#0a0a0a",
         boxShadow:
-          "inset 0 0 40px rgba(0,0,0,0.9), 0 0 40px rgba(212,168,83,0.08), 0 0 0 1px rgba(212,168,83,0.2)",
+          "inset 0 0 40px rgba(0,0,0,0.9), 0 0 40px rgba(224,224,224,0.08), 0 0 0 1px rgba(224,224,224,0.2)",
       }}
     >
       {/* SMPTE-ish color bars */}
@@ -1481,7 +1572,7 @@ function TVProductStage({ product }: { product: TVProductDetailData }) {
           textAlign: "center",
           fontSize: "8px",
           letterSpacing: "0.35em",
-          color: "rgba(212,168,83,0.55)",
+          color: "rgba(224,224,224,0.55)",
           fontFamily: "monospace",
         }}
       >
@@ -1614,7 +1705,7 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
       style={{
         position: "relative",
         padding: "10px 14px 8px 14px",
-        borderTop: "1px solid rgba(212,168,83,0.15)",
+        borderTop: "1px solid rgba(224,224,224,0.15)",
         background:
           "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,10,5,0.6) 50%, rgba(0,0,0,0.65) 100%)",
       }}
@@ -1624,7 +1715,7 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
         style={{
           fontSize: "9px",
           letterSpacing: "0.32em",
-          color: isActive ? "#d4a853" : "rgba(232,224,200,0.55)",
+          color: isActive ? "#e0e0e0" : "rgba(232,224,200,0.55)",
           textTransform: "uppercase",
           marginBottom: "7px",
           display: "flex",
@@ -1638,8 +1729,8 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
             width: 6,
             height: 6,
             borderRadius: "50%",
-            background: isActive && isPlaying ? "#ff2020" : "rgba(212,168,83,0.55)",
-            boxShadow: isActive && isPlaying ? "0 0 8px #ff2020" : "0 0 4px rgba(212,168,83,0.3)",
+            background: isActive && isPlaying ? "#ff2020" : "rgba(224,224,224,0.55)",
+            boxShadow: isActive && isPlaying ? "0 0 8px #ff2020" : "0 0 4px rgba(224,224,224,0.3)",
             animation: isActive && isPlaying ? "tvStageBlink 1s step-end infinite" : undefined,
           }}
         />
@@ -1666,29 +1757,29 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            border: `1px solid ${isActive ? "rgba(212,168,83,0.75)" : "rgba(255,255,255,0.2)"}`,
+            border: `1px solid ${isActive ? "rgba(224,224,224,0.75)" : "rgba(255,255,255,0.2)"}`,
             borderRadius: "50%",
-            color: isActive ? "#d4a853" : "rgba(255,255,255,0.6)",
+            color: isActive ? "#e0e0e0" : "rgba(255,255,255,0.6)",
             fontSize: "13px",
             cursor: "pointer",
             background: isActive
-              ? "radial-gradient(circle at center, rgba(212,168,83,0.15) 0%, transparent 70%)"
+              ? "radial-gradient(circle at center, rgba(224,224,224,0.15) 0%, transparent 70%)"
               : "transparent",
             boxShadow:
               isActive && isPlaying
-                ? "0 0 14px rgba(212,168,83,0.45)"
+                ? "0 0 14px rgba(224,224,224,0.45)"
                 : "none",
             transition: "all 0.25s ease",
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "rgba(212,168,83,0.9)";
-            e.currentTarget.style.color = "#d4a853";
+            e.currentTarget.style.borderColor = "rgba(224,224,224,0.9)";
+            e.currentTarget.style.color = "#e0e0e0";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = isActive
-              ? "rgba(212,168,83,0.75)"
+              ? "rgba(224,224,224,0.75)"
               : "rgba(255,255,255,0.2)";
-            e.currentTarget.style.color = isActive ? "#d4a853" : "rgba(255,255,255,0.6)";
+            e.currentTarget.style.color = isActive ? "#e0e0e0" : "rgba(255,255,255,0.6)";
           }}
         >
           {buffering && isActive ? (
@@ -1732,7 +1823,7 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
               style={{
                 fontSize: "9px",
                 fontFamily: "monospace",
-                color: "#d4a853",
+                color: "#e0e0e0",
                 whiteSpace: "nowrap",
                 fontVariantNumeric: "tabular-nums",
               }}
@@ -1760,8 +1851,8 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
                 position: "absolute",
                 inset: 0,
                 width: `${progressPct}%`,
-                background: "linear-gradient(90deg, rgba(212,168,83,0.8), #d4a853)",
-                boxShadow: isActive ? "0 0 10px rgba(212,168,83,0.6)" : "none",
+                background: "linear-gradient(90deg, rgba(224,224,224,0.8), #e0e0e0)",
+                boxShadow: isActive ? "0 0 10px rgba(224,224,224,0.6)" : "none",
                 transition: "width 100ms linear",
               }}
             />
@@ -1776,9 +1867,9 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
                   height: 7,
                   marginLeft: -3,
                   marginTop: -3,
-                  background: "#d4a853",
+                  background: "#e0e0e0",
                   borderRadius: "50%",
-                  boxShadow: "0 0 8px rgba(212,168,83,0.9)",
+                  boxShadow: "0 0 8px rgba(224,224,224,0.9)",
                 }}
               />
             )}
@@ -1807,10 +1898,10 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
                   letterSpacing: "0.15em",
                   padding: "3px 8px",
                   border: `1px solid ${
-                    isThis ? "rgba(212,168,83,0.6)" : "rgba(255,255,255,0.12)"
+                    isThis ? "rgba(224,224,224,0.6)" : "rgba(255,255,255,0.12)"
                   }`,
-                  color: isThis ? "#d4a853" : "rgba(200,192,168,0.45)",
-                  background: isThis ? "rgba(212,168,83,0.08)" : "transparent",
+                  color: isThis ? "#e0e0e0" : "rgba(200,192,168,0.45)",
+                  background: isThis ? "rgba(224,224,224,0.08)" : "transparent",
                   borderRadius: "2px",
                   cursor: "pointer",
                   textTransform: "uppercase",
@@ -1973,7 +2064,7 @@ function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: 
                 width: "48px",
                 height: "1px",
                 background:
-                  "linear-gradient(90deg, transparent, rgba(212,168,83,0.55), transparent)",
+                  "linear-gradient(90deg, transparent, rgba(224,224,224,0.55), transparent)",
               }}
             />
 
@@ -1981,7 +2072,7 @@ function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: 
             <div
               style={{
                 fontSize: "13px",
-                color: "#d4a853",
+                color: "#e0e0e0",
                 fontFamily: "monospace",
                 letterSpacing: "0.08em",
               }}
@@ -2023,25 +2114,25 @@ function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: 
                 background: added
                   ? "rgba(120, 200, 120, 0.85)"
                   : product.variantId
-                  ? "rgba(212,168,83,0.9)"
+                  ? "rgba(224,224,224,0.9)"
                   : "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(212,168,83,0.45)",
+                border: "1px solid rgba(224,224,224,0.45)",
                 borderRadius: "2px",
                 opacity: adding ? 0.6 : 1,
                 transition: "all 0.2s ease",
                 boxShadow: product.variantId
-                  ? "0 0 20px rgba(212,168,83,0.2)"
+                  ? "0 0 20px rgba(224,224,224,0.2)"
                   : "none",
               }}
               onMouseEnter={(e) => {
                 if (!product.variantId || adding || added) return;
-                e.currentTarget.style.background = "#d4a853";
-                e.currentTarget.style.boxShadow = "0 0 28px rgba(212,168,83,0.55)";
+                e.currentTarget.style.background = "#e0e0e0";
+                e.currentTarget.style.boxShadow = "0 0 28px rgba(224,224,224,0.55)";
               }}
               onMouseLeave={(e) => {
                 if (!product.variantId || adding || added) return;
-                e.currentTarget.style.background = "rgba(212,168,83,0.9)";
-                e.currentTarget.style.boxShadow = "0 0 20px rgba(212,168,83,0.2)";
+                e.currentTarget.style.background = "rgba(224,224,224,0.9)";
+                e.currentTarget.style.boxShadow = "0 0 20px rgba(224,224,224,0.2)";
               }}
             >
               {added ? "ADDED ✓" : adding ? "ADDING…" : "ADD TO CART"}
@@ -2061,7 +2152,6 @@ function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: 
 function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { interactive: boolean; onScreenClick: () => void; onHoverStart: () => void; onHoverEnd: () => void }) {
   const [channel, setChannel] = useState<TVChannel>("idle");
   const [selectedHandle, setSelectedHandle] = useState<string | null>(null);
-  const [time, setTime] = useState("00:00:00");
 
   // Reset to idle when zooming out — and wipe any selected product
   useEffect(() => {
@@ -2070,16 +2160,6 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
       setSelectedHandle(null);
     }
   }, [interactive]);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      const now = new Date();
-      setTime(
-        `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`
-      );
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   // When zoomed and still on idle, auto-switch to the product grid.
   // If ?product=<handle> is in the URL, jump straight to that product detail.
@@ -2125,15 +2205,6 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
     return () => { _tvInternalBack = null; };
   }, [channel, handleBackToGrid]);
 
-  // Readout in the top-right chrome. Mode-aware so it feels alive
-  // instead of hardcoded.
-  const activeChNum =
-    channel === "idle"
-      ? "--"
-      : channel === "products"
-      ? "GRID"
-      : "SHOP";
-
   return (
     <div
       onMouseEnter={onHoverStart}
@@ -2148,6 +2219,7 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
         color: "#c8c0a8",
         cursor: "pointer",
         userSelect: "none",
+        pointerEvents: "auto",
       }}
       onClick={onScreenClick}
     >
@@ -2157,77 +2229,6 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
       {channel === "product-detail" && selectedHandle && (
         <TVProductDetail handle={selectedHandle} onBack={handleBackToGrid} />
       )}
-
-      {/* REC indicator — hidden on product-detail where the music player
-          owns the bottom-right corner. Moved to the bottom-LEFT on the
-          grid view to avoid bumping into CH-YM / LIVE chrome elements. */}
-      {channel !== "product-detail" && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: "14px",
-            left: "18px",
-            fontSize: "11px",
-            color: "#ff2020",
-            textShadow: "0 0 6px rgba(255, 0, 0, 0.55)",
-            fontFamily: "monospace",
-            letterSpacing: "0.08em",
-            animation: "vhsRecBlink 1s step-end infinite",
-            pointerEvents: "none",
-          }}
-        >
-          ● REC {time}
-        </div>
-      )}
-
-      {/* Channel readout — top-right chrome */}
-      <div
-        style={{
-          position: "absolute",
-          top: "14px",
-          right: "18px",
-          fontSize: "11px",
-          color: "#e8e0c8",
-          textShadow: "0 0 6px rgba(232,224,200,0.35)",
-          fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.15em",
-          pointerEvents: "none",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "4px",
-        }}
-      >
-        <span style={{ color: "rgba(200,192,168,0.45)" }}>CH</span>
-        <span>{activeChNum}</span>
-      </div>
-
-      {/* Status indicator — top-left chrome */}
-      <div
-        style={{
-          position: "absolute",
-          top: "14px",
-          left: "18px",
-          fontSize: "10px",
-          color: channel === "idle" ? "rgba(232,224,200,0.35)" : "#d4a853",
-          fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.2em",
-          pointerEvents: "none",
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
-      >
-        <span
-          style={{
-            width: 5,
-            height: 5,
-            borderRadius: "50%",
-            background: channel === "idle" ? "rgba(232,224,200,0.35)" : "#d4a853",
-            boxShadow: channel === "idle" ? "none" : "0 0 6px #d4a853",
-          }}
-        />
-        {channel === "idle" ? "STANDBY" : "LIVE"}
-      </div>
 
       {/* Scanlines */}
       <div
@@ -2350,13 +2351,8 @@ function TVScreenHTML() {
     return () => clearInterval(id);
   }, []);
 
-  // Position the HTML overlay at the center of the screen mesh, and
-  // orient it so it faces the CAMERA_TV position directly — no manual
-  // tilt. The previous -8° rotateX was calibrated against an older
-  // CAMERA_TV that sat below the screen centre; now that the camera
-  // sits above the centre, any manual tilt causes the HTML to lean
-  // outward. lookAt(CAMERA_TV) alone keeps the overlay dead-on with
-  // whatever camera preset we're using.
+  // Position at the geometric center of the screen mesh, face the camera,
+  // then tilt top toward the TV screen (~8 degrees on local X)
   useEffect(() => {
     if (!ready || !groupRef.current || !_screenMesh) return;
     _screenMesh.updateWorldMatrix(true, false);
@@ -2365,6 +2361,7 @@ function TVScreenHTML() {
     box.getCenter(center);
     groupRef.current.position.copy(center);
     groupRef.current.lookAt(new THREE.Vector3(...CAMERA_TV.position));
+    groupRef.current.rotateX(THREE.MathUtils.degToRad(-8));
   }, [ready]);
 
   const handleScreenClick = useCallback(() => {
@@ -2393,11 +2390,15 @@ function TVScreenHTML() {
             if (_screenMesh) {
               _hoveredInteractive = _screenMesh;
               document.body.style.cursor = "pointer";
+              useHover.getState().setTarget("tv");
+              console.log("[HoverGlow] TV hover START — crtBody:", !!_crtBodyMesh);
             }
           }}
           onHoverEnd={() => {
             resetHoveredMesh();
             document.body.style.cursor = "default";
+            useHover.getState().setTarget(null);
+            console.log("[HoverGlow] TV hover END");
           }}
         />
       </Html>
@@ -2454,8 +2455,8 @@ function RoomContent({ onModelReady }: { onModelReady: () => void }) {
         <Hotspot
           position={[2.5, 1.5, -4]}
           args={[0.25, 0.6, 0.25]}
-          color="#d4a853"
-          glowColor="#d4a853"
+          color="#e0e0e0"
+          glowColor="#e0e0e0"
           label="Lamp"
           onClick={() => {
             if (!transitioning) openCredits();
@@ -2605,9 +2606,7 @@ function PostProcessingStack() {
       <BrightnessContrast brightness={-0.03} contrast={0.15} />
       <primitive object={splitToning} dispose={null} />
 
-      {/* Interactive target glow — always-on white border around TV + poster.
-          Bright enough to read at a glance, wide kernel for a soft halo,
-          bloomed further via the global Bloom pass. */}
+      {/* Interactive target glow — always-on white border around TV + poster. */}
       <Outline
         selection={baseSelection}
         visibleEdgeColor={0xffffff}
@@ -2619,9 +2618,7 @@ function PostProcessingStack() {
         xRay={false}
         pulseSpeed={0}
       />
-      {/* Hover accent — swaps the hovered target's outline from white → pure
-          electric cyan and cranks strength so it reads as an obvious cue
-          even against the TV's own emissive glow. */}
+      {/* Hover accent — cyan outline on hover */}
       <Outline
         selection={hoverSelection}
         visibleEdgeColor={0x00e5ff}
@@ -2730,6 +2727,18 @@ function CameraTracker() {
   return null;
 }
 
+/** Force camera to look at the correct target on the very first frame,
+ *  before OrbitControls has a chance to initialize. Prevents the 180° spin. */
+function CameraInit() {
+  const { camera } = useThree();
+  const initialized = useRef(false);
+  if (!initialized.current) {
+    camera.lookAt(...ACTIVE_CAMERA.target);
+    initialized.current = true;
+  }
+  return null;
+}
+
 function RendererSync() {
   const { gl } = useThree();
   const exposure = useDebug((s) => s.exposure);
@@ -2758,12 +2767,103 @@ function RendererSync() {
   return null;
 }
 
+/* ================================================================== */
+/*  Hover Glow — emissive from within on TV body + poster on hover     */
+/* ================================================================== */
+
+function HoverGlow() {
+  const { scene } = useThree();
+  const hoverTarget = useHover((s) => s.target);
+  const crtMesh = useRef<THREE.Mesh | null>(null);
+  const posterMeshes = useRef<THREE.Mesh[]>([]);
+  const originals = useRef<Map<THREE.Mesh, { emissive: THREE.Color; intensity: number }>>(new Map());
+  const crtGlow = useRef(0);
+  const posterGlow = useRef(0);
+  const searchCount = useRef(0);
+
+  // Find the meshes by traversing the live scene
+  useFrame(() => {
+    // Search periodically until we find meshes (every 60 frames ≈ once per second)
+    if (!crtMesh.current && searchCount.current < 600) {
+      searchCount.current++;
+      if (searchCount.current % 60 === 1) {
+        let meshCount = 0;
+        scene.traverse((obj) => {
+          if (!(obj instanceof THREE.Mesh)) return;
+          meshCount++;
+          const n = obj.name.toLowerCase();
+
+          // Find CRT TV body
+          if (!crtMesh.current && (n.includes("crt") || (n.includes("tv") && !n.includes("screen")))) {
+            crtMesh.current = obj;
+            const mat = obj.material as THREE.MeshStandardMaterial;
+            if (mat) originals.current.set(obj, { emissive: mat.emissive.clone(), intensity: mat.emissiveIntensity });
+          }
+
+          // Find poster/bayou meshes
+          if (n.includes("bayou") && !originals.current.has(obj)) {
+            posterMeshes.current.push(obj);
+            const mat = obj.material as THREE.MeshStandardMaterial;
+            if (mat) {
+              originals.current.set(obj, { emissive: mat.emissive.clone(), intensity: mat.emissiveIntensity });
+            }
+          }
+        });
+        console.log(`[HoverGlow] Search #${Math.ceil(searchCount.current / 60)} — ${meshCount} meshes in scene, CRT: ${crtMesh.current?.name ?? "NOT FOUND"}, Poster: ${posterMeshes.current.length}`);
+      }
+    }
+
+    // Lerp glow values
+    const crtTarget = hoverTarget === "tv" ? 1 : 0;
+    const posterTarget = hoverTarget === "poster" ? 1 : 0;
+    crtGlow.current += (crtTarget - crtGlow.current) * 0.06;
+    posterGlow.current += (posterTarget - posterGlow.current) * 0.06;
+
+    // Apply CRT body glow
+    if (crtMesh.current) {
+      const orig = originals.current.get(crtMesh.current);
+      if (orig) {
+        const mat = crtMesh.current.material as THREE.MeshStandardMaterial;
+        const g = crtGlow.current;
+        mat.emissive.setRGB(
+          orig.emissive.r + g * 0.6,
+          orig.emissive.g + g * 0.6,
+          orig.emissive.b + g * 0.7
+        );
+        mat.emissiveIntensity = orig.intensity + g * 1.5;
+      }
+    }
+
+    // Apply poster glow
+    for (const mesh of posterMeshes.current) {
+      const orig = originals.current.get(mesh);
+      if (!orig) continue;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      const g = posterGlow.current;
+      mat.emissive.setRGB(
+        orig.emissive.r + g * 0.6,
+        orig.emissive.g + g * 0.6,
+        orig.emissive.b + g * 0.7
+      );
+      mat.emissiveIntensity = orig.intensity + g * 1.5;
+    }
+  });
+
+  return null;
+}
+
 function Scene() {
   const [modelReady, setModelReady] = useState(false);
   const d = useDebug();
 
+  // Reset sceneReady when Scene unmounts (e.g. navigating away from /room)
+  useEffect(() => {
+    return () => { useEnvStore.getState().setSceneReady(false); };
+  }, []);
+
   return (
     <>
+      <CameraInit />
       <RendererSync />
       <CameraTracker />
       <CameraAnimator />
@@ -2807,7 +2907,10 @@ function Scene() {
 
       <fog attach="fog" args={["#020201", 30, 80]} />
 
-      <RoomContent onModelReady={() => setModelReady(true)} />
+      <RoomContent onModelReady={() => {
+        setModelReady(true);
+        useEnvStore.getState().setSceneReady(true);
+      }} />
       <DustParticles />
       {modelReady && <TVScreenHTML />}
 
@@ -2984,7 +3087,7 @@ function DebugPanel() {
             type="checkbox"
             checked={d[key]}
             onChange={() => d.toggle(key)}
-            style={{ accentColor: "#ffbb66" }}
+            style={{ accentColor: "#e0e0e0" }}
           />
           {label}
         </label>
@@ -3005,7 +3108,7 @@ function DebugPanel() {
             step={step}
             value={d[key]}
             onChange={(e) => d.set(key, parseFloat(e.target.value))}
-            style={{ width: "100%", height: "4px", accentColor: "#ffbb66" }}
+            style={{ width: "100%", height: "4px", accentColor: "#e0e0e0" }}
           />
         </div>
       ))}
@@ -3164,9 +3267,9 @@ function BackButton() {
         left: "1.4rem",
         zIndex: 10000,
         background: hovered ? "rgba(10,10,10,0.75)" : "rgba(0,0,0,0.55)",
-        border: `1px solid ${hovered ? "rgba(212,168,83,0.55)" : "rgba(255,255,255,0.18)"}`,
+        border: `1px solid ${hovered ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.18)"}`,
         borderRadius: "2px",
-        color: hovered ? "#d4a853" : "rgba(232,224,200,0.8)",
+        color: hovered ? "rgba(255,255,255,0.9)" : "rgba(232,224,200,0.8)",
         fontFamily: "'JetBrains Mono', monospace",
         fontSize: "10px",
         fontWeight: 500,
@@ -3180,7 +3283,7 @@ function BackButton() {
         alignItems: "center",
         gap: "10px",
         boxShadow: hovered
-          ? "0 0 22px rgba(212,168,83,0.22), inset 0 0 12px rgba(212,168,83,0.04)"
+          ? "0 0 22px rgba(255,255,255,0.12), inset 0 0 12px rgba(255,255,255,0.03)"
           : "0 0 14px rgba(0,0,0,0.5)",
       }}
     >
@@ -3197,10 +3300,8 @@ function BackButton() {
 export default function MotelRoomScene() {
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <LoadingTerminal />
       <TVHint />
       <BackButton />
-      <DebugPanel />
       <Canvas
         shadows="soft"
         camera={{ position: ACTIVE_CAMERA.position, fov: CAMERA_FOV }}

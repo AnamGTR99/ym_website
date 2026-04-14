@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { DM_Sans, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import FloatingUI from "@/components/ui/FloatingUI";
 import CartPanel from "@/components/cart/CartPanel";
@@ -17,6 +17,13 @@ const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-ym-mono",
+  display: "swap",
+});
+
+const display = DM_Sans({
+  subsets: ["latin"],
+  weight: ["700", "800", "900"],
+  variable: "--font-ym-display",
   display: "swap",
 });
 
@@ -52,7 +59,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable} ${display.variable}`}>
       <body className="bg-void text-dust antialiased font-body">
         <AuthProvider>
           {children}

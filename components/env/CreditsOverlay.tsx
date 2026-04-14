@@ -21,9 +21,9 @@ function CreditsBackButton({ onClick }: { onClick: () => void }) {
         left: "1.4rem",
         zIndex: 10000,
         background: hovered ? "rgba(10,10,10,0.75)" : "rgba(0,0,0,0.55)",
-        border: `1px solid ${hovered ? "rgba(212,168,83,0.55)" : "rgba(255,255,255,0.18)"}`,
+        border: `1px solid ${hovered ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.18)"}`,
         borderRadius: "2px",
-        color: hovered ? "#d4a853" : "rgba(232,224,200,0.8)",
+        color: hovered ? "rgba(255,255,255,0.9)" : "rgba(232,224,200,0.8)",
         fontFamily: "'JetBrains Mono', monospace",
         fontSize: "10px",
         fontWeight: 500,
@@ -37,7 +37,7 @@ function CreditsBackButton({ onClick }: { onClick: () => void }) {
         alignItems: "center",
         gap: "10px",
         boxShadow: hovered
-          ? "0 0 22px rgba(212,168,83,0.22), inset 0 0 12px rgba(212,168,83,0.04)"
+          ? "0 0 22px rgba(255,255,255,0.12), inset 0 0 12px rgba(255,255,255,0.03)"
           : "0 0 14px rgba(0,0,0,0.5)",
       }}
     >
@@ -82,7 +82,7 @@ const CREDITS: CreditEntry[] = [
   { type: "section", text: "TECHNICAL CREW" },
   { type: "spacer" },
   { type: "role", text: "Lead Developer", name: "Anam" },
-  { type: "role", text: "3D Environment Artist", name: "Bruno" },
+  { type: "role", text: "3D Environment Artist", name: "Brwski" },
   { type: "role", text: "Platform Architecture", name: "Anam" },
   { type: "role", text: "UI / UX Design", name: "Anam" },
   { type: "spacer" },
@@ -170,12 +170,13 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+          style={{ filter: "brightness(0.6) saturate(0.35)" }}
         >
           <source src="/video/bayou-bg-web.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-void/70 via-void/40 to-void/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/85 via-void/60 to-void/85" />
       </div>
 
       {/* Film grain + vignette */}
@@ -217,7 +218,7 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
                 return (
                   <h2
                     key={i}
-                    className="text-label text-amber text-center py-2 select-none"
+                    className="text-label text-bone/60 text-center py-2 select-none"
                   >
                     {entry.text}
                   </h2>
@@ -257,7 +258,7 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
                 return (
                   <div
                     key={i}
-                    className="w-16 h-px bg-gradient-to-r from-transparent via-amber/30 to-transparent my-4"
+                    className="w-16 h-px bg-gradient-to-r from-transparent via-bone/25 to-transparent my-4"
                   />
                 );
               case "spacer":

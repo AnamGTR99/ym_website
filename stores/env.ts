@@ -25,6 +25,8 @@ interface EnvState {
   openCredits: () => void;
   closeCredits: () => void;
   setTvZoomed: (v: boolean) => void;
+  sceneReady: boolean;
+  setSceneReady: (v: boolean) => void;
 }
 
 const DEFAULT_TRANSITION_DURATION = 3000; // ms
@@ -36,9 +38,11 @@ export const useEnvStore = create<EnvState>((set) => ({
   transitioning: false,
   showCredits: false,
   tvZoomed: false,
+  sceneReady: false,
 
   setScene: (scene) => set({ currentScene: scene }),
   setTvZoomed: (v) => set({ tvZoomed: v }),
+  setSceneReady: (v) => set({ sceneReady: v }),
 
   startTransition: (to, onComplete, durationMs = DEFAULT_TRANSITION_DURATION) => {
     // Clear any in-flight transition timer

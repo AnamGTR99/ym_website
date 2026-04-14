@@ -390,6 +390,12 @@ body {
   font-family: var(--font-mono);
 }
 
+/* DM Sans — display title only (landing + loading overlay) */
+.font-ym-title {
+  font-family: var(--font-ym-display, var(--font-ym-sans, sans-serif));
+  font-weight: 800;
+}
+
 .text-display-hero {
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 8vw, var(--text-display-hero));
@@ -462,8 +468,8 @@ body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px var(--color-amber-glow); }
-  50% { box-shadow: 0 0 40px var(--color-amber-glow), 0 0 80px rgba(212, 168, 83, 0.05); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.12); }
+  50% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.15), 0 0 80px rgba(255, 255, 255, 0.05); }
 }
 
 @keyframes drift {
@@ -477,14 +483,54 @@ body {
     opacity: 0.72;
     transform: scale(1);
     letter-spacing: 0.3em;
-    text-shadow: 0 0 20px rgba(212, 168, 83, 0);
+    text-shadow: none;
   }
   50% {
     opacity: 1;
     transform: scale(1.015);
     letter-spacing: 0.32em;
-    text-shadow: 0 0 30px rgba(212, 168, 83, 0.15);
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.08);
   }
+}
+
+/* Subtle old-film opacity flicker for the landing video */
+@keyframes film-flicker {
+  0%, 100% { opacity: 1; }
+  30% { opacity: 0.98; }
+  50% { opacity: 0.97; }
+  70% { opacity: 1; }
+  85% { opacity: 0.98; }
+  95% { opacity: 0.97; }
+}
+.animate-film-flicker {
+  animation: film-flicker 4s ease-in-out infinite;
+}
+
+/* Slow Ken Burns drift — barely perceptible zoom over 30s */
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.06) translate(-0.5%, -0.3%); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+.animate-ken-burns {
+  animation: ken-burns 30s ease-in-out infinite;
+}
+
+/* Faint CRT scanline overlay */
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+  opacity: 0.03;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(255, 255, 255, 0.08) 2px,
+    rgba(255, 255, 255, 0.08) 4px
+  );
 }
 
 /* Indeterminate progress sweep — for when total load size is unknown */
