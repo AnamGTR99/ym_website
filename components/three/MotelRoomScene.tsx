@@ -873,7 +873,7 @@ function GLBRoom({
   };
 
   /* ---- Hover glow — emissive glow from within on hovered meshes ---- */
-  const glowState = useRef({ tv: 0, poster: 0, logged: false });
+  const glowState = useRef({ tv: 0, poster: 0, prevTv: 0, prevPoster: 0, logged: false });
 
   useFrame(() => {
     if (!model) return;
@@ -886,9 +886,18 @@ function GLBRoom({
 
     const tvG = glowState.current.tv;
     const posterG = glowState.current.poster;
+    const prevTv = glowState.current.prevTv;
+    const prevPoster = glowState.current.prevPoster;
 
-    // Only traverse when there's actually glow to apply or fade
-    if (tvG < 0.001 && posterG < 0.001) return;
+    // Skip the traverse only when glow has been zero for at least one full
+    // frame already. When it JUST transitioned to zero we still need one
+    // more pass to zero the emissive intensities on the materials.
+    if (tvG < 0.001 && posterG < 0.001 && prevTv < 0.001 && prevPoster < 0.001) {
+      return;
+    }
+
+    glowState.current.prevTv = tvG;
+    glowState.current.prevPoster = posterG;
 
     model.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
