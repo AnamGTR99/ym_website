@@ -5,7 +5,6 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
   AdaptiveDpr,
   AdaptiveEvents,
-  ContactShadows,
   Html,
   OrbitControls,
   Preload,
@@ -99,34 +98,6 @@ const useHover = create<HoverState>((setState) => ({
 /** Path to the GLB file, served from /public. */
 const GLB_PATH = "/models/setup.glb";
 
-/**
- * Draco decoder path — bundled locally under /public/draco/.
- * Avoids CSP issues from fetching gstatic.com at runtime.
- */
-const DRACO_PATH = "/draco/";
-
-const CAMERA_PRESETS = {
-  /** Front of model faces +X → camera on +X axis looking back toward origin */
-  LOOK_AT_X: {
-    position: [15, 4, 0] as [number, number, number],
-    target: [0, 1.5, 0] as [number, number, number],
-  },
-  /** Front of model faces +Z → camera on +Z axis */
-  LOOK_AT_Z: {
-    position: [0, 4, 15] as [number, number, number],
-    target: [0, 1.5, 0] as [number, number, number],
-  },
-  /** Top-down view — useful if we can't find the model */
-  LOOK_AT_Y: {
-    position: [0, 20, 0.01] as [number, number, number],
-    target: [0, 0, 0] as [number, number, number],
-  },
-  /** Classic front-Z negative (Three.js default) */
-  LOOK_AT_NEG_Z: {
-    position: [0, 4, -15] as [number, number, number],
-    target: [0, 1.5, 0] as [number, number, number],
-  },
-} as const;
 
 /** Camera — room overview (starting position) */
 const CAMERA_START = {
@@ -217,7 +188,6 @@ function useLogLines(): LogLine[] {
   const [lines, setLines] = useState<LogLine[]>(_logLines);
   useEffect(() => {
     _logSubscribers.add(setLines);
-    setLines(_logLines);
     return () => {
       _logSubscribers.delete(setLines);
     };
@@ -270,10 +240,10 @@ interface CameraTarget {
 
 let _cameraAnim: CameraTarget | null = null;
 let _cameraAnimProgress = 0;
-let _cameraAnimFrom = { position: new THREE.Vector3(), lookAt: new THREE.Vector3() };
+const _cameraAnimFrom = { position: new THREE.Vector3(), lookAt: new THREE.Vector3() };
 let _cameraAnimating = false;
 let _zoomedToTV = false;
-let _zoomListeners = new Set<(zoomed: boolean) => void>();
+const _zoomListeners = new Set<(zoomed: boolean) => void>();
 
 // When set, the global BackButton defers to this handler first. Used by
 // TV sub-views (e.g. product detail) to intercept "back" so it returns
@@ -508,7 +478,6 @@ function GLBRoom({
   const router = useRouter();
   const transitioning = useEnvStore((s) => s.transitioning);
   const startTransition = useEnvStore((s) => s.startTransition);
-  const openCredits = useEnvStore((s) => s.openCredits);
 
   const [model, setModel] = useState<THREE.Group | null>(null);
   const [bulbPos, setBulbPos] = useState<[number, number, number] | null>(null);
@@ -518,8 +487,10 @@ function GLBRoom({
   const bulbMeshRef = useRef<THREE.Mesh | null>(null);
   const onModelReadyRef = useRef(onModelReady);
   const onLoadFailedRef = useRef(onLoadFailed);
-  onModelReadyRef.current = onModelReady;
-  onLoadFailedRef.current = onLoadFailed;
+  useEffect(() => {
+    onModelReadyRef.current = onModelReady;
+    onLoadFailedRef.current = onLoadFailed;
+  });
 
   /* ---- Load GLB via drei's useGLTF (handles Draco internally) ---- */
   // Args: (path, useDraco, useMeshopt, extendLoader)
@@ -1167,7 +1138,6 @@ function LightCone({ position }: { position: [number, number, number] }) {
 /*  TV Screen HTML — VHS-styled content rendered on the Screen mesh    */
 /* ================================================================== */
 
-const VHS_WORDS = ["YUNMAKAI", "SOLUS RECORDS", "TUNE IN", "CHANNEL 01", "TEST SIGNAL"];
 
 // TV is now a pure product navigation surface. All of these states render
 // INSIDE the CRT — no camera moves, no page navigations. Credits live on
@@ -2649,7 +2619,8 @@ function CameraParallax() {
     smoothMouse.current.x += (mouse.current.x - smoothMouse.current.x) * 0.03;
     smoothMouse.current.y += (mouse.current.y - smoothMouse.current.y) * 0.03;
 
-    const controls = state.controls as any;
+    const controls = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state.controls as any;
     if (controls?.target) {
       controls.target.x = baseTarget.current.x + smoothMouse.current.x * 0.8;
       controls.target.y = baseTarget.current.y - smoothMouse.current.y * 0.5;
@@ -2662,11 +2633,13 @@ function CameraParallax() {
 
 function CameraAnimator() {
   const { camera } = useThree();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const controlsRef = useRef<any>(null);
 
   // Grab the OrbitControls ref
   useEffect(() => {
     // OrbitControls with makeDefault stores itself on the camera
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const controls = (camera as any).__r3f?.controls;
     if (controls) controlsRef.current = controls;
   });
@@ -2682,7 +2655,8 @@ function CameraAnimator() {
     camera.position.lerpVectors(_cameraAnimFrom.position, _cameraAnim.position, ease);
 
     // Update OrbitControls target
-    const controls = state.controls as any;
+    const controls = // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state.controls as any;
     if (controls?.target) {
       controls.target.lerpVectors(_cameraAnimFrom.lookAt, _cameraAnim.lookAt, ease);
       controls.update();

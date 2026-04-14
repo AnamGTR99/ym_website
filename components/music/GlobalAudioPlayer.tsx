@@ -555,7 +555,7 @@ export default function GlobalAudioPlayer() {
                     margin: "0 4px",
                   }}
                 >
-                  //
+                  {"//"}
                 </span>
                 <span
                   style={{
