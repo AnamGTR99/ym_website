@@ -860,12 +860,16 @@ function GLBRoom({
       else if (action === "open-credits") target = "poster";
     }
     useHover.getState().setTarget(target);
+    // Drive hover glow from the raycaster too, so the trigger zone is
+    // the whole interactive mesh (not just the small Html overlay).
+    _glowTarget = target === "tv" || target === "poster" ? target : null;
   };
 
   const handlePointerOut = () => {
     document.body.style.cursor = "default";
     resetHoveredMesh();
     useHover.getState().setTarget(null);
+    _glowTarget = null;
   };
 
   /* ---- Hover glow — emissive glow from within on hovered meshes ---- */
@@ -876,8 +880,9 @@ function GLBRoom({
 
     const tvTarget = _glowTarget === "tv" && !_zoomedToTV ? 1 : 0;
     const posterTarget = _glowTarget === "poster" && !_zoomedToTV ? 1 : 0;
-    glowState.current.tv += (tvTarget - glowState.current.tv) * 0.06;
-    glowState.current.poster += (posterTarget - glowState.current.poster) * 0.06;
+    // Immediate on/off — no lerp. Moment the cursor leaves, glow cuts.
+    glowState.current.tv = tvTarget;
+    glowState.current.poster = posterTarget;
 
     const tvG = glowState.current.tv;
     const posterG = glowState.current.poster;
@@ -2689,69 +2694,6 @@ function CameraTracker() {
 
 /** Force camera to look at the correct target on the very first frame,
  *  before OrbitControls has a chance to initialize. Prevents the 180° spin. */
-/** Invisible hover zone over the poster — triggers glow via _glowTarget */
-function PosterHoverZone() {
-  const groupRef = useRef<THREE.Group>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (_posterMesh) { setReady(true); return; }
-    const id = setInterval(() => {
-      if (_posterMesh) { setReady(true); clearInterval(id); }
-    }, 300);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    if (!ready || !groupRef.current || !_posterMesh) return;
-    _posterMesh.updateWorldMatrix(true, false);
-    const box = new THREE.Box3().setFromObject(_posterMesh);
-    const center = new THREE.Vector3();
-    box.getCenter(center);
-    groupRef.current.position.copy(center);
-    groupRef.current.lookAt(new THREE.Vector3(...CAMERA_START.position));
-  }, [ready]);
-
-  if (!ready) return null;
-
-  return (
-    <group ref={groupRef}>
-      <Html
-        transform
-        distanceFactor={4}
-        zIndexRange={[0, 0]}
-        style={{ pointerEvents: "auto" }}
-      >
-        <div
-          onMouseEnter={() => {
-            _glowTarget = "poster";
-            document.body.style.cursor = "pointer";
-          }}
-          onMouseLeave={() => {
-            _glowTarget = null;
-            document.body.style.cursor = "default";
-          }}
-          onClick={() => {
-            if (!_cameraAnimating && !_zoomedToTV) {
-              // Trigger the poster click — navigate to credits
-              const store = useEnvStore.getState();
-              store.startTransition("credits", () => {
-                window.location.href = "/credits";
-              }, 1100);
-            }
-          }}
-          style={{
-            width: 200,
-            height: 150,
-            cursor: "pointer",
-            // Invisible but catches mouse events
-          }}
-        />
-      </Html>
-    </group>
-  );
-}
-
 function CameraInit() {
   const { camera } = useThree();
   const initialized = useRef(false);
@@ -2935,7 +2877,6 @@ function Scene() {
       }} />
       <DustParticles />
       {modelReady && <TVScreenHTML />}
-      {modelReady && <PosterHoverZone />}
 
       <OrbitControls {...ORBIT_CONFIG} />
 
