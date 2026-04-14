@@ -914,12 +914,12 @@ function GLBRoom({
         mat.needsUpdate = true;
       }
 
-      // Poster meshes
+      // Poster meshes — keep subtle, the bayou texture should stay readable
       if (n.includes("bayou")) {
-        const g = Math.min(posterG, 0.35);
+        const g = Math.min(posterG, 0.2);
         mat.emissive = mat.emissive || new THREE.Color();
         mat.emissive.setRGB(g * 0.6, g * 0.65, g * 0.8);
-        mat.emissiveIntensity = g > 0.01 ? 2 : 0;
+        mat.emissiveIntensity = g > 0.01 ? 0.6 : 0;
         mat.needsUpdate = true;
       }
     });
