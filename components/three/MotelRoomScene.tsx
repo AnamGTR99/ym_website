@@ -339,6 +339,9 @@ if (typeof window !== "undefined") {
 
 /** Module-level hover state — shared between GLBRoom (3D raycasts) and TVScreenHTML (HTML mouse events) */
 let _hoveredInteractive: THREE.Mesh | null = null;
+
+/** Simple glow target — bypasses Zustand entirely for reliability */
+let _glowTarget: "tv" | "poster" | null = null;
 const _interactiveOriginals = new Map<THREE.Mesh, { scale: THREE.Vector3; emissive: THREE.Color; emissiveIntensity: number }>();
 
 function resetHoveredMesh() {
@@ -904,28 +907,13 @@ function GLBRoom({
   useFrame(() => {
     if (!model) return;
 
-    // Read directly from store (not via hook) to avoid stale closure
-    const ht = useHover.getState().target;
-    if (ht && !glowState.current.logged) {
-      console.log("[HoverGlow useFrame] target:", ht, "model children:", model.children.length);
-      glowState.current.logged = true;
-    }
-    if (!ht) glowState.current.logged = false;
-    const tvTarget = ht === "tv" ? 1 : 0;
-    const posterTarget = ht === "poster" ? 1 : 0;
+    const tvTarget = _glowTarget === "tv" && !_zoomedToTV ? 1 : 0;
+    const posterTarget = _glowTarget === "poster" && !_zoomedToTV ? 1 : 0;
     glowState.current.tv += (tvTarget - glowState.current.tv) * 0.06;
     glowState.current.poster += (posterTarget - glowState.current.poster) * 0.06;
 
     const tvG = glowState.current.tv;
     const posterG = glowState.current.poster;
-
-    // Log once to see what names exist
-    if (tvG > 0.5 && !glowState.current.logged) {
-      glowState.current.logged = true;
-      const names: string[] = [];
-      model.traverse((obj) => { if (obj instanceof THREE.Mesh) names.push(obj.name); });
-      console.log("[HoverGlow] ALL mesh names in model:", names);
-    }
 
     // Only traverse when there's actually glow to apply or fade
     if (tvG < 0.001 && posterG < 0.001) return;
@@ -937,15 +925,21 @@ function GLBRoom({
       const n = obj.name.toLowerCase();
 
       // TV body meshes — match any mesh with "crt" or "tv" (but not "screen")
-      if (tvG > 0.001 && (n.includes("crt") || (n.includes("tv") && !n.includes("screen")))) {
-        mat.emissiveIntensity = tvG * 4;
-        mat.emissive.setRGB(tvG * 0.8, tvG * 0.85, tvG * 1.0);
+      if (n.includes("crt") || (n.includes("tv") && !n.includes("screen"))) {
+        const g = Math.min(tvG, 0.4);
+        mat.emissive = mat.emissive || new THREE.Color();
+        mat.emissive.setRGB(g * 0.7, g * 0.75, g * 0.9);
+        mat.emissiveIntensity = g > 0.01 ? 3 : 0;
+        mat.needsUpdate = true;
       }
 
       // Poster meshes
-      if (posterG > 0.001 && n.includes("bayou")) {
-        mat.emissiveIntensity = posterG * 4;
-        mat.emissive.setRGB(posterG * 0.8, posterG * 0.85, posterG * 1.0);
+      if (n.includes("bayou")) {
+        const g = Math.min(posterG, 0.35);
+        mat.emissive = mat.emissive || new THREE.Color();
+        mat.emissive.setRGB(g * 0.6, g * 0.65, g * 0.8);
+        mat.emissiveIntensity = g > 0.01 ? 2 : 0;
+        mat.needsUpdate = true;
       }
     });
   });
@@ -2387,18 +2381,14 @@ function TVScreenHTML() {
           interactive={zoomed}
           onScreenClick={handleScreenClick}
           onHoverStart={() => {
-            if (_screenMesh) {
-              _hoveredInteractive = _screenMesh;
+            if (!_zoomedToTV) {
+              _glowTarget = "tv";
               document.body.style.cursor = "pointer";
-              useHover.getState().setTarget("tv");
-              console.log("[HoverGlow] TV hover START — crtBody:", !!_crtBodyMesh);
             }
           }}
           onHoverEnd={() => {
-            resetHoveredMesh();
-            document.body.style.cursor = "default";
-            useHover.getState().setTarget(null);
-            console.log("[HoverGlow] TV hover END");
+            _glowTarget = null;
+            document.body.style.cursor = _zoomedToTV ? "default" : "default";
           }}
         />
       </Html>
@@ -2729,6 +2719,69 @@ function CameraTracker() {
 
 /** Force camera to look at the correct target on the very first frame,
  *  before OrbitControls has a chance to initialize. Prevents the 180° spin. */
+/** Invisible hover zone over the poster — triggers glow via _glowTarget */
+function PosterHoverZone() {
+  const groupRef = useRef<THREE.Group>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (_posterMesh) { setReady(true); return; }
+    const id = setInterval(() => {
+      if (_posterMesh) { setReady(true); clearInterval(id); }
+    }, 300);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !groupRef.current || !_posterMesh) return;
+    _posterMesh.updateWorldMatrix(true, false);
+    const box = new THREE.Box3().setFromObject(_posterMesh);
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    groupRef.current.position.copy(center);
+    groupRef.current.lookAt(new THREE.Vector3(...CAMERA_START.position));
+  }, [ready]);
+
+  if (!ready) return null;
+
+  return (
+    <group ref={groupRef}>
+      <Html
+        transform
+        distanceFactor={4}
+        zIndexRange={[0, 0]}
+        style={{ pointerEvents: "auto" }}
+      >
+        <div
+          onMouseEnter={() => {
+            _glowTarget = "poster";
+            document.body.style.cursor = "pointer";
+          }}
+          onMouseLeave={() => {
+            _glowTarget = null;
+            document.body.style.cursor = "default";
+          }}
+          onClick={() => {
+            if (!_cameraAnimating && !_zoomedToTV) {
+              // Trigger the poster click — navigate to credits
+              const store = useEnvStore.getState();
+              store.startTransition("credits", () => {
+                window.location.href = "/credits";
+              }, 1100);
+            }
+          }}
+          style={{
+            width: 200,
+            height: 150,
+            cursor: "pointer",
+            // Invisible but catches mouse events
+          }}
+        />
+      </Html>
+    </group>
+  );
+}
+
 function CameraInit() {
   const { camera } = useThree();
   const initialized = useRef(false);
@@ -2913,6 +2966,7 @@ function Scene() {
       }} />
       <DustParticles />
       {modelReady && <TVScreenHTML />}
+      {modelReady && <PosterHoverZone />}
 
       <OrbitControls {...ORBIT_CONFIG} />
 
