@@ -559,7 +559,6 @@ function GLBRoom({
     // Dump ALL object names (mesh and non-mesh) for debugging
     const allNames: string[] = [];
     scene.traverse((obj) => { if (obj.name) allNames.push(`${obj.name} [${obj.type}]`); });
-    console.log("[MotelRoom] ALL objects in scene:", allNames);
 
     // Tag interactive objects by name OR material name
     // Bruno's GLB has generic mesh names but meaningful material names
@@ -598,7 +597,6 @@ function GLBRoom({
             }
           });
         }
-        console.log("[MotelRoom] CRT body mesh found via INTERACTIVE_MESHES:", _crtBodyMesh?.name, _crtBodyMesh?.type);
       }
 
       obj.traverse((child) => {
@@ -633,7 +631,7 @@ function GLBRoom({
           }
         }
       });
-      console.log("[MotelRoom] CRT body mesh found via fallback:", _crtBodyMesh?.name, _crtBodyMesh?.type);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }
 
     // Tame embedded lights from the GLB
@@ -691,7 +689,6 @@ function GLBRoom({
         }
       }
     });
-    console.log("[MotelRoom] CRT body for glow:", _crtBodyMesh?.name ?? "NOT FOUND");
 
     // Material pass
     applyMaterialPass(scene);
@@ -877,7 +874,6 @@ function GLBRoom({
     if (!action) return;
     document.body.style.cursor = "pointer";
     _hoveredInteractive = e.object as THREE.Mesh;
-    console.log("[3D Hover] mesh:", e.object.name, "action:", action);
 
     // Resolve which interactive target this mesh belongs to so the
     // Outline pass knows which one to colour blue.
@@ -2862,7 +2858,6 @@ function HoverGlow() {
             }
           }
         });
-        console.log(`[HoverGlow] Search #${Math.ceil(searchCount.current / 60)} — ${meshCount} meshes in scene, CRT: ${crtMesh.current?.name ?? "NOT FOUND"}, Poster: ${posterMeshes.current.length}`);
       }
     }
 
