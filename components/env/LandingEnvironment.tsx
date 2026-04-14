@@ -149,7 +149,7 @@ export default function LandingEnvironment() {
             preload="auto"
             className="w-full h-full object-cover animate-film-flicker"
             style={{
-              filter: "brightness(0.24) saturate(0.3) contrast(1.2) sepia(0.1) hue-rotate(190deg)",
+              filter: "brightness(0.42) saturate(0.35) contrast(1.15) sepia(0.1) hue-rotate(190deg)",
             }}
           >
             <source src="/video/landing-bg-web.mp4" type="video/mp4" />

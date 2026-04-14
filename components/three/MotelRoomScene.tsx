@@ -71,7 +71,7 @@ const useDebug = create<DebugState>((setState, getState) => ({
   lamp: 5,
   tvGlow: 0.3,
   glbLight: 200,
-  hdrIntensity: 0.25,
+  hdrIntensity: 0.42,
   purpleLight: 2.0,
   toggle: (key) => setState({ [key]: !getState()[key] }),
   set: (key, val) => setState({ [key]: val }),
@@ -893,10 +893,10 @@ function GLBRoom({
 
       // TV body meshes — match any mesh with "crt" or "tv" (but not "screen")
       if (n.includes("crt") || (n.includes("tv") && !n.includes("screen"))) {
-        const g = Math.min(tvG, 0.4);
+        const g = Math.min(tvG, 0.25);
         mat.emissive = mat.emissive || new THREE.Color();
         mat.emissive.setRGB(g * 0.7, g * 0.75, g * 0.9);
-        mat.emissiveIntensity = g > 0.01 ? 3 : 0;
+        mat.emissiveIntensity = g > 0.01 ? 1.2 : 0;
         mat.needsUpdate = true;
       }
 

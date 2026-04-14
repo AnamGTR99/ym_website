@@ -170,13 +170,13 @@ export default function CreditsOverlay({ onClose }: CreditsOverlayProps) {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-25"
-          style={{ filter: "brightness(0.6) saturate(0.35)" }}
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+          style={{ filter: "brightness(0.95) saturate(0.4)" }}
         >
           <source src="/video/bayou-bg-web.mp4" type="video/mp4" />
         </video>
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-void/85 via-void/60 to-void/85" />
+        <div className="absolute inset-0 bg-gradient-to-b from-void/70 via-void/40 to-void/70" />
       </div>
 
       {/* Film grain + vignette */}
