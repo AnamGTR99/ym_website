@@ -2628,7 +2628,7 @@ function PostProcessingStack() {
 
       <Noise opacity={d.noise ? P.noise.opacity : 0} blendFunction={BlendFunction.SCREEN} />
       <Vignette offset={P.vignette.offset} darkness={d.vignette ? P.vignette.darkness : 0} />
-      {d.pixelate && <Pixelation granularity={d.pixelSize} />}
+      <Pixelation granularity={d.pixelate ? d.pixelSize : 0} />
     </EffectComposer>
   );
 }
