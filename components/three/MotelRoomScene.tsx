@@ -18,6 +18,7 @@ import {
   N8AO,
   Noise,
   Outline,
+  Pixelation,
   Vignette,
   SMAA,
 } from "@react-three/postprocessing";
@@ -45,6 +46,7 @@ interface DebugState {
   hdr: boolean;
   ao: boolean;
   colorGrade: boolean;
+  pixelate: boolean;
   exposure: number;
   ambient: number;
   lamp: number;
@@ -52,8 +54,9 @@ interface DebugState {
   hdrIntensity: number;
   glbLight: number;
   purpleLight: number;
-  toggle: (key: "bloom" | "noise" | "vignette" | "splitToning" | "smaa" | "hdr" | "ao" | "colorGrade") => void;
-  set: (key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight" | "purpleLight", val: number) => void;
+  pixelSize: number;
+  toggle: (key: "bloom" | "noise" | "vignette" | "splitToning" | "smaa" | "hdr" | "ao" | "colorGrade" | "pixelate") => void;
+  set: (key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight" | "purpleLight" | "pixelSize", val: number) => void;
 }
 
 const useDebug = create<DebugState>((setState, getState) => ({
@@ -66,13 +69,15 @@ const useDebug = create<DebugState>((setState, getState) => ({
   hdr: true,
   ao: false,
   colorGrade: false,
+  pixelate: true,
   exposure: 0.5,
   ambient: 0.4,
   lamp: 5,
   tvGlow: 0.3,
   glbLight: 200,
-  hdrIntensity: 0.30,
+  hdrIntensity: 0.7,
   purpleLight: 2.0,
+  pixelSize: 2,
   toggle: (key) => setState({ [key]: !getState()[key] }),
   set: (key, val) => setState({ [key]: val }),
 }));
@@ -1037,7 +1042,7 @@ function Hotspot({ position, args, color, glowColor, label, onClick, disabled }:
 /*  Dust Particles — tiny floating motes                              */
 /* ================================================================== */
 
-const DUST_COUNT = 300;
+const DUST_COUNT = 600;
 const DUST_SPREAD = 30;
 const DUST_HEIGHT = 10;
 
@@ -1089,10 +1094,10 @@ function DustParticles() {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.015}
+        size={0.018}
         color={0xddccaa}
         transparent
-        opacity={0.4}
+        opacity={0.5}
         sizeAttenuation
         depthWrite={false}
       />
@@ -2166,12 +2171,30 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
   }, [channel, handleBackToGrid]);
 
   return (
+    <>
+      {/* SVG filter — 2px block pixelation to match the scene's Pixelation post-fx */}
+      <svg
+        width="0"
+        height="0"
+        style={{ position: "absolute", width: 0, height: 0 }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="tv-pixelate" x="0" y="0" width="100%" height="100%">
+            <feFlood x="1" y="1" width="1" height="1" />
+            <feComposite width="2" height="2" />
+            <feTile result="a" />
+            <feComposite in="SourceGraphic" in2="a" operator="in" />
+            <feMorphology operator="dilate" radius="1" />
+          </filter>
+        </defs>
+      </svg>
     <div
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
       style={{
-        width: 640,
-        height: 391,
+        width: 644,
+        height: 368,
         background: "radial-gradient(ellipse at center, #0f1810 0%, #050505 100%)",
         position: "relative",
         overflow: "hidden",
@@ -2180,6 +2203,7 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
         cursor: "pointer",
         userSelect: "none",
         pointerEvents: "auto",
+        filter: "blur(0.4px) contrast(1.05)",
       }}
       onClick={onScreenClick}
     >
@@ -2289,6 +2313,7 @@ function VHSScreen({ interactive, onScreenClick, onHoverStart, onHoverEnd }: { i
         }
       `}</style>
     </div>
+    </>
   );
 }
 
@@ -2312,7 +2337,7 @@ function TVScreenHTML() {
   }, []);
 
   // Position at the geometric center of the screen mesh, face the camera,
-  // then tilt top toward the TV screen (~8 degrees on local X)
+  // then tilt top toward the TV screen (~10 degrees on local X)
   useEffect(() => {
     if (!ready || !groupRef.current || !_screenMesh) return;
     _screenMesh.updateWorldMatrix(true, false);
@@ -2321,7 +2346,7 @@ function TVScreenHTML() {
     box.getCenter(center);
     groupRef.current.position.copy(center);
     groupRef.current.lookAt(new THREE.Vector3(...CAMERA_TV.position));
-    groupRef.current.rotateX(THREE.MathUtils.degToRad(-8));
+    groupRef.current.rotateX(THREE.MathUtils.degToRad(-7));
   }, [ready]);
 
   const handleScreenClick = useCallback(() => {
@@ -2589,6 +2614,7 @@ function PostProcessingStack() {
 
       <Noise opacity={d.noise ? P.noise.opacity : 0} blendFunction={BlendFunction.SCREEN} />
       <Vignette offset={P.vignette.offset} darkness={d.vignette ? P.vignette.darkness : 0} />
+      {d.pixelate && <Pixelation granularity={d.pixelSize} />}
     </EffectComposer>
   );
 }
@@ -2927,7 +2953,7 @@ function Scene() {
         }} />
       </group>
 
-      <fog attach="fog" args={["#020201", 30, 80]} />
+      <fog attach="fog" args={["#0d0a07", 20, 66]} />
 
       <RoomContent onModelReady={() => {
         setModelReady(true);
@@ -3053,7 +3079,7 @@ function DebugPanel() {
     );
   }
 
-  const toggles: Array<{ label: string; key: "bloom" | "noise" | "vignette" | "splitToning" | "smaa" | "hdr" | "ao" | "colorGrade" }> = [
+  const toggles: Array<{ label: string; key: "bloom" | "noise" | "vignette" | "splitToning" | "smaa" | "hdr" | "ao" | "colorGrade" | "pixelate" }> = [
     { label: "Bloom", key: "bloom" },
     { label: "Noise", key: "noise" },
     { label: "Vignette", key: "vignette" },
@@ -3062,16 +3088,18 @@ function DebugPanel() {
     { label: "HDR Env", key: "hdr" },
     { label: "AO", key: "ao" },
     { label: "Color Grade", key: "colorGrade" },
+    { label: "Pixelate", key: "pixelate" },
   ];
 
-  const sliders: Array<{ label: string; key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight" | "purpleLight"; min: number; max: number; step: number }> = [
+  const sliders: Array<{ label: string; key: "exposure" | "ambient" | "lamp" | "tvGlow" | "hdrIntensity" | "glbLight" | "purpleLight" | "pixelSize"; min: number; max: number; step: number }> = [
     { label: "Exposure", key: "exposure", min: 0.05, max: 2, step: 0.05 },
     { label: "Ambient", key: "ambient", min: 0, max: 1, step: 0.01 },
     { label: "Lamp", key: "lamp", min: 0, max: 20, step: 0.5 },
     { label: "TV Glow", key: "tvGlow", min: 0, max: 3, step: 0.1 },
-    { label: "HDR Env", key: "hdrIntensity", min: 0, max: 0.5, step: 0.01 },
+    { label: "HDR Env", key: "hdrIntensity", min: 0, max: 1.5, step: 0.01 },
     { label: "GLB Light", key: "glbLight", min: 0, max: 200, step: 1 },
     { label: "Purple", key: "purpleLight", min: 0, max: 10, step: 0.1 },
+    { label: "Pixel Size", key: "pixelSize", min: 1, max: 12, step: 1 },
   ];
 
   return (
