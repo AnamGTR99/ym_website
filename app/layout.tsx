@@ -4,6 +4,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import FloatingUI from "@/components/ui/FloatingUI";
 import CartPanel from "@/components/cart/CartPanel";
 import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
+import CustomCursor from "@/components/env/LandingCursor";
 import "./globals.css";
 
 const sans = IBM_Plex_Sans({
@@ -66,6 +67,7 @@ export default function RootLayout({
           <FloatingUI />
           <CartPanel />
           <GlobalAudioPlayer />
+          <CustomCursor />
         </AuthProvider>
       </body>
     </html>

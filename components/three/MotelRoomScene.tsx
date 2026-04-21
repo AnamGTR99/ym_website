@@ -135,12 +135,20 @@ type InteractionAction = "navigate-tv" | "open-credits" | "none";
 
 const INTERACTIVE_MESHES: Record<string, InteractionAction> = {
   screen: "navigate-tv",
+  // Bruno's GLB uses underscore naming (Crt_tv001) — support both formats
   "Crt tv.001": "navigate-tv",
   "Crt tv.002": "navigate-tv",
   "Crt tv.003": "navigate-tv",
   "Crt tv.004": "navigate-tv",
   "Crt tv.005": "navigate-tv",
+  Crt_tv001: "navigate-tv",
+  Crt_tv002: "navigate-tv",
+  Crt_tv003: "navigate-tv",
+  Crt_tv004: "navigate-tv",
+  Crt_tv005: "navigate-tv",
   "bayou-bg": "open-credits",
+  Frame003: "open-credits",
+  Vectorial_Painting_Wall_ArtCanvas_Frame: "open-credits",
 };
 
 /** GLB global transform — apply if Bruno's scene needs scale/offset. */
@@ -317,6 +325,9 @@ let _hoveredInteractive: THREE.Mesh | null = null;
 
 /** Simple glow target — bypasses Zustand entirely for reliability */
 let _glowTarget: "tv" | "poster" | null = null;
+
+/** Deferred hover-clear — cancels if a new pointerOver fires before it runs */
+let _hoverClearRAF: number | null = null;
 const _interactiveOriginals = new Map<THREE.Mesh, { scale: THREE.Vector3; emissive: THREE.Color; emissiveIntensity: number }>();
 
 function resetHoveredMesh() {
@@ -666,6 +677,83 @@ function GLBRoom({
       }
     });
 
+    // Build an invisible hitbox that covers the entire TV (body + screen).
+    // This gives the raycaster a single continuous surface so hover glow
+    // doesn't flicker when the cursor moves between sub-meshes or gaps.
+    // Remove any stale hitbox from a previous render pass (React strict mode).
+    const staleHitboxes: THREE.Object3D[] = [];
+    scene.traverse((obj) => { if (obj.name === "__tv_hitbox") staleHitboxes.push(obj); });
+    staleHitboxes.forEach((h) => { scene.remove(h); (h as THREE.Mesh).geometry?.dispose(); });
+
+    const tvBox = new THREE.Box3();
+    let tvMeshCount = 0;
+    scene.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const n = obj.name.toLowerCase();
+      const matName = (!Array.isArray(obj.material) && (obj.material as THREE.MeshStandardMaterial)?.name?.toLowerCase()) || "";
+      if (n.includes("crt") || (n.includes("tv") && !n.includes("screen")) || n === "screen" || matName === "screen") {
+        obj.updateWorldMatrix(true, false);
+        const meshBox = new THREE.Box3().setFromObject(obj);
+        tvBox.union(meshBox);
+        tvMeshCount++;
+      }
+    });
+
+    if (tvMeshCount > 0 && !tvBox.isEmpty()) {
+      // Inflate slightly so cursor doesn't have to be pixel-perfect on edges
+      tvBox.expandByVector(new THREE.Vector3(0.15, 0.15, 0.15));
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      tvBox.getSize(size);
+      tvBox.getCenter(center);
+
+      const hitboxGeo = new THREE.BoxGeometry(size.x, size.y, size.z);
+      const hitboxMat = new THREE.MeshBasicMaterial({ visible: false });
+      const hitboxMesh = new THREE.Mesh(hitboxGeo, hitboxMat);
+      hitboxMesh.name = "__tv_hitbox";
+      hitboxMesh.position.copy(center);
+      hitboxMesh.userData.interactionAction = "navigate-tv";
+      // Ensure it raycasts but doesn't render or affect outlines
+      hitboxMesh.renderOrder = -1;
+      scene.add(hitboxMesh);
+      addLog(`TV hitbox: ${size.x.toFixed(2)}×${size.y.toFixed(2)}×${size.z.toFixed(2)} from ${tvMeshCount} meshes`);
+    }
+
+    // Same invisible hitbox for the poster/painting
+    const stalePosterHitboxes: THREE.Object3D[] = [];
+    scene.traverse((obj) => { if (obj.name === "__poster_hitbox") stalePosterHitboxes.push(obj); });
+    stalePosterHitboxes.forEach((h) => { scene.remove(h); (h as THREE.Mesh).geometry?.dispose(); });
+
+    const posterBox = new THREE.Box3();
+    let posterMeshCount = 0;
+    scene.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return;
+      const n = obj.name.toLowerCase();
+      if (n.includes("bayou") || n.includes("frame")) {
+        obj.updateWorldMatrix(true, false);
+        posterBox.union(new THREE.Box3().setFromObject(obj));
+        posterMeshCount++;
+      }
+    });
+
+    if (posterMeshCount > 0 && !posterBox.isEmpty()) {
+      posterBox.expandByVector(new THREE.Vector3(0.15, 0.15, 0.15));
+      const pSize = new THREE.Vector3();
+      const pCenter = new THREE.Vector3();
+      posterBox.getSize(pSize);
+      posterBox.getCenter(pCenter);
+
+      const pGeo = new THREE.BoxGeometry(pSize.x, pSize.y, pSize.z);
+      const pMat = new THREE.MeshBasicMaterial({ visible: false });
+      const pHitbox = new THREE.Mesh(pGeo, pMat);
+      pHitbox.name = "__poster_hitbox";
+      pHitbox.position.copy(pCenter);
+      pHitbox.userData.interactionAction = "open-credits";
+      pHitbox.renderOrder = -1;
+      scene.add(pHitbox);
+      addLog(`Poster hitbox: ${pSize.x.toFixed(2)}×${pSize.y.toFixed(2)}×${pSize.z.toFixed(2)} from ${posterMeshCount} meshes`);
+    }
+
     // Material pass
     applyMaterialPass(scene);
 
@@ -848,6 +936,11 @@ function GLBRoom({
     if (_zoomedToTV) return;
     const action = e.object.userData.interactionAction as InteractionAction | undefined;
     if (!action) return;
+    // Cancel any pending hover-clear — cursor moved to an adjacent mesh
+    if (_hoverClearRAF !== null) {
+      cancelAnimationFrame(_hoverClearRAF);
+      _hoverClearRAF = null;
+    }
     document.body.style.cursor = "pointer";
     _hoveredInteractive = e.object as THREE.Mesh;
 
@@ -871,10 +964,21 @@ function GLBRoom({
   };
 
   const handlePointerOut = () => {
-    document.body.style.cursor = "default";
-    resetHoveredMesh();
-    useHover.getState().setTarget(null);
-    _glowTarget = null;
+    // Defer clear by one frame — if the cursor is moving between adjacent
+    // TV meshes (or onto the HTML overlay), handlePointerOver / onHoverStart
+    // will cancel this before it runs.
+    if (_hoverClearRAF !== null) cancelAnimationFrame(_hoverClearRAF);
+    const snapshot = _glowTarget;
+    _hoverClearRAF = requestAnimationFrame(() => {
+      _hoverClearRAF = null;
+      // If the glow was re-set by another handler (HTML overlay mouseenter,
+      // or a new pointerOver) between scheduling and running, bail out.
+      if (_glowTarget !== snapshot) return;
+      document.body.style.cursor = "default";
+      resetHoveredMesh();
+      useHover.getState().setTarget(null);
+      _glowTarget = null;
+    });
   };
 
   /* ---- Hover glow — emissive glow from within on hovered meshes ---- */
@@ -906,6 +1010,7 @@ function GLBRoom({
 
     model.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return;
+      if (obj.name === "__tv_hitbox" || obj.name === "__poster_hitbox") return;
       const mat = obj.material as THREE.MeshStandardMaterial;
       if (!mat) return;
       const n = obj.name.toLowerCase();
@@ -2457,13 +2562,23 @@ function TVScreenHTML() {
           onScreenClick={handleScreenClick}
           onHoverStart={() => {
             if (!_zoomedToTV) {
+              if (_hoverClearRAF !== null) {
+                cancelAnimationFrame(_hoverClearRAF);
+                _hoverClearRAF = null;
+              }
               _glowTarget = "tv";
               document.body.style.cursor = "pointer";
             }
           }}
           onHoverEnd={() => {
-            _glowTarget = null;
-            document.body.style.cursor = _zoomedToTV ? "default" : "default";
+            if (_hoverClearRAF !== null) cancelAnimationFrame(_hoverClearRAF);
+            const snapshot = _glowTarget;
+            _hoverClearRAF = requestAnimationFrame(() => {
+              _hoverClearRAF = null;
+              if (_glowTarget !== snapshot) return;
+              _glowTarget = null;
+              document.body.style.cursor = "default";
+            });
           }}
         />
       </Html>
