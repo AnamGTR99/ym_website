@@ -71,7 +71,7 @@ const useDebug = create<DebugState>((setState, getState) => ({
   lamp: 5,
   tvGlow: 0.3,
   glbLight: 200,
-  hdrIntensity: 0.42,
+  hdrIntensity: 0.30,
   purpleLight: 2.0,
   toggle: (key) => setState({ [key]: !getState()[key] }),
   set: (key, val) => setState({ [key]: val }),

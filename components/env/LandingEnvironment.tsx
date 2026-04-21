@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGLTF } from "@react-three/drei";
 import { useEnvStore } from "@/stores/env";
+import StarField from "./StarField";
 
 // Background preload the room GLB while user is on the landing page
 useGLTF.preload("/models/setup.glb", true, false);
@@ -100,7 +101,7 @@ export default function LandingEnvironment() {
 
   const handleEnter = useCallback(() => {
     if (transitioning) return;
-    startTransition("room", () => router.push("/room"));
+    startTransition("room", () => router.push("/room"), 1000);
   }, [transitioning, startTransition, router]);
 
   // Wait for video to buffer
@@ -165,6 +166,11 @@ export default function LandingEnvironment() {
           }}
         />
 
+        {/* Stars */}
+        <div className="absolute inset-0">
+          <StarField />
+        </div>
+
         {/* Grain + vignette + scanlines */}
         <div className="grain absolute inset-0" />
         <div className="vignette-heavy absolute inset-0" />
@@ -219,13 +225,12 @@ export default function LandingEnvironment() {
           </button>
         </div>
 
-        {/* Transition fade-to-black */}
+        {/* Transition fade-to-black — fast, then route change lets VHS loader take over */}
         <div
           className="absolute inset-0 bg-void z-20 pointer-events-none"
           style={{
             opacity: transitioning ? 1 : 0,
-            transition: "opacity 1500ms cubic-bezier(0.4, 0, 0.2, 1)",
-            transitionDelay: transitioning ? "1200ms" : "0ms",
+            transition: "opacity 800ms cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         />
       </div>
