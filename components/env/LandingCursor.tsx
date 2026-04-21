@@ -98,11 +98,8 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Kill the native cursor globally — no exceptions */}
+      {/* cursor: none lives in globals.css so it loads before JS */}
       <style>{`
-        html, html *, html *::before, html *::after {
-          cursor: none !important;
-        }
         @keyframes ymCursorSpin {
           from { transform: rotate(0deg); }
           to   { transform: rotate(360deg); }

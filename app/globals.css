@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* --- Custom Cursor — hide native cursor globally ------------ */
+/* Must live here (not in a React component) so it applies
+   before JS hydrates. Prevents native cursor flash on re-entry. */
+html, html *, html *::before, html *::after {
+  cursor: none !important;
+}
+
 /* ============================================================
    YUNMAKAI DESIGN SYSTEM
    Aesthetic: Southern Gothic Noir — motel rooms at 2am,
