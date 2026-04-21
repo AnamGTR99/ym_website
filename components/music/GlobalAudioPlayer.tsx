@@ -171,6 +171,8 @@ export default function GlobalAudioPlayer() {
   const volume = useMusicStore((s) => s.volume);
   const muted = useMusicStore((s) => s.muted);
   const buffering = useMusicStore((s) => s.buffering);
+  const isPreview = useMusicStore((s) => s.isPreview);
+  const previewEnded = useMusicStore((s) => s.previewEnded);
   const error = useMusicStore((s) => s.error);
 
   const togglePlay = useMusicStore((s) => s.togglePlay);
@@ -194,8 +196,13 @@ export default function GlobalAudioPlayer() {
       if (isFinite(audio.duration)) setDuration(audio.duration);
     }
     function onEnded() {
-      useMusicStore.getState().pause();
-      setProgress(0);
+      const state = useMusicStore.getState();
+      state.pause();
+      if (state.isPreview) {
+        useMusicStore.setState({ previewEnded: true });
+      } else {
+        setProgress(0);
+      }
     }
     function onWaiting() {
       setBuffering(true);
@@ -227,8 +234,10 @@ export default function GlobalAudioPlayer() {
 
   const statusLabel = buffering
     ? "BUFFERING"
+    : previewEnded
+    ? "PREVIEW ENDED"
     : isPlaying
-    ? "NOW PLAYING"
+    ? isPreview ? "PREVIEW" : "NOW PLAYING"
     : "PAUSED";
 
   return (
@@ -374,6 +383,51 @@ export default function GlobalAudioPlayer() {
                 ✕
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Preview-ended CTA */}
+        {previewEnded && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 10,
+              background: "rgba(10,6,2,0.94)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 16,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 10,
+                color: "#d4a853",
+                letterSpacing: "0.25em",
+                textTransform: "uppercase",
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              PREVIEW ENDED — PURCHASE FOR FULL ACCESS
+            </span>
+            <button
+              onClick={stop}
+              style={{
+                fontSize: 9,
+                color: "rgba(212,168,83,0.7)",
+                background: "transparent",
+                border: "1px solid rgba(212,168,83,0.3)",
+                padding: "4px 12px",
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "'JetBrains Mono', monospace",
+                borderRadius: 2,
+              }}
+            >
+              DISMISS
+            </button>
           </div>
         )}
 

@@ -79,3 +79,73 @@ export async function linkUnclaimedOrders(userId: string, email: string) {
     throw new Error(`Failed to link orders: ${error.message}`);
   }
 }
+
+/**
+ * Grant track entitlements for an order's line items.
+ * Looks up track_product_map for each product_id in the order,
+ * then inserts entitlements for the matched user.
+ */
+export async function grantEntitlementsForOrder(
+  userId: string,
+  lineItems: { product_id: number | null }[]
+) {
+  const supabase = createAdminClient();
+
+  const numericProductIds = lineItems
+    .map((li) => li.product_id)
+    .filter((id): id is number => id !== null);
+
+  if (numericProductIds.length === 0) return;
+
+  // track_product_map stores Shopify GIDs (from Storefront API),
+  // but webhooks send numeric product_id — check both formats
+  const productIdVariants = numericProductIds.flatMap((id) => [
+    String(id),
+    `gid://shopify/Product/${id}`,
+  ]);
+
+  const { data: mappings, error: mapError } = await supabase
+    .from("track_product_map")
+    .select("track_id")
+    .in("shopify_product_id", productIdVariants);
+
+  if (mapError || !mappings || mappings.length === 0) return;
+
+  const trackIds = [...new Set(mappings.map((m) => m.track_id))];
+
+  const rows = trackIds.map((trackId) => ({
+    user_id: userId,
+    track_id: trackId,
+    source: "purchase" as const,
+  }));
+
+  const { error: insertError } = await supabase
+    .from("entitlements")
+    .upsert(rows, { onConflict: "user_id,track_id", ignoreDuplicates: true });
+
+  if (insertError) {
+    console.error("[grantEntitlementsForOrder] insert error:", insertError.message);
+  }
+}
+
+/**
+ * Grant entitlements for all orders belonging to a user.
+ * Call after linkUnclaimedOrders to retroactively grant access
+ * for purchases made before the user created an account.
+ */
+export async function grantEntitlementsForUser(userId: string) {
+  const supabase = createAdminClient();
+
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("line_items")
+    .eq("user_id", userId);
+
+  if (error || !orders || orders.length === 0) return;
+
+  const allLineItems = orders.flatMap(
+    (order) => (order.line_items as { product_id: number | null }[]) ?? []
+  );
+
+  await grantEntitlementsForOrder(userId, allLineItems);
+}

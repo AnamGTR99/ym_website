@@ -12,7 +12,7 @@ const trackSchema = z.object({
   artist: z.string().min(1, "Artist is required").max(200),
   description: z.string().max(5000).optional().default(""),
   release_date: z.string().optional().default(""),
-  access_type: z.enum(["public", "subscriber", "one_off", "hybrid"]),
+  access_type: z.enum(["public", "one_off"]),
   published: z.boolean(),
   duration_seconds: z.number().int().positive().nullable(),
   audio_path: z.string().optional().default(""),

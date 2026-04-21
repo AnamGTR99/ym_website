@@ -25,6 +25,7 @@ export async function GET(
         handle: product.handle,
         title: product.title,
         description: product.description,
+        productType: product.productType,
         price: formatPrice(
           product.priceRange.minVariantPrice.amount,
           product.priceRange.minVariantPrice.currencyCode

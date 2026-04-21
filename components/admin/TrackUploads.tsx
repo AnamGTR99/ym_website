@@ -26,6 +26,16 @@ export default function TrackUploads({ track }: { track: Track }) {
       />
 
       <UploadField
+        label="Preview Clip (30-60s)"
+        accept="audio/mpeg,audio/aac,audio/mp4,audio/wav"
+        maxSizeMB={10}
+        uploadUrl="/api/admin/tracks/upload-preview"
+        trackId={track.id}
+        currentValue={track.preview_path}
+        onUploaded={() => router.refresh()}
+      />
+
+      <UploadField
         label="Cover Image"
         accept="image/jpeg,image/png,image/webp"
         maxSizeMB={5}

@@ -178,9 +178,7 @@ export default function TrackForm({ track, linkedProductIds, shopifyProducts }: 
           className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-sm focus:border-zinc-500 focus:outline-none"
         >
           <option value="public">Public</option>
-          <option value="subscriber">Subscriber</option>
           <option value="one_off">One-off Purchase</option>
-          <option value="hybrid">Hybrid</option>
         </select>
       </div>
 

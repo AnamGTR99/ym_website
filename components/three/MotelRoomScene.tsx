@@ -1438,6 +1438,7 @@ type TVProductDetailData = {
   handle: string;
   title: string;
   description: string;
+  productType: string;
   price: string;
   image: string | null;
   glbUrl: string | null;
@@ -1595,6 +1596,8 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
   const progress = useMusicStore((s) => s.progress);
   const duration = useMusicStore((s) => s.duration);
   const buffering = useMusicStore((s) => s.buffering);
+  const isPreview = useMusicStore((s) => s.isPreview);
+  const previewEnded = useMusicStore((s) => s.previewEnded);
 
   // Pair the music store with its audio element events — GlobalAudioPlayer
   // normally does this, but it's unmounted during the initial landing flow
@@ -1610,8 +1613,13 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
       if (isFinite(audio.duration)) setDuration(audio.duration);
     };
     const onEnded = () => {
-      useMusicStore.getState().pause();
-      setProgress(0);
+      const state = useMusicStore.getState();
+      state.pause();
+      if (state.isPreview) {
+        useMusicStore.setState({ previewEnded: true });
+      } else {
+        setProgress(0);
+      }
     };
     const onWaiting = () => setBuffering(true);
     const onCanPlay = () => setBuffering(false);
@@ -1689,6 +1697,49 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
           "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(15,10,5,0.6) 50%, rgba(0,0,0,0.65) 100%)",
       }}
     >
+      {/* Preview-ended CTA */}
+      {previewEnded && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 10,
+            background: "rgba(5,3,0,0.92)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+          }}
+        >
+          <span
+            style={{
+              fontSize: "8px",
+              color: "rgba(224,224,224,0.7)",
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+            }}
+          >
+            PREVIEW ENDED — PURCHASE FOR FULL ACCESS
+          </span>
+          <button
+            onClick={(e) => { e.stopPropagation(); useMusicStore.getState().stop(); }}
+            style={{
+              fontSize: "7px",
+              color: "rgba(224,224,224,0.6)",
+              background: "transparent",
+              border: "1px solid rgba(224,224,224,0.25)",
+              padding: "2px 8px",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              borderRadius: 1,
+            }}
+          >
+            DISMISS
+          </button>
+        </div>
+      )}
+
       {/* Label */}
       <div
         style={{
@@ -1715,8 +1766,10 @@ function TVMusicPlayer({ tracks }: { tracks: TVTrackData[] }) {
         />
         <span>
           {isActive
-            ? isPlaying
-              ? "NOW PLAYING"
+            ? previewEnded
+              ? "PREVIEW ENDED"
+              : isPlaying
+              ? isPreview ? "PREVIEW" : "NOW PLAYING"
               : buffering
               ? "BUFFERING"
               : "PAUSED"
@@ -2119,7 +2172,24 @@ function TVProductDetail({ handle, onBack: _onBack }: { handle: string; onBack: 
           </div>
 
           {/* Music player strip — sits at the bottom of the CRT */}
-          {tracks.length > 0 && <TVMusicPlayer tracks={tracks} />}
+          {tracks.length > 0 && (
+            <>
+              <div
+                style={{
+                  fontSize: "7px",
+                  letterSpacing: "0.2em",
+                  color: "rgba(224,224,224,0.45)",
+                  textTransform: "uppercase",
+                  textAlign: "center",
+                  padding: "6px 0 0 0",
+                  borderTop: "1px solid rgba(224,224,224,0.08)",
+                }}
+              >
+                INCLUDES FULL TRACK ACCESS
+              </div>
+              <TVMusicPlayer tracks={tracks} />
+            </>
+          )}
         </>
       )}
     </div>

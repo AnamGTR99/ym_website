@@ -26,6 +26,10 @@ interface MusicState {
   muted: boolean;
   buffering: boolean;
 
+  // Preview
+  isPreview: boolean;
+  previewEnded: boolean;
+
   // Error
   error: string | null;
 
@@ -75,6 +79,8 @@ export const useMusicStore = create<MusicState>((set, get) => ({
   volume: 0.8,
   muted: false,
   buffering: false,
+  isPreview: false,
+  previewEnded: false,
   error: null,
 
   playTrack: async (trackId: string) => {
@@ -95,6 +101,8 @@ export const useMusicStore = create<MusicState>((set, get) => ({
       buffering: true,
       error: null,
       isPlaying: false,
+      isPreview: false,
+      previewEnded: false,
       progress: 0,
       duration: 0,
     });
@@ -106,6 +114,7 @@ export const useMusicStore = create<MusicState>((set, get) => ({
         currentTrack: data.track,
         signedUrl: data.url,
         expiresAt: data.expiresAt,
+        isPreview: data.preview,
       });
 
       // Set audio source and play
@@ -115,8 +124,10 @@ export const useMusicStore = create<MusicState>((set, get) => ({
       await audio.play();
       set({ isPlaying: true, buffering: false });
 
-      // Schedule URL refresh
-      scheduleRefresh(trackId, data.expiresAt);
+      // Schedule URL refresh (skip for short previews)
+      if (!data.preview) {
+        scheduleRefresh(trackId, data.expiresAt);
+      }
     } catch (e) {
       set({
         error: e instanceof Error ? e.message : "Failed to play track",
@@ -188,6 +199,8 @@ export const useMusicStore = create<MusicState>((set, get) => ({
       signedUrl: null,
       expiresAt: null,
       isPlaying: false,
+      isPreview: false,
+      previewEnded: false,
       progress: 0,
       duration: 0,
       buffering: false,

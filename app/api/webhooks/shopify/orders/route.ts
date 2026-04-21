@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { verifyShopifyWebhook } from "@/lib/shopify/webhooks";
-import { upsertOrder } from "@/lib/supabase/orders";
+import { upsertOrder, grantEntitlementsForOrder } from "@/lib/supabase/orders";
+import { createAdminClient } from "@/lib/supabase/server";
 
 const shopifyLineItemSchema = z.object({
   title: z.string(),
@@ -73,6 +74,22 @@ export async function POST(request: Request) {
       line_items: order.line_items,
       financial_status: order.financial_status,
     });
+
+    // Grant track entitlements if the buyer has an account
+    const admin = createAdminClient();
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("email", email)
+      .single();
+
+    if (profile) {
+      await grantEntitlementsForOrder(profile.id, order.line_items).catch(
+        (err) => {
+          console.error("[Shopify webhook] entitlement grant error:", err);
+        }
+      );
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {

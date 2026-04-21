@@ -9,7 +9,7 @@ Immersive digital universe combining interactive 3D scenes, music streaming, and
 - **3D**: React Three Fiber + drei + postprocessing (Three.js 0.172)
 - **State**: Zustand stores in `stores/` (auth, cart, music, env)
 - **Database**: Supabase (Postgres + Auth + Storage). Migrations in `supabase/migrations/`
-- **Commerce**: Shopify Storefront API (GraphQL, 2025-01). Stripe is present but dormant
+- **Commerce**: Shopify Storefront API (GraphQL, 2025-01)
 - **Hosting**: Vercel
 
 ## Commands
@@ -44,7 +44,7 @@ lib/              # Domain utilities
   streaming/      # Stream URL fetching
 stores/           # Zustand stores (auth, cart, music, env)
 public/models/    # GLB files (motel room)
-supabase/         # Database migrations (001-011)
+supabase/         # Database migrations (001-013)
 NEW_STRAT/        # Planning docs (not production code)
 ```
 

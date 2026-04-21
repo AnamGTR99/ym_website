@@ -54,55 +54,99 @@ export async function GET(
     return NextResponse.json({ error: "Track not found" }, { status: 404 });
   }
 
-  // Access control based on access_type
-  if (track.access_type !== "public") {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const trackMeta = {
+    id: track.id,
+    title: track.title,
+    artist: track.artist,
+    coverUrl: track.cover_url,
+    durationSeconds: track.duration_seconds,
+  };
 
-    if (!user) {
+  const responseHeaders = {
+    "Cache-Control": "private, no-store",
+    "X-RateLimit-Remaining": String(limit.remaining),
+  };
+
+  // Public tracks: full audio, no auth required
+  if (track.access_type === "public") {
+    const result = await createSignedAudioUrl(track.audio_path, SIGNED_URL_TTL);
+    if (!result) {
       return NextResponse.json(
-        { error: "Authentication required for this track" },
-        { status: 401 }
+        { error: "Failed to generate streaming URL" },
+        { status: 500 }
       );
     }
 
-    const entitled = await hasEntitlement(user.id, trackId);
-    if (!entitled) {
-      return NextResponse.json(
-        { error: "You do not have access to this track" },
-        { status: 403 }
-      );
-    }
-  }
-
-  // Generate signed URL
-  const result = await createSignedAudioUrl(track.audio_path, SIGNED_URL_TTL);
-  if (!result) {
     return NextResponse.json(
-      { error: "Failed to generate streaming URL" },
-      { status: 500 }
+      {
+        url: result.signedUrl,
+        expiresAt: result.expiresAt,
+        preview: false,
+        track: trackMeta,
+      },
+      { headers: responseHeaders }
     );
   }
 
-  return NextResponse.json(
-    {
-      url: result.signedUrl,
-      expiresAt: result.expiresAt,
-      track: {
-        id: track.id,
-        title: track.title,
-        artist: track.artist,
-        coverUrl: track.cover_url,
-        durationSeconds: track.duration_seconds,
-      },
-    },
-    {
-      headers: {
-        "Cache-Control": "private, no-store",
-        "X-RateLimit-Remaining": String(limit.remaining),
-      },
+  // one_off tracks: check auth + entitlement
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let entitled = false;
+  if (user) {
+    entitled = await hasEntitlement(user.id, trackId);
+  }
+
+  if (entitled) {
+    // Entitled: full audio
+    const result = await createSignedAudioUrl(track.audio_path, SIGNED_URL_TTL);
+    if (!result) {
+      return NextResponse.json(
+        { error: "Failed to generate streaming URL" },
+        { status: 500 }
+      );
     }
+
+    return NextResponse.json(
+      {
+        url: result.signedUrl,
+        expiresAt: result.expiresAt,
+        preview: false,
+        track: trackMeta,
+      },
+      { headers: responseHeaders }
+    );
+  }
+
+  // Not entitled: serve preview if available (no auth required for preview)
+  if (track.preview_path) {
+    const result = await createSignedAudioUrl(
+      track.preview_path,
+      SIGNED_URL_TTL
+    );
+    if (!result) {
+      return NextResponse.json(
+        { error: "Failed to generate streaming URL" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        url: result.signedUrl,
+        expiresAt: result.expiresAt,
+        preview: true,
+        track: trackMeta,
+      },
+      { headers: responseHeaders }
+    );
+  }
+
+  // No preview available
+  return NextResponse.json(
+    { error: "Purchase required to access this track" },
+    { status: 403 }
   );
 }

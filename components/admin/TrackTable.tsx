@@ -61,9 +61,7 @@ export default function TrackTable({ tracks }: { tracks: Track[] }) {
           >
             <option value="all">All</option>
             <option value="public">Public</option>
-            <option value="subscriber">Subscriber</option>
             <option value="one_off">One-off</option>
-            <option value="hybrid">Hybrid</option>
           </select>
         </div>
         <p className="text-xs text-zinc-600 ml-auto self-center">

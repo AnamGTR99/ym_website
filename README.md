@@ -11,7 +11,6 @@ An immersive digital universe where music releases and physical/digital products
 - **Commerce:** Shopify Storefront API + Cart API
 - **3D:** `<model-viewer>` (GLB)
 - **Hosting:** Vercel
-- **Payments:** Stripe 
 
 ## Getting Started
 

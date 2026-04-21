@@ -5,6 +5,7 @@
 export interface StreamUrlResponse {
   url: string;
   expiresAt: number;
+  preview: boolean;
   track: {
     id: string;
     title: string;
@@ -25,6 +26,9 @@ export async function fetchStreamUrl(
     }
     if (res.status === 404) {
       throw new Error("Track not found");
+    }
+    if (res.status === 403) {
+      throw new Error("Purchase required");
     }
     throw new Error("Failed to get streaming URL");
   }

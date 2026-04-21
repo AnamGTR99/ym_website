@@ -9,7 +9,8 @@ export interface Track {
   duration_seconds: number | null;
   cover_url: string | null;
   audio_path: string;
-  access_type: "public" | "subscriber" | "one_off" | "hybrid";
+  preview_path: string | null;
+  access_type: "public" | "one_off";
   published: boolean;
   created_at: string;
 }
