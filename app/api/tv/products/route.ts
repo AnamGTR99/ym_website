@@ -1,21 +1,23 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { getProducts } from "@/lib/shopify/products";
 
-// Public endpoint — no auth required. Returns cached Shopify products.
+// Public endpoint — no auth required. Fetches products directly from Shopify.
 export async function GET() {
   try {
-    const supabase = createAdminClient();
-    const { data, error } = await supabase
-      .from("product_cache")
-      .select("shopify_id, title, handle, price, image_url")
-      .order("title");
+    const { products } = await getProducts({ first: 50 });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    // Map to the shape the TV grid expects
+    const mapped = products.map((p) => ({
+      shopify_id: p.id,
+      title: p.title,
+      handle: p.handle,
+      price: p.priceRange.minVariantPrice.amount,
+      image_url: p.featuredImage?.url ?? null,
+    }));
 
-    return NextResponse.json(data ?? []);
-  } catch {
-    return NextResponse.json([], { status: 500 });
+    return NextResponse.json(mapped);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
