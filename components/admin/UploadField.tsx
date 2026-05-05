@@ -18,7 +18,6 @@ export default function UploadField({
   maxSizeMB,
   uploadUrl,
   trackId,
-  currentValue,
   onUploaded,
 }: UploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -32,7 +31,6 @@ export default function UploadField({
     async (file: File) => {
       setError(null);
 
-      // Client-side size check
       if (file.size > maxSizeMB * 1024 * 1024) {
         setError(
           `File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max ${maxSizeMB}MB.`
@@ -80,9 +78,7 @@ export default function UploadField({
         xhrRef.current = null;
         onUploaded(result);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Upload failed"
-        );
+        setError(err instanceof Error ? err.message : "Upload failed");
       } finally {
         setUploading(false);
       }
@@ -90,7 +86,6 @@ export default function UploadField({
     [maxSizeMB, trackId, uploadUrl, onUploaded]
   );
 
-  // Abort in-flight XHR on unmount
   useEffect(() => {
     return () => {
       if (xhrRef.current) xhrRef.current.abort();
@@ -111,12 +106,15 @@ export default function UploadField({
     [upload]
   );
 
+  // Format accepted types for display
+  const formatTypes = accept
+    .split(",")
+    .map((t) => t.split("/")[1]?.toUpperCase())
+    .filter(Boolean)
+    .join(", ");
+
   return (
     <div>
-      <label className="block text-xs font-mono text-zinc-500 uppercase tracking-wider mb-1">
-        {label}
-      </label>
-
       {/* Drop zone */}
       <div
         onDragOver={(e) => {
@@ -126,29 +124,29 @@ export default function UploadField({
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
-        className={`border border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+        className={`border border-dashed rounded-md p-4 text-center cursor-pointer transition-all ${
           dragOver
-            ? "border-white bg-zinc-800/50"
-            : "border-zinc-700 hover:border-zinc-500"
+            ? "border-amber-500 bg-amber-900/10"
+            : "border-zinc-700 hover:border-zinc-500 hover:bg-zinc-800/30"
         }`}
       >
         {uploading ? (
           <div className="space-y-2">
-            <p className="text-sm text-zinc-400">Uploading... {progress}%</p>
-            <div className="w-full bg-zinc-800 rounded-full h-1.5">
+            <p className="text-xs text-zinc-400 font-mono">
+              Uploading... {progress}%
+            </p>
+            <div className="w-full bg-zinc-800 rounded-full h-1">
               <div
-                className="bg-white h-1.5 rounded-full transition-all duration-300"
+                className="bg-amber-500 h-1 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
         ) : (
           <div>
-            <p className="text-sm text-zinc-400">
-              Drop file here or click to browse
-            </p>
-            <p className="text-xs text-zinc-600 mt-1">
-              {accept} &middot; Max {maxSizeMB}MB
+            <p className="text-xs text-zinc-400">{label}</p>
+            <p className="text-[10px] text-zinc-600 mt-1">
+              {formatTypes} · Max {maxSizeMB}MB
             </p>
           </div>
         )}
@@ -162,17 +160,7 @@ export default function UploadField({
         />
       </div>
 
-      {/* Current file indicator */}
-      {currentValue && !uploading && (
-        <p className="text-xs text-zinc-500 mt-1 truncate">
-          Current: {currentValue}
-        </p>
-      )}
-
-      {/* Error */}
-      {error && (
-        <p className="text-xs text-red-400 mt-1">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-400 mt-1.5">{error}</p>}
     </div>
   );
 }
