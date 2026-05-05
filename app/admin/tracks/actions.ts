@@ -136,3 +136,45 @@ export async function updateTrack(trackId: string, input: TrackFormData) {
 
   revalidatePath("/admin/tracks");
 }
+
+export async function deleteTrack(trackId: string) {
+  await verifyAdmin();
+
+  if (!UUID_RE.test(trackId)) throw new Error("Invalid track ID");
+
+  const admin = createAdminClient();
+
+  // Remove product links first
+  await admin.from("track_product_map").delete().eq("track_id", trackId);
+
+  // Remove entitlements
+  await admin.from("entitlements").delete().eq("track_id", trackId);
+
+  // Delete audio files from storage (best-effort)
+  const { data: track } = await admin
+    .from("tracks")
+    .select("audio_path, preview_path")
+    .eq("id", trackId)
+    .single();
+
+  if (track?.audio_path && track.audio_path !== "pending") {
+    await admin.storage.from("audio").remove([track.audio_path]);
+  }
+  if (track?.preview_path) {
+    await admin.storage.from("audio").remove([track.preview_path]);
+  }
+
+  // Delete cover from storage
+  const extensions = ["jpg", "png", "webp"];
+  await admin.storage
+    .from("covers")
+    .remove(extensions.map((ext) => `${trackId}.${ext}`));
+
+  // Delete the track record
+  const { error } = await admin.from("tracks").delete().eq("id", trackId);
+
+  if (error) throw new Error("Failed to delete track");
+
+  revalidatePath("/admin/tracks");
+  revalidatePath("/admin");
+}
