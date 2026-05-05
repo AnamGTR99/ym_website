@@ -1,29 +1,33 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { DM_Sans, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import AuthProvider from "@/components/providers/AuthProvider";
 import FloatingUI from "@/components/ui/FloatingUI";
-import CartPanel from "@/components/cart/CartPanel";
-import GlobalAudioPlayer from "@/components/music/GlobalAudioPlayer";
 import CustomCursor from "@/components/env/LandingCursor";
 import "./globals.css";
 
+const CartPanel = dynamic(() => import("@/components/cart/CartPanel"));
+const GlobalAudioPlayer = dynamic(
+  () => import("@/components/music/GlobalAudioPlayer")
+);
+
 const sans = IBM_Plex_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "600", "700"],
   variable: "--font-ym-sans",
   display: "swap",
 });
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600"],
   variable: "--font-ym-mono",
   display: "swap",
 });
 
 const display = DM_Sans({
   subsets: ["latin"],
-  weight: ["700", "800", "900"],
+  weight: ["800"],
   variable: "--font-ym-display",
   display: "swap",
 });
@@ -61,6 +65,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable} ${display.variable}`}>
+      <head>
+        <link rel="prefetch" href="https://www.gstatic.com/draco/versioned/decoders/1.5.7/draco_wasm_wrapper.js" />
+        <link rel="prefetch" href="https://www.gstatic.com/draco/versioned/decoders/1.5.7/draco_decoder.wasm" />
+      </head>
       <body className="bg-void text-dust antialiased font-body">
         <AuthProvider>
           {children}

@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { QualityTier } from "@/lib/gpu-tier";
 
 type Scene = "landing" | "transition" | "room" | "tv" | "credits";
 
@@ -10,6 +11,7 @@ interface EnvState {
   // by GlobalAudioPlayer / FloatingUI to get out of the way while the
   // in-CRT UI takes over.
   tvZoomed: boolean;
+  gpuTier: QualityTier;
   setScene: (scene: Scene) => void;
   /**
    * Fade to black, then run `onComplete` (which typically navigates).
@@ -25,6 +27,7 @@ interface EnvState {
   openCredits: () => void;
   closeCredits: () => void;
   setTvZoomed: (v: boolean) => void;
+  setGpuTier: (tier: QualityTier) => void;
   sceneReady: boolean;
   setSceneReady: (v: boolean) => void;
 }
@@ -38,10 +41,12 @@ export const useEnvStore = create<EnvState>((set) => ({
   transitioning: false,
   showCredits: false,
   tvZoomed: false,
+  gpuTier: "medium",
   sceneReady: false,
 
   setScene: (scene) => set({ currentScene: scene }),
   setTvZoomed: (v) => set({ tvZoomed: v }),
+  setGpuTier: (tier) => set({ gpuTier: tier }),
   setSceneReady: (v) => set({ sceneReady: v }),
 
   startTransition: (to, onComplete, durationMs = DEFAULT_TRANSITION_DURATION) => {

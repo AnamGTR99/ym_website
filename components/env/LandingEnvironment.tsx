@@ -147,7 +147,7 @@ export default function LandingEnvironment() {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             className="w-full h-full object-cover animate-film-flicker"
             style={{
               filter: "brightness(0.42) saturate(0.35) contrast(1.15) sepia(0.1) hue-rotate(190deg)",

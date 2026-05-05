@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEnvStore } from "@/stores/env";
+import { detectGPUProfile } from "@/lib/gpu-tier";
 import HotspotZone, { type HotspotConfig } from "./HotspotZone";
 import CreditsOverlay from "./CreditsOverlay";
 
@@ -52,6 +53,13 @@ export default function RoomEnvironment() {
   const startTransition = useEnvStore((s) => s.startTransition);
   const showCredits = useEnvStore((s) => s.showCredits);
   const openCredits = useEnvStore((s) => s.openCredits);
+  const gpuTier = useEnvStore((s) => s.gpuTier);
+
+  useEffect(() => {
+    detectGPUProfile().then((profile) => {
+      useEnvStore.getState().setGpuTier(profile.tier);
+    });
+  }, []);
 
   const handleHotspot = useCallback(
     (id: string) => {
@@ -76,19 +84,25 @@ export default function RoomEnvironment() {
       {/* Cinematic loader — full-screen, covers everything until scene ready */}
       <LoadingOverlay />
 
-      {/* Mobile fallback — 2D hotspots over static gradient */}
+      {/* Mobile — 3D scene on capable devices, 2D hotspot fallback otherwise */}
       <div className="md:hidden absolute inset-0">
-        <div className="w-full h-full bg-gradient-to-br from-void via-abyss to-void" />
-        <div className="absolute inset-0">
-          {HOTSPOTS_MOBILE.map((hotspot) => (
-            <HotspotZone
-              key={hotspot.id}
-              config={hotspot}
-              onClick={handleHotspot}
-              disabled={transitioning}
-            />
-          ))}
-        </div>
+        {gpuTier === "fallback" ? (
+          <>
+            <div className="w-full h-full bg-gradient-to-br from-void via-abyss to-void" />
+            <div className="absolute inset-0">
+              {HOTSPOTS_MOBILE.map((hotspot) => (
+                <HotspotZone
+                  key={hotspot.id}
+                  config={hotspot}
+                  onClick={handleHotspot}
+                  disabled={transitioning}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          <MotelRoomScene />
+        )}
       </div>
 
       {/* Atmospheric overlays — stack over canvas for brand consistency */}

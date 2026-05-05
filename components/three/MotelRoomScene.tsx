@@ -5,8 +5,10 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
   AdaptiveDpr,
   AdaptiveEvents,
+  BakeShadows,
   Html,
   OrbitControls,
+  PerformanceMonitor,
   Preload,
   useGLTF,
 } from "@react-three/drei";
@@ -14,7 +16,6 @@ import {
   EffectComposer,
   Bloom,
   BrightnessContrast,
-  DepthOfField,
   N8AO,
   Noise,
   Outline,
@@ -257,6 +258,10 @@ const _cameraAnimFrom = { position: new THREE.Vector3(), lookAt: new THREE.Vecto
 let _cameraAnimating = false;
 let _zoomedToTV = false;
 const _zoomListeners = new Set<(zoomed: boolean) => void>();
+
+/** Performance tier: 1 = full, 0.5 = reduced, 0 = minimum */
+let _perfTier = 1;
+function getPerfTier() { return _perfTier; }
 
 // When set, the global BackButton defers to this handler first. Used by
 // TV sub-views (e.g. product detail) to intercept "back" so it returns
@@ -850,6 +855,7 @@ function GLBRoom({
         + (Math.random() < 0.04 ? (Math.random() - 0.5) * 0.3 : 0);
       bulbSpot.intensity = base * flicker;
     }
+    state.invalidate();
   });
 
   /* ---- Screen flicker — bright white CRT bursts (dimmed when HTML overlay active) ---- */
@@ -858,7 +864,6 @@ function GLBRoom({
     if (!mesh) return;
     const mat = mesh.material as THREE.MeshStandardMaterial;
     if (!mat) return;
-
 
     const t = state.clock.elapsedTime;
     // Base hum with bright white flashes
@@ -870,6 +875,7 @@ function GLBRoom({
     // Shift color toward pure white on flashes
     const whiteness = flash > 0.5 ? 1.0 : 0.85 + Math.sin(t * 7) * 0.15;
     mat.emissive.setRGB(whiteness, whiteness, whiteness);
+    state.invalidate();
   });
 
   /* ---- Interaction handlers ---- */
@@ -984,7 +990,8 @@ function GLBRoom({
   /* ---- Hover glow — emissive glow from within on hovered meshes ---- */
   const glowState = useRef({ tv: 0, poster: 0, prevTv: 0, prevPoster: 0, logged: false });
 
-  useFrame(() => {
+  useFrame((state) => {
+    state.invalidate();
     if (!model) return;
 
     const tvTarget = _glowTarget === "tv" && !_zoomedToTV ? 1 : 0;
@@ -1123,6 +1130,7 @@ function Hotspot({ position, args, color, glowColor, label, onClick, disabled }:
     const mat = meshRef.current.material as THREE.MeshStandardMaterial;
     const base = hovered ? 0.8 : 0.25;
     mat.emissiveIntensity = base + Math.sin(t * 2) * 0.08;
+    state.invalidate();
   });
 
   return (
@@ -1182,7 +1190,7 @@ function DustParticles() {
     return [pos, vel];
   }, []);
 
-  useFrame(() => {
+  useFrame((state) => {
     if (!pointsRef.current) return;
     const geo = pointsRef.current.geometry;
     const posAttr = geo.attributes.position as THREE.BufferAttribute;
@@ -1202,6 +1210,7 @@ function DustParticles() {
       if (arr[i * 3 + 2] < -half) arr[i * 3 + 2] = half;
     }
     posAttr.needsUpdate = true;
+    state.invalidate();
   });
 
   return (
@@ -1237,6 +1246,7 @@ function LightCone({ position }: { position: [number, number, number] }) {
     const t = state.clock.elapsedTime;
     // Subtle flicker matching the lamp
     mat.opacity = 0.06 + Math.sin(t * 4.3) * 0.01 + Math.sin(t * 7.1) * 0.005;
+    state.invalidate();
   });
 
   return (
@@ -2761,27 +2771,24 @@ function PostProcessingStack() {
     return { baseSelection: base, hoverSelection: hover };
   }, [hoverTarget, outlineTargetsReady]);
 
+  const perfTier = getPerfTier();
+
   return (
     <EffectComposer multisampling={0} enabled>
       <SMAA />
 
       <N8AO
         aoRadius={1.2}
-        intensity={4}
+        intensity={perfTier >= 1 ? 4 : 0}
         distanceFalloff={0.8}
         halfRes
       />
 
       <Bloom
-        intensity={0.05}
+        intensity={perfTier >= 0.5 ? 0.05 : 0}
         luminanceThreshold={0.95}
         luminanceSmoothing={0.01}
-        mipmapBlur
-      />
-      <DepthOfField
-        focusDistance={0.02}
-        focalLength={0.008}
-        bokehScale={0.3}
+        mipmapBlur={perfTier >= 1}
       />
       <BrightnessContrast brightness={-0.03} contrast={0.15} />
       <primitive object={splitToning} dispose={null} />
@@ -2792,8 +2799,8 @@ function PostProcessingStack() {
         visibleEdgeColor={0xffffff}
         hiddenEdgeColor={0xffffff}
         edgeStrength={6}
-        width={2000}
-        kernelSize={KernelSize.VERY_LARGE}
+        width={perfTier >= 1 ? 1600 : 1200}
+        kernelSize={perfTier >= 1 ? KernelSize.LARGE : KernelSize.MEDIUM}
         blur
         xRay={false}
         pulseSpeed={0}
@@ -2803,9 +2810,9 @@ function PostProcessingStack() {
         selection={hoverSelection}
         visibleEdgeColor={0x00e5ff}
         hiddenEdgeColor={0x00e5ff}
-        edgeStrength={16}
-        width={2400}
-        kernelSize={KernelSize.HUGE}
+        edgeStrength={perfTier >= 1 ? 14 : 10}
+        width={perfTier >= 1 ? 2000 : 1600}
+        kernelSize={perfTier >= 1 ? KernelSize.VERY_LARGE : KernelSize.LARGE}
         blur
         xRay
         pulseSpeed={0.6}
@@ -2851,6 +2858,7 @@ function CameraParallax() {
       controls.target.y = baseTarget.current.y - smoothMouse.current.y * 0.5;
       controls.update();
     }
+    state.invalidate();
   });
 
   return null;
@@ -2895,6 +2903,7 @@ function CameraAnimator() {
         _cameraAnimOnComplete = null;
       }
     }
+    state.invalidate();
   });
 
   return null;
@@ -2902,12 +2911,13 @@ function CameraAnimator() {
 
 function CameraTracker() {
   const { camera } = useThree();
-  useFrame(() => {
+  useFrame((state) => {
     _camPos = [camera.position.x, camera.position.y, camera.position.z];
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
     const target = camera.position.clone().add(dir.multiplyScalar(10));
     _camTarget = [target.x, target.y, target.z];
+    state.invalidate();
   });
   return null;
 }
@@ -2943,10 +2953,11 @@ function RendererSync() {
   }, [gl, exposure]);
 
   // Lerp toward brighter when TV zoomed, back to base when unzoomed
-  useFrame(() => {
+  useFrame((state) => {
     const target = zoomedRef.current ? exposure * 1.4 : exposure;
     currentExposureRef.current += (target - currentExposureRef.current) * 0.025;
     gl.toneMappingExposure = currentExposureRef.current;
+    state.invalidate();
   });
 
   return null;
@@ -2967,7 +2978,7 @@ function HoverGlow() {
   const searchCount = useRef(0);
 
   // Find the meshes by traversing the live scene
-  useFrame(() => {
+  useFrame((state) => {
     // Search periodically until we find meshes (every 60 frames ≈ once per second)
     if (!crtMesh.current && searchCount.current < 600) {
       searchCount.current++;
@@ -3031,6 +3042,7 @@ function HoverGlow() {
       );
       mat.emissiveIntensity = orig.intensity + g * 1.5;
     }
+    state.invalidate();
   });
 
   return null;
@@ -3103,6 +3115,7 @@ function Scene() {
       <Preload all />
       <AdaptiveDpr pixelated />
       <AdaptiveEvents />
+      <BakeShadows />
 
       {/* ---- Deferred: HDR env map + post-processing (after model loads) ---- */}
       {modelReady && d.hdr && <HDREnvironment />}
@@ -3489,13 +3502,15 @@ export default function MotelRoomScene() {
       <TVHint />
       <BackButton />
       <Canvas
+        frameloop="demand"
         shadows="soft"
         camera={{ position: ACTIVE_CAMERA.position, fov: CAMERA_FOV }}
-        dpr={[0.75, 1]}
+        dpr={[0.75, 1.5]}
         performance={{ min: 0.5 }}
         gl={{
           antialias: false,
           alpha: false,
+          stencil: false,
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 0.5, // synced via RendererSync
@@ -3503,9 +3518,16 @@ export default function MotelRoomScene() {
         }}
         style={{ background: "#050505" }}
       >
-        <Suspense fallback={null}>
-          <Scene />
-        </Suspense>
+        <PerformanceMonitor
+          onDecline={() => { _perfTier = Math.max(0, _perfTier - 0.5); }}
+          onIncline={() => { _perfTier = Math.min(1, _perfTier + 0.5); }}
+          flipflops={3}
+          onFallback={() => { _perfTier = 0; }}
+        >
+          <Suspense fallback={null}>
+            <Scene />
+          </Suspense>
+        </PerformanceMonitor>
       </Canvas>
     </div>
   );
