@@ -59,6 +59,10 @@ next-env.d.ts
 # project docs (local only)
 /docs/
 
+# internal planning and client reference files
+/NEW_STRAT/
+/from_client/
+
 # browser-use agent (Python tooling)
 /browser-use-agent/
 

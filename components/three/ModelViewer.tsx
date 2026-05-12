@@ -25,17 +25,10 @@ export default function ModelViewer({ src, poster, alt }: ModelViewerProps) {
     const el = viewerRef.current;
     if (!el) return;
 
-    console.log("[ModelViewer] Loading model:", src);
-    const t0 = performance.now();
-
     const onLoad = () => {
-      console.log(
-        `[ModelViewer] Model loaded in ${(performance.now() - t0).toFixed(0)}ms — ${src}`
-      );
       setLoaded(true);
     };
     const onError = () => {
-      console.warn("[ModelViewer] Failed to load model:", src);
       setError(true);
     };
 

@@ -1,6 +1,9 @@
 {
   "name": "ym-website",
   "version": "0.1.0",
+  "description": "Yunmakai — immersive digital universe combining interactive 3D scenes, music streaming, and e-commerce",
+  "author": "Yunmakai",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -459,7 +459,6 @@ function BulbSpotLight({
       light.target = target;
       scene.add(target);
       spotRef.current = light;
-      console.log("[MotelRoom] Bulb spot light wired — pos:", position, "target:", [position[0], position[1] - 3, position[2]]);
     }
     return () => {
       if (target) scene.remove(target);
@@ -783,36 +782,20 @@ function GLBRoom({
     try {
       gl.compile(rootScene, camera);
     } catch (e) {
-      console.warn("[MotelRoom] renderer.compile() threw:", e);
+      // compile() can throw on some GPUs — non-fatal
     }
 
     // Now the model is in the scene — find the bulb's actual world position
     model.updateMatrixWorld(true);
-    let foundBulb = false;
-    const allNames: string[] = [];
     model.traverse((obj) => {
-      if (obj.name) allNames.push(`${obj.name} [${obj.type}]`);
       const nameLower = obj.name.toLowerCase();
       if (obj instanceof THREE.Mesh && (nameLower.includes("bombillo") || nameLower.includes("bulb"))) {
         const wp = new THREE.Vector3();
         obj.getWorldPosition(wp);
-        console.log(`[MotelRoom] Found bulb mesh "${obj.name}" at:`, wp.toArray());
         setBulbPos([wp.x, wp.y, wp.z]);
         bulbMeshRef.current = obj;
         _bulbMesh = obj;
-        foundBulb = true;
       }
-    });
-    if (!foundBulb) {
-      console.warn("[MotelRoom] No bulb mesh found! All objects in GLB:", allNames);
-    }
-    console.log("[MotelRoom] Debug state:", {
-      lamp: useDebug.getState().lamp,
-      ambient: useDebug.getState().ambient,
-      exposure: useDebug.getState().exposure,
-      tvGlow: useDebug.getState().tvGlow,
-      glbLight: useDebug.getState().glbLight,
-      hdrIntensity: useDebug.getState().hdrIntensity,
     });
 
     addLog("scene ready \u2713");
@@ -2685,11 +2668,11 @@ function HDREnvironment() {
         tex.mapping = THREE.EquirectangularReflectionMapping;
         scene.environment = tex;
         scene.environmentIntensity = hdrIntensity;
-        console.log("[MotelRoom] HDR environment map loaded");
+        // HDR environment map loaded
       },
       undefined,
       () => {
-        console.warn("[MotelRoom] HDR not found at", HDR_PATH, "— skipping env map");
+        // HDR not found — skipping env map
       }
     );
 
@@ -3345,8 +3328,6 @@ function DebugPanel() {
               lookAt: _camTarget.map((n) => +n.toFixed(3)),
             },
           };
-          console.log("=== SCENE VALUES ===");
-          console.log(JSON.stringify(values, null, 2));
           navigator.clipboard?.writeText(JSON.stringify(values, null, 2));
         }}
         style={{
